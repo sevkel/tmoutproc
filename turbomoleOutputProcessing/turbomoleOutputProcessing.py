@@ -67,14 +67,15 @@ def measure_difference(matrix1, matrix2):
 	Returns: 
 		tuple of floats (min_error,max_error,avg_error,var_error)
 	"""
+	diff = (np.abs(matrix1-matrix2))
 	min_error = np.min(diff)
-	print("min "  + str(min))
+	print("min "  + str(min_error))
 	max_error = np.max(diff)
-	print("max "  + str(max))
+	print("max "  + str(max_error))
 	avg_error = np.mean(diff)
-	print("avg "  + str(avg))
-	var_error = np.sqrt(np.std(diff))
-	print("var "  + str(var))
+	print("avg "  + str(avg_error))
+	var_error = np.var(diff)
+	print("var "  + str(var_error))
 	return min_error,max_error,avg_error,var_error
 
 
