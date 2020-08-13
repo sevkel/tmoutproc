@@ -1,3 +1,7 @@
+"""
+Package for processing turbomole Output such as mos files
+"""
+
 
 import numpy as np
 import math
@@ -14,23 +18,55 @@ from multiprocessing import Pool
 
 
 def outer_product(vector1, vector2):
-	#print("length " + str(len(vector1)))	
-	#print(np.outer(vector1,vector2))
+	"""
+	Calculates out product
+
+	Args:
+		param1 (np.array) : vector1
+		param2 (np.array) : vector2
+
+	Returns:
+		np.ndarray
+
+	"""
 	return np.outer(vector1,vector2)
 
-#return string of float f with giben precision prec and number of digits in exponent exp_digits
+
 def eformat(f, prec, exp_digits):
+	
     s = "%.*e"%(prec, f)
+	#s ="hallo"
     mantissa, exp = s.split('e')
     # add 1 to digits as 1 is taken by sign +/-
     return "%sE%+0*d"%(mantissa, exp_digits+1, int(exp))
 
-# gives a measure of asymmetry by calculatin max(|matrix-matrix^T|) (absvalue elementwise)
-def measure_asymmetry(matrix):
+
+def measure_asymmetry(matrix):	
+	""" 
+	gives a measure of asymmetry by calculatin max(|matrix-matrix^T|) (absvalue elementwise)
+
+	Args:
+		param1 (np.ndarray) : Input Matrix
+
+	Returns:
+		float
+
+	"""	
+
 	return np.max(np.abs(matrix-np.transpose(matrix)))
 
-#gives a measure of difference of two matrices 
+ 
 def measure_difference(matrix1, matrix2):
+	"""
+	gives a measure of difference of two matrices
+
+	Args:
+		param1 (np.ndarray) : matrix1
+		param2 (np.ndarray) : matrix2
+
+	Returns: 
+		tuple of floats (min_error,max_error,avg_error,var_error)
+	"""
 	min_error = np.min(diff)
 	print("min "  + str(min))
 	max_error = np.max(diff)
@@ -44,10 +80,23 @@ def measure_difference(matrix1, matrix2):
 
 
 
-#calculates the A matrix using mos file, reads eigenvalues from qpenergies (->DFT eigenvalues), input: mosfile and prefixlength (number of lines in the beginning), eigenvalue source (qpenergiesKS or qpenergiesGW), 
-#if eigenvalue_path is specified you can give custom path to qpenergies and col to read
-#returns matrix in scipy.sparse.csc_matrix and eigenvalue list
+
 def calculate_A(filename,prefix_length=2, eigenvalue_source = "mos", eigenvalue_path = "", eigenvalue_col = 2):
+	"""
+	calculates the A matrix using mos file, reads eigenvalues from qpenergies (->DFT eigenvalues), input: mosfile and prefixlength (number of lines in the beginning), eigenvalue source (qpenergiesKS or qpenergiesGW), 
+	if eigenvalue_path is specified you can give custom path to qpenergies and col to read
+	returns matrix in scipy.sparse.csc_matrix and eigenvalue list
+
+	Args:
+		param1 (string) : filename
+		param2 (int) : prefix_length (number of skipped lines in mos file)
+		param3 (string) : eigenvalue_source="mos" (choose eigenvalue source. If not changed: mos file. "qpenergiesKS" or "qpenergiesGW" : taken from ./data/qpenergies.dat)
+		param4 (string) : eigenvalue_path="" (if specified: eigenvalues are taken from qpenergies file with given path)
+		param5 (int) : eigenvalue_col (if eigenvalue_path is specified the eigenvalue_col in qpenergies is taken (KS=2, GW=3))
+
+	Returns:
+		tuple A_i (scipy.sparse.csc_matrix) ,eigenvalue_list (list)
+	"""
 	#length of each number
 	n = 20
 	level = 0
@@ -141,9 +190,18 @@ def calculate_A(filename,prefix_length=2, eigenvalue_source = "mos", eigenvalue_
 	print("------------------------")	
 	return A_i,eigenvalue_list
 
-#read packed symmetric matrix from file and creates matrix
-#returns matrix in scipy.sparse.csc_matrix
-def read_packed_matrix(filename):	
+
+def read_packed_matrix(filename):
+	"""
+	read packed symmetric matrix from file and creates matrix
+	returns matrix in scipy.sparse.csc_matrix
+	Args:
+		param1 (string) : filename
+
+	Returns:
+		scipy.sparse.csc_matrix
+
+	"""	
 	#matrix data
 	data = []
 	#matrix rows, cols
@@ -215,8 +273,18 @@ def read_packed_matrix(filename):
 
 
 
-#write symmetric scipy.sparse.csc_matrix in  in packed storage form
+
 def write_matrix_packed(matrix, filename="test"):
+	"""
+	write symmetric scipy.sparse.csc_matrix in  in packed storage form
+
+	Args:
+		param1 (scipi.sparse.csc_matrix) : input matrix
+		param2 (string) : filename
+
+	Returns:
+
+	"""
 	print("writing packed matrix")
 	num_rows = matrix.shape[0]
 	num_elements_to_write = (num_rows**2+num_rows)/2
@@ -246,9 +314,20 @@ def write_matrix_packed(matrix, filename="test"):
 	f.close()
 	print("writing done")
 
-#read qpenergies.dat and returns data of given col as list, skip_lines in beginning of file, convert to eV
-#col = 0 qpenergies, col = 1 Kohn-Sham, 2 = GW
+
 def read_qpenergies(filename, col=1, skip_lines=1):
+	"""
+	read qpenergies.dat and returns data of given col as list, skip_lines in beginning of file, convert to eV
+	col = 0 qpenergies, col = 1 Kohn-Sham, 2 = GW
+
+	Args:
+		param1 (string) : filename
+		param2 (int) : col=2 (column to read)
+		param3 (int) : skip_lines=1 (lines without data at beginning of qpenergiesfile)
+
+	Returns:
+		list
+	"""
 
 	har_to_ev = 27.21138602
 	qpenergies = list()	
@@ -268,8 +347,16 @@ def read_qpenergies(filename, col=1, skip_lines=1):
 
 
 
-#write mos file, requires python3
+
 def write_mos_file(eigenvalues, eigenvectors, filename="mos_new.dat"):
+	"""
+	write mos file, requires python3
+
+	Args:
+		param1 (np.array) : eigenvalues
+		param2 (np.ndarray) : eigenvectors
+		param3 (string) : filename="mos_new.dat"
+	"""
 	f = open(filename, "w")
 	#header
 	f.write("$scfmo    scfconv=7   format(4d20.14)\n")
@@ -293,7 +380,18 @@ def write_mos_file(eigenvalues, eigenvectors, filename="mos_new.dat"):
 	f.close()
 
 def read_mos_file(filename, skip_lines=1):
-	#length of each number
+	"""
+	read mos file 
+
+	Args:
+		param1 (string) : filename
+		param2 (int) : skip_lines=1 (lines to skip )
+
+	Returns:
+		eigenvalue_list (list),eigenvector_list (np.ndarray)
+
+
+	"""
 	n = 20
 	level = 0
 	C_vec = list()	
@@ -356,8 +454,16 @@ def read_mos_file(filename, skip_lines=1):
 	return eigenvalue_list,eigenvector_list
 
 
-#helper function for trace_mo
+
 def scalarproduct(index_to_check, para):	
+	"""
+	helper function for trace_mo
+
+
+	Args:
+		param1 (int) : index_to_check (index of mo)
+		param2 (tuple) : input parameter
+	"""
 	ref_mos = para[0]
 	input_mos = para[1]
 	#abweichung von urspruenglicher Position
@@ -403,10 +509,20 @@ def scalarproduct(index_to_check, para):
 	return most_promising
 	
 
-#traces mos from input_mos with reference to ref_mos (eg when order has changed) 
-#calculates the scalarproduct of input mos with ref_mos and takes the highest match (close to 1)
-#ref_mos, input_mos : eigenvectors, tolerance maximum difference in mo index			
+			
 def trace_mo(ref_mos, input_mos, tolerance=-1):	
+	"""
+	traces mos from input_mos with reference to ref_mos (eg when order has changed) 
+	calculates the scalarproduct of input mos with ref_mos and takes the highest match (close to 1)
+
+	Args:
+		param1 (np.ndarray) : ref_mos
+		param2 (np.ndarray) : input_mos
+		param3 (int) : tolerance = -1 (if specified a maximum shift of mo index (+-tolerance) is assumed -> saves computation time)
+
+	Returns:
+		list (index with highest match)
+	"""
 	input_mos_list = list()
 	#prepare
 	for i in range(0, ref_mos.shape[0]):
@@ -428,8 +544,17 @@ def trace_mo(ref_mos, input_mos, tolerance=-1):
 
 
 
-#diagonalizes f mat, other eigenvalues can be used (eigenvalue_list)
 def diag_F(path, eigenvalue_list = list()):
+	"""
+	diagonalizes f mat, other eigenvalues can be used (eigenvalue_list)
+	Args:
+		param1 (string) : filename of fmat
+		param2 (list()) : eigenvalue_list (if specified eigenvalues are taken from eigenvalue_list)
+
+	Returns:
+		fmat (np.ndarray)
+
+	"""
 
 	print("read f")
 	F_mat_file = read_packed_matrix(path)
