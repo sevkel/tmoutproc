@@ -473,52 +473,37 @@ def scalarproduct(index_to_check, para):
 	#print(ref_mos)	
 	candidate_list = list()
 	index_list = list()
-
-	#s_mat = read_packed_matrix("./data/smat_ao.dat")
-	for i in range(0, ref_mos.shape[1]):		
-		#print("scalar " + str(float(scalar_product)))		
-		if(index_to_check == 1127 and False):
-
-			#print("ref mos " + str(ref_mos.shape[1]))
-			scalar_product = list(np.dot(s_mat, ref_mos[:,1127]).flat)
-			#print("scalar produce shapeo " + str(scalar_product.shape))
-			scalar_product = np.dot(np.transpose(input_mos[:,index_to_check]), scalar_product)
-			#print(str(i) + "  " + str(scalar_product))
-
+	traced = False
+	for i in range(0, ref_mos.shape[1]):	
 		if(tolerance != -1  and (i < index_to_check+tolerance) and (i > index_to_check-tolerance)):
-			#print("treffer")
-			#print("ref mos shape " + str(ref_mos[:,i].shape))
-			#print("smat shape oben " + str(s_mat.shape))
-			#print(type(ref_mos[:,i]).__name__)
 			scalar_product = list(np.dot(s_mat, ref_mos[:,i]).flat)
-			#print("scalar produce shapeo " + str(scalar_product.shape))
 			scalar_product = np.dot(np.transpose(input_mos[:,index_to_check]), scalar_product)
 			
-			#if(np.isclose(1.0,float(scalar_product),rtol = 0.1,atol=0.6)):
-			if(np.abs(np.abs(float(scalar_product))-1)<0.5):
+			if(np.abs(np.abs(float(scalar_product))-1)<0.9):
 				#print("scalar " + str(float(scalar_product)))	
 				candidate_list.append(scalar_product)
 				index_list.append(i)
+				traced = True
 		elif(tolerance == -1):
-			#print("ref mos shape " + str(ref_mos[:,i].shape))
-			#print("smat shape oben " + str(s_mat.shape))
-
 			scalar_product = list(np.dot(s_mat, ref_mos[:,i]).flat)
-			#print("scalar produce shapeo " + str(scalar_product.shape))
 			scalar_product = np.dot(np.transpose(input_mos[:,index_to_check]), scalar_product)
-			#print("scalar " + str(float(scalar_product)))	
-			if(np.abs(np.abs(float(scalar_product))-1)<0.5):
+
+			if(np.abs(np.abs(float(scalar_product))-1)<0.9):
+				traced = True
 				candidate_list.append(scalar_product)
 				index_list.append(i)
-		#if they cannot be traced
-		if(len(candidate_list) == 0):
-			#print("abkuerz")
-			candidate_list.append(-1)
-			index_list.append(-1)
+	#if they cannot be traced
+	if(traced==False):
+		candidate_list.append(-1)
+		index_list.append(-1)
 	#print("most_promising " + str(index_list))	
+	if(traced == False):
+		#print("not found " + str(index_to_check))
+		pass
+	traced = False
 	most_promising = [x for _,x in sorted(zip(candidate_list,index_list))]
 	most_promising = most_promising[-1]
-	print(str(index_to_check) + "  " + str(most_promising))
+	#print(str(index_to_check) + "  " + str(most_promising))
 	return most_promising
 	
 
@@ -611,16 +596,6 @@ def diag_F(f_mat_path, s_mat_path, eigenvalue_list = list()):
 	sc = s_mat * eigenvectors
 	f_mat = eigenvalues * np.transpose(sc)
 	f_mat = sc * f_mat
-	#f_mat = a_mat * s_mat
-	#f_mat = s_mat * f_mat
-	#a_mat = np.dot(eigenvalues, np.transpose(eigenvectors))
-	#a_mat = np.dot(eigenvectors, a_mat)
-	
-	#bei generalisierten EW Problem nicht auskommentiert 
-	#f_mat = a_mat * s_mat
-	#f_mat = s_mat * f_mat
-
-
 	print("calc fmat done")
 	
 
