@@ -6,6 +6,7 @@ Package for processing turbomole Output such as mos files
 import numpy as np
 import math
 from scipy.sparse import coo_matrix
+from scipy.sparse.linalg import inv
 import scipy.sparse
 import re as r
 from scipy.sparse.linalg import inv
@@ -58,7 +59,7 @@ def measure_asymmetry(matrix):
  
 def measure_difference(matrix1, matrix2):
 	"""
-	gives a measure of difference of two matrices
+	gives a measure of difference of two symmetric matrices (only upper triangular)
 
 	Args:
 		param1 (np.ndarray) : matrix1
@@ -72,9 +73,9 @@ def measure_difference(matrix1, matrix2):
 	print("min "  + str(min_error))
 	max_error = np.max(diff)
 	print("max "  + str(max_error))
-	avg_error = np.mean(diff)
+	avg_error = np.mean(diff[np.triu_indices(diff.shape[0])])
 	print("avg "  + str(avg_error))
-	var_error = np.var(diff)
+	var_error = np.var(diff[np.triu_indices(diff.shape[0])])
 	print("var "  + str(var_error))
 	return min_error,max_error,avg_error,var_error
 
@@ -267,9 +268,7 @@ def read_packed_matrix(filename):
 	
 	coo = coo_matrix((data, (i, j)), shape=(row+1, row+1))
 	csc = scipy.sparse.csc_matrix(coo, dtype = float)	
-	print("S_mat symmetric: " + str(np.allclose(csc.toarray(), csc.toarray(), 1e-04, 1e-04)))
-	print("S_mat asymmetry measure " + str(measure_asymmetry(csc.toarray())))
-	print("------------------------")
+	
 	return(csc)
 
 
@@ -474,11 +473,33 @@ def scalarproduct(index_to_check, para):
 	#print(ref_mos)	
 	candidate_list = list()
 	index_list = list()
+
 	#s_mat = read_packed_matrix("./data/smat_ao.dat")
 	for i in range(0, ref_mos.shape[1]):		
 		#print("scalar " + str(float(scalar_product)))		
+		if(index_to_check == 1127 and False):
+
+			#print("ref mos " + str(ref_mos.shape[1]))
+			scalar_product = list(np.dot(s_mat, ref_mos[:,1127]).flat)
+			#print("scalar produce shapeo " + str(scalar_product.shape))
+			scalar_product = np.dot(np.transpose(input_mos[:,index_to_check]), scalar_product)
+			#print(str(i) + "  " + str(scalar_product))
+
 		if(tolerance != -1  and (i < index_to_check+tolerance) and (i > index_to_check-tolerance)):
 			#print("treffer")
+			#print("ref mos shape " + str(ref_mos[:,i].shape))
+			#print("smat shape oben " + str(s_mat.shape))
+			#print(type(ref_mos[:,i]).__name__)
+			scalar_product = list(np.dot(s_mat, ref_mos[:,i]).flat)
+			#print("scalar produce shapeo " + str(scalar_product.shape))
+			scalar_product = np.dot(np.transpose(input_mos[:,index_to_check]), scalar_product)
+			
+			#if(np.isclose(1.0,float(scalar_product),rtol = 0.1,atol=0.6)):
+			if(np.abs(np.abs(float(scalar_product))-1)<0.5):
+				#print("scalar " + str(float(scalar_product)))	
+				candidate_list.append(scalar_product)
+				index_list.append(i)
+		elif(tolerance == -1):
 			#print("ref mos shape " + str(ref_mos[:,i].shape))
 			#print("smat shape oben " + str(s_mat.shape))
 
@@ -486,32 +507,23 @@ def scalarproduct(index_to_check, para):
 			#print("scalar produce shapeo " + str(scalar_product.shape))
 			scalar_product = np.dot(np.transpose(input_mos[:,index_to_check]), scalar_product)
 			#print("scalar " + str(float(scalar_product)))	
-			if(np.isclose(float(scalar_product),1.0,atol=0.4)):
-				candidate_list.append(scalar_product)
-				index_list.append(i)
-		elif(tolerance == -1):
-			print("ref mos shape " + str(ref_mos[:,i].shape))
-			print("smat shape oben " + str(s_mat.shape))
-
-			scalar_product = list(np.dot(s_mat, ref_mos[:,i]).flat)
-			#print("scalar produce shapeo " + str(scalar_product.shape))
-			scalar_product = np.dot(np.transpose(input_mos[:,index_to_check]), scalar_product)
-			#print("scalar " + str(float(scalar_product)))	
-			if(np.isclose(float(scalar_product),1.0,atol=0.4)):
+			if(np.abs(np.abs(float(scalar_product))-1)<0.5):
 				candidate_list.append(scalar_product)
 				index_list.append(i)
 		#if they cannot be traced
-		candidate_list.append(-1)
-		index_list.append(-1)
-
+		if(len(candidate_list) == 0):
+			#print("abkuerz")
+			candidate_list.append(-1)
+			index_list.append(-1)
+	#print("most_promising " + str(index_list))	
 	most_promising = [x for _,x in sorted(zip(candidate_list,index_list))]
 	most_promising = most_promising[-1]
-	#print("most_promising " + str(most_promising))	
+	print(str(index_to_check) + "  " + str(most_promising))
 	return most_promising
 	
 
 			
-def trace_mo(ref_mos, input_mos, tolerance=-1):	
+def trace_mo(ref_mos, input_mos, s_mat_path, tolerance=-1, num_cpu = 8):	
 	"""
 	traces mos from input_mos with reference to ref_mos (eg when order has changed) 
 	calculates the scalarproduct of input mos with ref_mos and takes the highest match (close to 1)
@@ -519,7 +531,9 @@ def trace_mo(ref_mos, input_mos, tolerance=-1):
 	Args:
 		param1 (np.ndarray) : ref_mos
 		param2 (np.ndarray) : input_mos
-		param3 (int) : tolerance = -1 (if specified a maximum shift of mo index (+-tolerance) is assumed -> saves computation time)
+		param3 (string) : smat path
+		param4 (int) : tolerance = -1 (if specified a maximum shift of mo index (+-tolerance) is assumed -> saves computation time)
+		param4 (int) : num_cpu (number of cores for calculation)
 
 	Returns:
 		list (index with highest match)
@@ -530,13 +544,14 @@ def trace_mo(ref_mos, input_mos, tolerance=-1):
 		input_mos_list.append(input_mos[:,i])
 	
 	print("filling pool")
-	p = Pool(16)	
-	s_mat = read_packed_matrix("./data/smat_ao.dat").todense()
+	p = Pool(num_cpu)	
+	s_mat = read_packed_matrix(s_mat_path).todense()
 	para = (ref_mos, input_mos, tolerance, s_mat)
 
 	#all eigenvectors
 
-	index_to_check = range(0, input_mos.shape[0])
+	#index_to_check = range(0, input_mos.shape[0])
+	index_to_check = np.arange(0,input_mos.shape[0],1)
 	result = p.map(partial(scalarproduct, para=para), index_to_check)		
 	print("done")
 	return result
@@ -545,32 +560,45 @@ def trace_mo(ref_mos, input_mos, tolerance=-1):
 
 
 
-def diag_F(path, eigenvalue_list = list()):
+def diag_F(f_mat_path, s_mat_path, eigenvalue_list = list()):
 	"""
-	diagonalizes f mat, other eigenvalues can be used (eigenvalue_list)
+	diagonalizes f mat (generalized), other eigenvalues can be used (eigenvalue_list). Solves Fx=l*S*x
 	Args:
 		param1 (string) : filename of fmat
-		param2 (list()) : eigenvalue_list (if specified eigenvalues are taken from eigenvalue_list)
+		param2 (string) : filename of smat
+		param3 (list()) : eigenvalue_list (if specified eigenvalues are taken from eigenvalue_list)
 
 	Returns:
-		fmat (np.ndarray)
+		fmat (np.ndarray), eigenvalues (np.array), eigenvectors (matrix)
 
 	"""
 
 	print("read f")
-	F_mat_file = read_packed_matrix(path)
-	print(F_mat_file.shape)
+	F_mat_file = read_packed_matrix(f_mat_path)
+	print("read s")
+	s_mat = read_packed_matrix(s_mat_path)
+	s_mat_save = s_mat	
 
 	print("diag F")	
 	
-	#def foo(matrix):
-	#	np.linalg.eigh(matrix)
-	#t = timeit.Timer(functools.partial(foo, F_mat_file.todense()))
-	#print("Timing")  
-	#print t.timeit(number = 1)
-	
 
-	eigenvalues, eigenvectors = np.linalg.eigh(F_mat_file.todense())
+	
+	#Konfiguration 1 : Übereinstimmung
+	#eigenvalues, eigenvectors = np.linalg.eigh(F_mat_file.todense())
+
+	#Konfiguration 2 : keine Übereinstimmung (sollte eigentlich das gleiche machen wie np.linalg.eigh)
+	#eigenvalues, eigenvectors = scipy.linalg.eigh(F_mat_file.todense())
+
+	#Konfiguration 3: keine Übereinstimmung (generalierstes EW Problem)
+	eigenvalues, eigenvectors = scipy.linalg.eigh(F_mat_file.todense(), s_mat.todense())
+
+	eigenvectors = np.real(np.asmatrix(eigenvectors))
+	#eigenvectors = np.transpose(eigenvectors)
+	eigenvalues = np.real(eigenvalues)
+	print(eigenvalues)
+	#print("type random")
+	#print(type(eigenvalues).__name__)
+	#print(type(eigenvectors).__name__)
 	print("diag F done")
 
 	print("calc fmat ")
@@ -580,20 +608,24 @@ def diag_F(path, eigenvalue_list = list()):
 	else:		
 		eigenvalues = np.diag(eigenvalue_list)
 
+	sc = s_mat * eigenvectors
+	f_mat = eigenvalues * np.transpose(sc)
+	f_mat = sc * f_mat
+	#f_mat = a_mat * s_mat
+	#f_mat = s_mat * f_mat
+	#a_mat = np.dot(eigenvalues, np.transpose(eigenvectors))
+	#a_mat = np.dot(eigenvectors, a_mat)
+	
+	#bei generalisierten EW Problem nicht auskommentiert 
+	#f_mat = a_mat * s_mat
+	#f_mat = s_mat * f_mat
 
-	a_mat = eigenvalues * np.transpose(eigenvectors)
-	f_mat = eigenvectors * a_mat
+
 	print("calc fmat done")
+	
 
-	#force H_LR = 0
-	'''
-	for i in range(0, len(eigenvalues)):
-		for j in range(0, len(eigenvalues)):
-			if(i > 729 and i < 1128 and j > 129 and j < 528):
-				f_mat[i,j] = 0
-				f_mat[j,i] = 0
-	'''
-	return f_mat
+
+	return f_mat,eigenvalues, eigenvectors
 	
 
 
