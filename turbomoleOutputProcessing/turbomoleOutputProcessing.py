@@ -479,16 +479,16 @@ def scalarproduct(index_to_check, para):
 			scalar_product = list(np.dot(s_mat, ref_mos[:,i]).flat)
 			scalar_product = np.dot(np.transpose(input_mos[:,index_to_check]), scalar_product)
 			
-			if(np.abs(np.abs(float(scalar_product))-1)<0.9):
+			if(np.abs(np.abs(float(scalar_product))-1)<0.999999):
 				#print("scalar " + str(float(scalar_product)))	
-				candidate_list.append(scalar_product)
+				candidate_list.append(abs(scalar_product))
 				index_list.append(i)
 				traced = True
 		elif(tolerance == -1):
 			scalar_product = list(np.dot(s_mat, ref_mos[:,i]).flat)
 			scalar_product = np.dot(np.transpose(input_mos[:,index_to_check]), scalar_product)
 
-			if(np.abs(np.abs(float(scalar_product))-1)<0.9):
+			if(np.abs(np.abs(float(scalar_product))-1)<0.999999):
 				traced = True
 				candidate_list.append(scalar_product)
 				index_list.append(i)
@@ -498,10 +498,12 @@ def scalarproduct(index_to_check, para):
 		index_list.append(-1)
 	#print("most_promising " + str(index_list))	
 	if(traced == False):
-		#print("not found " + str(index_to_check))
+		print("not found " + str(index_to_check))
 		pass
 	traced = False
+	
 	most_promising = [x for _,x in sorted(zip(candidate_list,index_list))]
+	#print(str(index_to_check) + " " + str(most_promising) + " " + str(candidate_list))
 	most_promising = most_promising[-1]
 	#print(str(index_to_check) + "  " + str(most_promising))
 	return most_promising
