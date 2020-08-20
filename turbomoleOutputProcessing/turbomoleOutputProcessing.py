@@ -637,7 +637,7 @@ def calculate_localization_mo_i(c_l, c_r, s_ll, s_lr, s_rr ):
 	Q_r = s_rr * c_r
 	Q_r = np.transpose(c_r) * Q_r
 
-	return (Q_l, Q_r)
+	return Q_l, Q_r
 
 	
 def calculate_localization_mo(c, s_mat, left, right):
@@ -660,7 +660,7 @@ def calculate_localization_mo(c, s_mat, left, right):
 		s_ll = s_mat[left[0]:left[1], left[0]:left[1]]
 		s_lr = s_mat[left[0]:left[1], right[0]:right[1]]
 		s_rr = s_mat[right[0]:right[1], right[0]:right[1]]
-		Q_l, Q_r = calculate_localization_mo_i(i, c[left[0]:left[1];i], c[right[0]:right[1], i], s_ll, s_lr, s_rr)
+		Q_l, Q_r = calculate_localization_mo_i(i, c[left[0]:left[1],i], c[right[0]:right[1], i], s_ll, s_lr, s_rr)
 		localization.append((Q_l,Q_r))
 
 	return localization

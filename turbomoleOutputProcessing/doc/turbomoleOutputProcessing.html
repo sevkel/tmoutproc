@@ -484,58 +484,6 @@ def read_mos_file(filename, skip_lines=1):
 
 
 
-def scalarproduct(index_to_check, para):        
-        &#34;&#34;&#34;
-        helper function for trace_mo
-
-
-        Args:
-                param1 (int) : index_to_check (index of mo)
-                param2 (tuple) : input parameter
-        &#34;&#34;&#34;
-        ref_mos = para[0]
-        input_mos = para[1]
-        #abweichung von urspruenglicher Position
-        tolerance = para[2]
-        s_mat = para[3]
-        most_promising = -1
-        #print(ref_mos) 
-        candidate_list = list()
-        index_list = list()
-        traced = False
-        for i in range(0, ref_mos.shape[1]):    
-                if(tolerance != -1  and (i &lt; index_to_check+tolerance) and (i &gt; index_to_check-tolerance)):
-                        scalar_product = list(np.dot(s_mat, ref_mos[:,i]).flat)
-                        scalar_product = np.dot(np.transpose(input_mos[:,index_to_check]), scalar_product)
-                        
-                        if(np.abs(np.abs(float(scalar_product))-1)&lt;0.9):
-                                #print(&#34;scalar &#34; + str(float(scalar_product)))  
-                                candidate_list.append(scalar_product)
-                                index_list.append(i)
-                                traced = True
-                elif(tolerance == -1):
-                        scalar_product = list(np.dot(s_mat, ref_mos[:,i]).flat)
-                        scalar_product = np.dot(np.transpose(input_mos[:,index_to_check]), scalar_product)
-
-                        if(np.abs(np.abs(float(scalar_product))-1)&lt;0.9):
-                                traced = True
-                                candidate_list.append(scalar_product)
-                                index_list.append(i)
-        #if they cannot be traced
-        if(traced==False):
-                candidate_list.append(-1)
-                index_list.append(-1)
-        #print(&#34;most_promising &#34; + str(index_list))     
-        if(traced == False):
-                #print(&#34;not found &#34; + str(index_to_check))
-                pass
-        traced = False
-        most_promising = [x for _,x in sorted(zip(candidate_list,index_list))]
-        most_promising = most_promising[-1]
-        #print(str(index_to_check) + &#34;  &#34; + str(most_promising))
-        return most_promising
-        
-
                         
 def trace_mo(ref_mos, input_mos, s_mat_path, tolerance=-1, num_cpu = 8):        
         &#34;&#34;&#34;
@@ -570,6 +518,34 @@ def trace_mo(ref_mos, input_mos, s_mat_path, tolerance=-1, num_cpu = 8):
         print(&#34;done&#34;)
         return result
 
+def trace_mo(ref_mos, input_mos, s_mat_path):   
+        &#34;&#34;&#34;
+        traces mos from input_mos with reference to ref_mos (eg when order has changed) 
+        calculates the scalarproduct of input mos with ref_mos and takes the highest match (close to 1)
+
+        Args:
+                param1 (np.ndarray) : ref_mos
+                param2 (np.ndarray) : input_mos
+                param3 (string) : smat path             
+
+        Returns:
+                list (index with highest match)
+        &#34;&#34;&#34;
+                
+        s_mat = read_packed_matrix(s_mat_path).todense()
+        
+        scalar_product_matrix = np.dot(s_mat,np.asarray(input_mos))
+        scalar_product_matrix = np.dot(np.transpose(ref_mos),scalar_product_matrix)
+        scalar_product_matrix = np.abs(scalar_product_matrix)
+        most_promising = list()
+        for i in range(0, scalar_product_matrix.shape[0]):
+                most_promising.append(np.where(scalar_product_matrix[:,i] == scalar_product_matrix[:,i].max())[0][0])
+                #print(scalar_product_matrix[most_promising[i],i])
+                
+        #all eigenvectors
+
+
+        return most_promising
 
 
 
@@ -630,7 +606,93 @@ def diag_F(f_mat_path, s_mat_path, eigenvalue_list = list()):
 
 
         return f_mat,eigenvalues, eigenvectors
-        </code></pre>
+        
+
+def calculate_F_i(i, eigenvalues, eigenvectors, sc_mat):
+        &#34;&#34;&#34;
+        Calculates contribution of mo i to fmat
+        Args:
+                param2 (int) : i (mo which is considered)
+                param2 (list) : eigenvalues
+                param3 (matrix) : eigenvectors
+                param4 (matrix) : s_mat*c_mat
+
+        Returns:
+                F_i (F_i matrix (contribution of mo i to F_mat))
+
+        &#34;&#34;&#34;
+        
+        F_i = eigenvalues[i] * outer_product(sc_mat[:,i], sc_mat[:,i])
+        return F_i
+
+def calculate_F_splitted(eigenvalues, eigenvectors, s_mat_path):
+        &#34;&#34;&#34;
+        Calculates contribution of every mo to fmat 
+        Args:
+                param1 (list) : eigenvalues
+                param2 (matrix) : eigenvectors
+                param3 (string) : path to smat
+
+        Returns:
+                F_i (list of matrices)
+
+        &#34;&#34;&#34;
+        s_mat = read_packed_matrix(s_mat_path).todense()
+        sc_mat = s_mat * np.asmatrix(eigenvectors)
+        F_i = list()
+        for i in range(0, len(eigenvectors)):
+                F_i.append(calculate_F_i(i, eigenvalues, eigenvectors, sc_mat))
+
+        return F_i
+
+def calculate_localization_mo_i(c_l, c_r, s_ll, s_lr, s_rr ):
+        &#34;&#34;&#34;
+        Calculates localization of mo 1 = c_l*s_lr*c_r + c_r*s_lr*c_l+c_l*s_ll*c_l + c_r*s_rr*c_r.
+        The last two summands describe the localization in left and richt part (defined as Q_l and Q_r)
+        Args:
+                param1 (array) : mo_left
+                param2 (array) : m0_right
+                param3 (matrix) : s_ll
+                param4 (matrix) : s_lr
+                param5 (matrix) :  s_rr 
+
+        Returns:
+                (Q_l, Q_r) , tuple (float, float)
+        &#34;&#34;&#34;
+
+        Q_l = s_ll * c_l
+        Q_l = np.transpose(c_l) * Q_l
+
+        Q_r = s_rr * c_r
+        Q_r = np.transpose(c_r) * Q_r
+
+        return Q_l, Q_r
+
+        
+def calculate_localization_mo(c, s_mat, left, right):
+        &#34;&#34;&#34;
+        Calculates localization of mos 1 = c_l*s_lr*c_r + c_r*s_lr*c_l+c_l*s_ll*c_l + c_r*s_rr*c_r.
+        The last two summands describe the localization in left and richt part (defined as Q_l and Q_r)
+        Args:
+                param1 (matrix) : eigencectors
+                param2 (matrix) : s matrix
+                param3 ((int, int)) : left (matrix indices of left part start, matrix indices of left part end)
+                param4 ((int, int)) : right (matrix indices of right part start, matrix indices of right part end)
+                
+
+        Returns:
+                List of tuples (Q_l, Q_r) (Localization of each mo)
+        &#34;&#34;&#34;
+
+        localization = list()
+        for i in range(0, c.shape[0]):
+                s_ll = s_mat[left[0]:left[1], left[0]:left[1]]
+                s_lr = s_mat[left[0]:left[1], right[0]:right[1]]
+                s_rr = s_mat[right[0]:right[1], right[0]:right[1]]
+                Q_l, Q_r = calculate_localization_mo_i(i, c[left[0]:left[1],i], c[right[0]:right[1], i], s_ll, s_lr, s_rr)
+                localization.append((Q_l,Q_r))
+
+        return localization</code></pre>
 </details>
 </section>
 <section>
@@ -767,6 +829,162 @@ param5 (int) : eigenvalue_col (if eigenvalue_path is specified the eigenvalue_co
         print(&#34;A_mat asymmetry measure &#34; + str(measure_asymmetry(A_i.toarray())))
         print(&#34;------------------------&#34;)       
         return A_i,eigenvalue_list</code></pre>
+</details>
+</dd>
+<dt id="turbomoleOutputProcessing.calculate_F_i"><code class="name flex">
+<span>def <span class="ident">calculate_F_i</span></span>(<span>i, eigenvalues, eigenvectors, sc_mat)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Calculates contribution of mo i to fmat</p>
+<h2 id="args">Args</h2>
+<p>param2 (int) : i (mo which is considered)
+param2 (list) : eigenvalues
+param3 (matrix) : eigenvectors
+param4 (matrix) : s_mat*c_mat</p>
+<h2 id="returns">Returns</h2>
+<p>F_i (F_i matrix (contribution of mo i to F_mat))</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def calculate_F_i(i, eigenvalues, eigenvectors, sc_mat):
+        &#34;&#34;&#34;
+        Calculates contribution of mo i to fmat
+        Args:
+                param2 (int) : i (mo which is considered)
+                param2 (list) : eigenvalues
+                param3 (matrix) : eigenvectors
+                param4 (matrix) : s_mat*c_mat
+
+        Returns:
+                F_i (F_i matrix (contribution of mo i to F_mat))
+
+        &#34;&#34;&#34;
+        
+        F_i = eigenvalues[i] * outer_product(sc_mat[:,i], sc_mat[:,i])
+        return F_i</code></pre>
+</details>
+</dd>
+<dt id="turbomoleOutputProcessing.calculate_F_splitted"><code class="name flex">
+<span>def <span class="ident">calculate_F_splitted</span></span>(<span>eigenvalues, eigenvectors, s_mat_path)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Calculates contribution of every mo to fmat </p>
+<h2 id="args">Args</h2>
+<p>param1 (list) : eigenvalues
+param2 (matrix) : eigenvectors
+param3 (string) : path to smat</p>
+<h2 id="returns">Returns</h2>
+<p>F_i (list of matrices)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def calculate_F_splitted(eigenvalues, eigenvectors, s_mat_path):
+        &#34;&#34;&#34;
+        Calculates contribution of every mo to fmat 
+        Args:
+                param1 (list) : eigenvalues
+                param2 (matrix) : eigenvectors
+                param3 (string) : path to smat
+
+        Returns:
+                F_i (list of matrices)
+
+        &#34;&#34;&#34;
+        s_mat = read_packed_matrix(s_mat_path).todense()
+        sc_mat = s_mat * np.asmatrix(eigenvectors)
+        F_i = list()
+        for i in range(0, len(eigenvectors)):
+                F_i.append(calculate_F_i(i, eigenvalues, eigenvectors, sc_mat))
+
+        return F_i</code></pre>
+</details>
+</dd>
+<dt id="turbomoleOutputProcessing.calculate_localization_mo"><code class="name flex">
+<span>def <span class="ident">calculate_localization_mo</span></span>(<span>c, s_mat, left, right)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Calculates localization of mos 1 = c_l<em>s_lr</em>c_r + c_r<em>s_lr</em>c_l+c_l<em>s_ll</em>c_l + c_r<em>s_rr</em>c_r.
+The last two summands describe the localization in left and richt part (defined as Q_l and Q_r)</p>
+<h2 id="args">Args</h2>
+<p>param1 (matrix) : eigencectors
+param2 (matrix) : s matrix
+param3 ((int, int)) : left (matrix indices of left part start, matrix indices of left part end)
+param4 ((int, int)) : right (matrix indices of right part start, matrix indices of right part end)</p>
+<h2 id="returns">Returns</h2>
+<p>List of tuples (Q_l, Q_r) (Localization of each mo)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def calculate_localization_mo(c, s_mat, left, right):
+        &#34;&#34;&#34;
+        Calculates localization of mos 1 = c_l*s_lr*c_r + c_r*s_lr*c_l+c_l*s_ll*c_l + c_r*s_rr*c_r.
+        The last two summands describe the localization in left and richt part (defined as Q_l and Q_r)
+        Args:
+                param1 (matrix) : eigencectors
+                param2 (matrix) : s matrix
+                param3 ((int, int)) : left (matrix indices of left part start, matrix indices of left part end)
+                param4 ((int, int)) : right (matrix indices of right part start, matrix indices of right part end)
+                
+
+        Returns:
+                List of tuples (Q_l, Q_r) (Localization of each mo)
+        &#34;&#34;&#34;
+
+        localization = list()
+        for i in range(0, c.shape[0]):
+                s_ll = s_mat[left[0]:left[1], left[0]:left[1]]
+                s_lr = s_mat[left[0]:left[1], right[0]:right[1]]
+                s_rr = s_mat[right[0]:right[1], right[0]:right[1]]
+                Q_l, Q_r = calculate_localization_mo_i(i, c[left[0]:left[1],i], c[right[0]:right[1], i], s_ll, s_lr, s_rr)
+                localization.append((Q_l,Q_r))
+
+        return localization</code></pre>
+</details>
+</dd>
+<dt id="turbomoleOutputProcessing.calculate_localization_mo_i"><code class="name flex">
+<span>def <span class="ident">calculate_localization_mo_i</span></span>(<span>c_l, c_r, s_ll, s_lr, s_rr)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Calculates localization of mo 1 = c_l<em>s_lr</em>c_r + c_r<em>s_lr</em>c_l+c_l<em>s_ll</em>c_l + c_r<em>s_rr</em>c_r.
+The last two summands describe the localization in left and richt part (defined as Q_l and Q_r)</p>
+<h2 id="args">Args</h2>
+<p>param1 (array) : mo_left
+param2 (array) : m0_right
+param3 (matrix) : s_ll
+param4 (matrix) : s_lr
+param5 (matrix) :
+s_rr </p>
+<h2 id="returns">Returns</h2>
+<p>(Q_l, Q_r) , tuple (float, float)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def calculate_localization_mo_i(c_l, c_r, s_ll, s_lr, s_rr ):
+        &#34;&#34;&#34;
+        Calculates localization of mo 1 = c_l*s_lr*c_r + c_r*s_lr*c_l+c_l*s_ll*c_l + c_r*s_rr*c_r.
+        The last two summands describe the localization in left and richt part (defined as Q_l and Q_r)
+        Args:
+                param1 (array) : mo_left
+                param2 (array) : m0_right
+                param3 (matrix) : s_ll
+                param4 (matrix) : s_lr
+                param5 (matrix) :  s_rr 
+
+        Returns:
+                (Q_l, Q_r) , tuple (float, float)
+        &#34;&#34;&#34;
+
+        Q_l = s_ll * c_l
+        Q_l = np.transpose(c_l) * Q_l
+
+        Q_r = s_rr * c_r
+        Q_r = np.transpose(c_r) * Q_r
+
+        return Q_l, Q_r</code></pre>
 </details>
 </dd>
 <dt id="turbomoleOutputProcessing.diag_F"><code class="name flex">
@@ -1181,72 +1399,8 @@ param3 (int) : skip_lines=1 (lines without data at beginning of qpenergiesfile)<
         return qpenergies</code></pre>
 </details>
 </dd>
-<dt id="turbomoleOutputProcessing.scalarproduct"><code class="name flex">
-<span>def <span class="ident">scalarproduct</span></span>(<span>index_to_check, para)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>helper function for trace_mo</p>
-<h2 id="args">Args</h2>
-<p>param1 (int) : index_to_check (index of mo)
-param2 (tuple) : input parameter</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def scalarproduct(index_to_check, para):        
-        &#34;&#34;&#34;
-        helper function for trace_mo
-
-
-        Args:
-                param1 (int) : index_to_check (index of mo)
-                param2 (tuple) : input parameter
-        &#34;&#34;&#34;
-        ref_mos = para[0]
-        input_mos = para[1]
-        #abweichung von urspruenglicher Position
-        tolerance = para[2]
-        s_mat = para[3]
-        most_promising = -1
-        #print(ref_mos) 
-        candidate_list = list()
-        index_list = list()
-        traced = False
-        for i in range(0, ref_mos.shape[1]):    
-                if(tolerance != -1  and (i &lt; index_to_check+tolerance) and (i &gt; index_to_check-tolerance)):
-                        scalar_product = list(np.dot(s_mat, ref_mos[:,i]).flat)
-                        scalar_product = np.dot(np.transpose(input_mos[:,index_to_check]), scalar_product)
-                        
-                        if(np.abs(np.abs(float(scalar_product))-1)&lt;0.9):
-                                #print(&#34;scalar &#34; + str(float(scalar_product)))  
-                                candidate_list.append(scalar_product)
-                                index_list.append(i)
-                                traced = True
-                elif(tolerance == -1):
-                        scalar_product = list(np.dot(s_mat, ref_mos[:,i]).flat)
-                        scalar_product = np.dot(np.transpose(input_mos[:,index_to_check]), scalar_product)
-
-                        if(np.abs(np.abs(float(scalar_product))-1)&lt;0.9):
-                                traced = True
-                                candidate_list.append(scalar_product)
-                                index_list.append(i)
-        #if they cannot be traced
-        if(traced==False):
-                candidate_list.append(-1)
-                index_list.append(-1)
-        #print(&#34;most_promising &#34; + str(index_list))     
-        if(traced == False):
-                #print(&#34;not found &#34; + str(index_to_check))
-                pass
-        traced = False
-        most_promising = [x for _,x in sorted(zip(candidate_list,index_list))]
-        most_promising = most_promising[-1]
-        #print(str(index_to_check) + &#34;  &#34; + str(most_promising))
-        return most_promising</code></pre>
-</details>
-</dd>
 <dt id="turbomoleOutputProcessing.trace_mo"><code class="name flex">
-<span>def <span class="ident">trace_mo</span></span>(<span>ref_mos, input_mos, s_mat_path, tolerance=-1, num_cpu=8)</span>
+<span>def <span class="ident">trace_mo</span></span>(<span>ref_mos, input_mos, s_mat_path)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>traces mos from input_mos with reference to ref_mos (eg when order has changed)
@@ -1255,15 +1409,14 @@ calculates the scalarproduct of input mos with ref_mos and takes the highest mat
 <p>param1 (np.ndarray) : ref_mos
 param2 (np.ndarray) : input_mos
 param3 (string) : smat path
-param4 (int) : tolerance = -1 (if specified a maximum shift of mo index (+-tolerance) is assumed -&gt; saves computation time)
-param4 (int) : num_cpu (number of cores for calculation)</p>
+</p>
 <h2 id="returns">Returns</h2>
 <p>list (index with highest match)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def trace_mo(ref_mos, input_mos, s_mat_path, tolerance=-1, num_cpu = 8):        
+<pre><code class="python">def trace_mo(ref_mos, input_mos, s_mat_path):   
         &#34;&#34;&#34;
         traces mos from input_mos with reference to ref_mos (eg when order has changed) 
         calculates the scalarproduct of input mos with ref_mos and takes the highest match (close to 1)
@@ -1271,30 +1424,26 @@ param4 (int) : num_cpu (number of cores for calculation)</p>
         Args:
                 param1 (np.ndarray) : ref_mos
                 param2 (np.ndarray) : input_mos
-                param3 (string) : smat path
-                param4 (int) : tolerance = -1 (if specified a maximum shift of mo index (+-tolerance) is assumed -&gt; saves computation time)
-                param4 (int) : num_cpu (number of cores for calculation)
+                param3 (string) : smat path             
 
         Returns:
                 list (index with highest match)
         &#34;&#34;&#34;
-        input_mos_list = list()
-        #prepare
-        for i in range(0, ref_mos.shape[0]):
-                input_mos_list.append(input_mos[:,i])
-        
-        print(&#34;filling pool&#34;)
-        p = Pool(num_cpu)       
+                
         s_mat = read_packed_matrix(s_mat_path).todense()
-        para = (ref_mos, input_mos, tolerance, s_mat)
-
+        
+        scalar_product_matrix = np.dot(s_mat,np.asarray(input_mos))
+        scalar_product_matrix = np.dot(np.transpose(ref_mos),scalar_product_matrix)
+        scalar_product_matrix = np.abs(scalar_product_matrix)
+        most_promising = list()
+        for i in range(0, scalar_product_matrix.shape[0]):
+                most_promising.append(np.where(scalar_product_matrix[:,i] == scalar_product_matrix[:,i].max())[0][0])
+                #print(scalar_product_matrix[most_promising[i],i])
+                
         #all eigenvectors
 
-        #index_to_check = range(0, input_mos.shape[0])
-        index_to_check = np.arange(0,input_mos.shape[0],1)
-        result = p.map(partial(scalarproduct, para=para), index_to_check)               
-        print(&#34;done&#34;)
-        return result</code></pre>
+
+        return most_promising</code></pre>
 </details>
 </dd>
 <dt id="turbomoleOutputProcessing.write_matrix_packed"><code class="name flex">
@@ -1409,8 +1558,12 @@ param3 (string) : filename="mos_new.dat"</p></div>
 </div>
 <ul id="index">
 <li><h3><a href="#header-functions">Functions</a></h3>
-<ul class="two-column">
+<ul class="">
 <li><code><a title="turbomoleOutputProcessing.calculate_A" href="#turbomoleOutputProcessing.calculate_A">calculate_A</a></code></li>
+<li><code><a title="turbomoleOutputProcessing.calculate_F_i" href="#turbomoleOutputProcessing.calculate_F_i">calculate_F_i</a></code></li>
+<li><code><a title="turbomoleOutputProcessing.calculate_F_splitted" href="#turbomoleOutputProcessing.calculate_F_splitted">calculate_F_splitted</a></code></li>
+<li><code><a title="turbomoleOutputProcessing.calculate_localization_mo" href="#turbomoleOutputProcessing.calculate_localization_mo">calculate_localization_mo</a></code></li>
+<li><code><a title="turbomoleOutputProcessing.calculate_localization_mo_i" href="#turbomoleOutputProcessing.calculate_localization_mo_i">calculate_localization_mo_i</a></code></li>
 <li><code><a title="turbomoleOutputProcessing.diag_F" href="#turbomoleOutputProcessing.diag_F">diag_F</a></code></li>
 <li><code><a title="turbomoleOutputProcessing.eformat" href="#turbomoleOutputProcessing.eformat">eformat</a></code></li>
 <li><code><a title="turbomoleOutputProcessing.measure_asymmetry" href="#turbomoleOutputProcessing.measure_asymmetry">measure_asymmetry</a></code></li>
@@ -1419,7 +1572,6 @@ param3 (string) : filename="mos_new.dat"</p></div>
 <li><code><a title="turbomoleOutputProcessing.read_mos_file" href="#turbomoleOutputProcessing.read_mos_file">read_mos_file</a></code></li>
 <li><code><a title="turbomoleOutputProcessing.read_packed_matrix" href="#turbomoleOutputProcessing.read_packed_matrix">read_packed_matrix</a></code></li>
 <li><code><a title="turbomoleOutputProcessing.read_qpenergies" href="#turbomoleOutputProcessing.read_qpenergies">read_qpenergies</a></code></li>
-<li><code><a title="turbomoleOutputProcessing.scalarproduct" href="#turbomoleOutputProcessing.scalarproduct">scalarproduct</a></code></li>
 <li><code><a title="turbomoleOutputProcessing.trace_mo" href="#turbomoleOutputProcessing.trace_mo">trace_mo</a></code></li>
 <li><code><a title="turbomoleOutputProcessing.write_matrix_packed" href="#turbomoleOutputProcessing.write_matrix_packed">write_matrix_packed</a></code></li>
 <li><code><a title="turbomoleOutputProcessing.write_mos_file" href="#turbomoleOutputProcessing.write_mos_file">write_mos_file</a></code></li>
