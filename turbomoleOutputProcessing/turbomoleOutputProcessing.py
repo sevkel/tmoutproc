@@ -511,7 +511,7 @@ def trace_mo(ref_mos, input_mos, s_mat_path):
 	most_promising = list()
 	for i in range(0, scalar_product_matrix.shape[0]):
 		most_promising.append(np.where(scalar_product_matrix[:,i] == scalar_product_matrix[:,i].max())[0][0])
-		#print(np.where(scalar_product_matrix[:,i] == scalar_product_matrix[:,i].max()))
+		#print(scalar_product_matrix[most_promising[i],i])
 		
 	#all eigenvectors
 
