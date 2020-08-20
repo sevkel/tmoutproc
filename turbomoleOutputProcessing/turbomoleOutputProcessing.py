@@ -455,60 +455,6 @@ def read_mos_file(filename, skip_lines=1):
 
 
 
-def scalarproduct(index_to_check, para):	
-	"""
-	helper function for trace_mo
-
-
-	Args:
-		param1 (int) : index_to_check (index of mo)
-		param2 (tuple) : input parameter
-	"""
-	ref_mos = para[0]
-	input_mos = para[1]
-	#abweichung von urspruenglicher Position
-	tolerance = para[2]
-	s_mat = para[3]
-	most_promising = -1
-	#print(ref_mos)	
-	candidate_list = list()
-	index_list = list()
-	traced = False
-	for i in range(0, ref_mos.shape[1]):	
-		if(tolerance != -1  and (i < index_to_check+tolerance) and (i > index_to_check-tolerance)):
-			scalar_product = list(np.dot(s_mat, ref_mos[:,i]).flat)
-			scalar_product = np.dot(np.transpose(input_mos[:,index_to_check]), scalar_product)
-			
-			if(np.abs(np.abs(float(scalar_product))-1)<0.999999):
-				#print("scalar " + str(float(scalar_product)))	
-				candidate_list.append(abs(scalar_product))
-				index_list.append(i)
-				traced = True
-		elif(tolerance == -1):
-			scalar_product = list(np.dot(s_mat, ref_mos[:,i]).flat)
-			scalar_product = np.dot(np.transpose(input_mos[:,index_to_check]), scalar_product)
-
-			if(np.abs(np.abs(float(scalar_product))-1)<0.999999):
-				traced = True
-				candidate_list.append(scalar_product)
-				index_list.append(i)
-	#if they cannot be traced
-	if(traced==False):
-		candidate_list.append(-1)
-		index_list.append(-1)
-	#print("most_promising " + str(index_list))	
-	if(traced == False):
-		print("not found " + str(index_to_check))
-		pass
-	traced = False
-	
-	most_promising = [x for _,x in sorted(zip(candidate_list,index_list))]
-	#print(str(index_to_check) + " " + str(most_promising) + " " + str(candidate_list))
-	most_promising = most_promising[-1]
-	#print(str(index_to_check) + "  " + str(most_promising))
-	return most_promising
-	
-
 			
 def trace_mo(ref_mos, input_mos, s_mat_path, tolerance=-1, num_cpu = 8):	
 	"""
@@ -543,6 +489,34 @@ def trace_mo(ref_mos, input_mos, s_mat_path, tolerance=-1, num_cpu = 8):
 	print("done")
 	return result
 
+def trace_mo(ref_mos, input_mos, s_mat_path):	
+	"""
+	traces mos from input_mos with reference to ref_mos (eg when order has changed) 
+	calculates the scalarproduct of input mos with ref_mos and takes the highest match (close to 1)
+
+	Args:
+		param1 (np.ndarray) : ref_mos
+		param2 (np.ndarray) : input_mos
+		param3 (string) : smat path		
+
+	Returns:
+		list (index with highest match)
+	"""
+		
+	s_mat = read_packed_matrix(s_mat_path).todense()
+	
+	scalar_product_matrix = np.dot(s_mat,np.asarray(input_mos))
+	scalar_product_matrix = np.dot(np.transpose(ref_mos),scalar_product_matrix)
+	scalar_product_matrix = np.abs(scalar_product_matrix)
+	most_promising = list()
+	for i in range(0, scalar_product_matrix.shape[0]):
+		most_promising.append(np.where(scalar_product_matrix[:,i] == scalar_product_matrix[:,i].max())[0][0])
+		#print(np.where(scalar_product_matrix[:,i] == scalar_product_matrix[:,i].max()))
+		
+	#all eigenvectors
+
+
+	return most_promising
 
 
 
