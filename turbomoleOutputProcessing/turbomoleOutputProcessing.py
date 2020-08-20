@@ -579,5 +579,93 @@ def diag_F(f_mat_path, s_mat_path, eigenvalue_list = list()):
 	return f_mat,eigenvalues, eigenvectors
 	
 
+def calculate_F_i(i, eigenvalues, eigenvectors, sc_mat):
+	"""
+	Calculates contribution of mo i to fmat
+	Args:
+		param2 (int) : i (mo which is considered)
+		param2 (list) : eigenvalues
+		param3 (matrix) : eigenvectors
+		param4 (matrix) : s_mat*c_mat
+
+	Returns:
+		F_i (F_i matrix (contribution of mo i to F_mat))
+
+	"""
+	
+	F_i = eigenvalues[i] * outer_product(sc_mat[:,i], sc_mat[:,i])
+	return F_i
+
+def calculate_F_splitted(eigenvalues, eigenvectors, s_mat_path):
+	"""
+	Calculates contribution of every mo to fmat 
+	Args:
+		param1 (list) : eigenvalues
+		param2 (matrix) : eigenvectors
+		param3 (string) : path to smat
+
+	Returns:
+		F_i (list of matrices)
+
+	"""
+	s_mat = read_packed_matrix(s_mat_path).todense()
+	sc_mat = s_mat * np.asmatrix(eigenvectors)
+	F_i = list()
+	for i in range(0, len(eigenvectors)):
+		F_i.append(calculate_F_i(i, eigenvalues, eigenvectors, sc_mat))
+
+	return F_i
+
+def calculate_localization_mo_i(c_l, c_r, s_ll, s_lr, s_rr ):
+	"""
+	Calculates localization of mo 1 = c_l*s_lr*c_r + c_r*s_lr*c_l+c_l*s_ll*c_l + c_r*s_rr*c_r.
+	The last two summands describe the localization in left and richt part (defined as Q_l and Q_r)
+	Args:
+		param1 (array) : mo_left
+		param2 (array) : m0_right
+		param3 (matrix) : s_ll
+		param4 (matrix) : s_lr
+		param5 (matrix) :  s_rr 
+
+	Returns:
+		(Q_l, Q_r) , tuple (float, float)
+	"""
+
+	Q_l = s_ll * c_l
+	Q_l = np.transpose(c_l) * Q_l
+
+	Q_r = s_rr * c_r
+	Q_r = np.transpose(c_r) * Q_r
+
+	return (Q_l, Q_r)
+
+	
+def calculate_localization_mo(c, s_mat, left, right):
+	"""
+	Calculates localization of mos 1 = c_l*s_lr*c_r + c_r*s_lr*c_l+c_l*s_ll*c_l + c_r*s_rr*c_r.
+	The last two summands describe the localization in left and richt part (defined as Q_l and Q_r)
+	Args:
+		param1 (matrix) : eigencectors
+		param2 (matrix) : s matrix
+		param3 ((int, int)) : left (matrix indices of left part start, matrix indices of left part end)
+		param4 ((int, int)) : right (matrix indices of right part start, matrix indices of right part end)
+		
+
+	Returns:
+		List of tuples (Q_l, Q_r) (Localization of each mo)
+	"""
+
+	localization = list()
+	for i in range(0, c.shape[0]):
+		s_ll = s_mat[left[0]:left[1], left[0]:left[1]]
+		s_lr = s_mat[left[0]:left[1], right[0]:right[1]]
+		s_rr = s_mat[right[0]:right[1], right[0]:right[1]]
+		Q_l, Q_r = calculate_localization_mo_i(i, c[left[0]:left[1];i], c[right[0]:right[1], i], s_ll, s_lr, s_rr)
+		localization.append((Q_l,Q_r))
+
+	return localization
+
+
+
 
 
