@@ -592,8 +592,11 @@ def calculate_F_i(i, eigenvalues, eigenvectors, sc_mat):
 		F_i (F_i matrix (contribution of mo i to F_mat))
 
 	"""
-	
-	F_i = eigenvalues[i] * outer_product(sc_mat[:,i], sc_mat[:,i])
+	#sc_mat = np.dot(sc_mat,np.asarray(eigenvectors))
+	#sc_mat = 
+	F_i = np.multiply(float(eigenvalues[i,i]) , outer_product(sc_mat[:,i], sc_mat[:,i]))
+	#F_i = np.dot(sc_mat,F_i)
+	#F_i = np.dot(F_i, sc_mat)
 	return F_i
 
 def calculate_F_splitted(eigenvalues, eigenvectors, s_mat_path):
