@@ -556,7 +556,7 @@ def diag_F(f_mat_path, s_mat_path, eigenvalue_list = list()):
 	eigenvectors = np.real(np.asmatrix(eigenvectors))
 	#eigenvectors = np.transpose(eigenvectors)
 	eigenvalues = np.real(eigenvalues)
-	print(eigenvalues)
+	#print(eigenvalues)
 	#print("type random")
 	#print(type(eigenvalues).__name__)
 	#print(type(eigenvectors).__name__)
@@ -622,10 +622,11 @@ def calculate_F_splitted(eigenvalues, eigenvectors, s_mat_path):
 def calculate_localization_mo_i(c_l, c_r, s_ll, s_lr, s_rr ):
 	"""
 	Calculates localization of mo 1 = c_l*s_lr*c_r + c_r*s_lr*c_l+c_l*s_ll*c_l + c_r*s_rr*c_r.
-	The last two summands describe the localization in left and richt part (defined as Q_l and Q_r)
+	The last two summands describe the localization in left and richt part (defined as Q_l and Q_r) or any other
+	given part of mos.
 	Args:
 		param1 (array) : mo_left
-		param2 (array) : m0_right
+		param2 (array) : mo_right
 		param3 (matrix) : s_ll
 		param4 (matrix) : s_lr
 		param5 (matrix) :  s_rr 
@@ -635,18 +636,26 @@ def calculate_localization_mo_i(c_l, c_r, s_ll, s_lr, s_rr ):
 	"""
 
 	Q_l = s_ll * c_l
-	Q_l = np.transpose(c_l) * Q_l
+	Q_l = float(np.transpose(c_l) * Q_l)
 
 	Q_r = s_rr * c_r
-	Q_r = np.transpose(c_r) * Q_r
+	Q_r = float(np.transpose(c_r) * Q_r)
 
-	return Q_l, Q_r
+	Q_lr = s_lr * c_r
+	Q_lr = float(np.transpose(c_l) * Q_lr)
+
+	Q_rl = np.transpose(s_lr) * c_l
+	Q_rl = float(np.transpose(c_r) * Q_rl)
+
+	return (Q_l, Q_r, Q_lr, Q_rl)
 
 	
 def calculate_localization_mo(c, s_mat, left, right):
 	"""
 	Calculates localization of mos 1 = c_l*s_lr*c_r + c_r*s_lr*c_l+c_l*s_ll*c_l + c_r*s_rr*c_r.
-	The last two summands describe the localization in left and richt part (defined as Q_l and Q_r)
+	The last two summands describe the localization in left and richt part (defined as Q_l and Q_r).
+	The algorithm is not restricted to the left and right parts, but can be used to analyse the given
+	mos. Thus the L-C, C-R coupling and localization can be analysed, too. 
 	Args:
 		param1 (matrix) : eigencectors
 		param2 (matrix) : s matrix
@@ -660,10 +669,11 @@ def calculate_localization_mo(c, s_mat, left, right):
 
 	localization = list()
 	for i in range(0, c.shape[0]):
-		s_ll = s_mat[left[0]:left[1], left[0]:left[1]]
+		s_ll= s_mat[left[0]:left[1], left[0]:left[1]]
 		s_lr = s_mat[left[0]:left[1], right[0]:right[1]]
 		s_rr = s_mat[right[0]:right[1], right[0]:right[1]]
-		Q_l, Q_r = calculate_localization_mo_i(i, c[left[0]:left[1],i], c[right[0]:right[1], i], s_ll, s_lr, s_rr)
+		Q_l, Q_r, Q_lr, Q_rl = calculate_localization_mo_i(c[left[0]:left[1],i], c[right[0]:right[1], i], s_ll, s_lr, s_rr)
+		
 		localization.append((Q_l,Q_r))
 
 	return localization
