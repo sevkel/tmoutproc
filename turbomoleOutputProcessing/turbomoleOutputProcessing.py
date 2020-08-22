@@ -363,14 +363,14 @@ def write_mos_file(eigenvalues, eigenvectors, filename="mos_new.dat"):
 	f.write("# SCF total energy is    -6459.0496515472 a.u.\n") 
 	f.write("#\n")   
 	for i in range(0, len(eigenvalues)):
-		print("eigenvalue " + str(eigenvalues[i]) + "\n")
+		#print("eigenvalue " + str(eigenvalues[i]) + "\n")
 		first_string = ' ' * (6-len(str(i))) + str(i+1) + "  a      eigenvalue=" + eformat(eigenvalues[i], 14,2) + "   nsaos=" + str(len(eigenvalues))
 		f.write(first_string + "\n")
 		j = 0
 		while j<len(eigenvalues):
 			for m in range(0,4):
 				num = eigenvectors[m+j,i]
-				#string_to_write = f"{num:+20.13E}".replace("E", "D")
+				string_to_write = f"{num:+20.13E}".replace("E", "D")
 				f.write(string_to_write)
 				#f.write(eformat(eigenvectors[m+j,i], 14,2).replace("E", "D"))
 			f.write("\n")
@@ -556,6 +556,7 @@ def diag_F(f_mat_path, s_mat_path, eigenvalue_list = list()):
 	eigenvectors = np.real(np.asmatrix(eigenvectors))
 	#eigenvectors = np.transpose(eigenvectors)
 	eigenvalues = np.real(eigenvalues)
+	eigenvalue_output_list = eigenvalues
 	#print(eigenvalues)
 	#print("type random")
 	#print(type(eigenvalues).__name__)
@@ -576,7 +577,7 @@ def diag_F(f_mat_path, s_mat_path, eigenvalue_list = list()):
 	
 
 
-	return f_mat,eigenvalues, eigenvectors
+	return f_mat,eigenvalue_output_list, eigenvectors
 	
 
 def calculate_F_i(i, eigenvalues, eigenvectors, sc_mat):
@@ -594,7 +595,7 @@ def calculate_F_i(i, eigenvalues, eigenvectors, sc_mat):
 	"""
 	#sc_mat = np.dot(sc_mat,np.asarray(eigenvectors))
 	#sc_mat = 
-	F_i = np.multiply(float(eigenvalues[i,i]) , outer_product(sc_mat[:,i], sc_mat[:,i]))
+	F_i = np.multiply(float(eigenvalues[i]) , outer_product(sc_mat[:,i], sc_mat[:,i]))
 	#F_i = np.dot(sc_mat,F_i)
 	#F_i = np.dot(F_i, sc_mat)
 	return F_i
