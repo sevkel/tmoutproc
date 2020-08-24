@@ -569,6 +569,7 @@ def diag_F(f_mat_path, s_mat_path, eigenvalue_list = list()):
 		eigenvalues = np.diag(eigenvalues)
 	else:		
 		eigenvalues = np.diag(eigenvalue_list)
+		eigenvalue_output_list = eigenvalue_list
 
 	sc = s_mat * eigenvectors
 	f_mat = eigenvalues * np.transpose(sc)
