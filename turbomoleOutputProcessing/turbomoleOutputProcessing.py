@@ -2,7 +2,7 @@
 Package for processing turbomole Output such as mos files
 """
 
-
+from numba import jit
 import numpy as np
 import math
 from scipy.sparse import coo_matrix
@@ -17,7 +17,7 @@ from multiprocessing import Pool
 
 
 
-
+@jit
 def outer_product(vector1, vector2):
 	"""
 	Calculates out product
@@ -82,7 +82,7 @@ def measure_difference(matrix1, matrix2):
 
 
 
-
+@jit
 def calculate_A(filename,prefix_length=2, eigenvalue_source = "mos", eigenvalue_path = "", eigenvalue_col = 2):
 	"""
 	calculates the A matrix using mos file, reads eigenvalues from qpenergies (->DFT eigenvalues), input: mosfile and prefixlength (number of lines in the beginning), eigenvalue source (qpenergiesKS or qpenergiesGW), 
@@ -193,6 +193,7 @@ def calculate_A(filename,prefix_length=2, eigenvalue_source = "mos", eigenvalue_
 	return A_i,eigenvalue_list
 
 
+@jit
 def read_packed_matrix(filename):
 	"""
 	read packed symmetric matrix from file and creates matrix
@@ -273,7 +274,7 @@ def read_packed_matrix(filename):
 
 
 
-
+@jit
 def write_matrix_packed(matrix, filename="test"):
 	"""
 	write symmetric scipy.sparse.csc_matrix in  in packed storage form
@@ -455,7 +456,7 @@ def read_mos_file(filename, skip_lines=1):
 
 
 
-			
+@jit		
 def trace_mo(ref_mos, input_mos, s_mat_path, tolerance=-1, num_cpu = 8):	
 	"""
 	traces mos from input_mos with reference to ref_mos (eg when order has changed) 
@@ -489,6 +490,7 @@ def trace_mo(ref_mos, input_mos, s_mat_path, tolerance=-1, num_cpu = 8):
 	print("done")
 	return result
 
+@jit
 def trace_mo(ref_mos, input_mos, s_mat_path):	
 	"""
 	traces mos from input_mos with reference to ref_mos (eg when order has changed) 
@@ -520,7 +522,7 @@ def trace_mo(ref_mos, input_mos, s_mat_path):
 
 
 
-
+@jit
 def diag_F(f_mat_path, s_mat_path, eigenvalue_list = list()):
 	"""
 	diagonalizes f mat (generalized), other eigenvalues can be used (eigenvalue_list). Solves Fx=l*S*x
@@ -580,7 +582,7 @@ def diag_F(f_mat_path, s_mat_path, eigenvalue_list = list()):
 
 	return f_mat,eigenvalue_output_list, eigenvectors
 	
-
+@jit
 def calculate_F_i(i, eigenvalues, eigenvectors, sc_mat):
 	"""
 	Calculates contribution of mo i to fmat
@@ -601,6 +603,7 @@ def calculate_F_i(i, eigenvalues, eigenvectors, sc_mat):
 	#F_i = np.dot(F_i, sc_mat)
 	return F_i
 
+@jit
 def calculate_F_splitted(eigenvalues, eigenvectors, s_mat_path):
 	"""
 	Calculates contribution of every mo to fmat 
@@ -621,6 +624,8 @@ def calculate_F_splitted(eigenvalues, eigenvectors, s_mat_path):
 
 	return F_i
 
+
+@jit
 def calculate_localization_mo_i(c_l, c_r, s_ll, s_lr, s_rr ):
 	"""
 	Calculates localization of mo 1 = c_l*s_lr*c_r + c_r*s_lr*c_l+c_l*s_ll*c_l + c_r*s_rr*c_r.
@@ -651,7 +656,7 @@ def calculate_localization_mo_i(c_l, c_r, s_ll, s_lr, s_rr ):
 
 	return (Q_l, Q_r, Q_lr, Q_rl)
 
-	
+@jit
 def calculate_localization_mo(c, s_mat, left, right):
 	"""
 	Calculates localization of mos 1 = c_l*s_lr*c_r + c_r*s_lr*c_l+c_l*s_ll*c_l + c_r*s_rr*c_r.
