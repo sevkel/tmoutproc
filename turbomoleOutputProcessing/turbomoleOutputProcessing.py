@@ -687,7 +687,7 @@ def calculate_localization_mo(c, s_mat, left, right):
 
 
 
-def write_plot_data(filename, data, header = -1):
+def write_plot_data(filename, data):
 	"""
 	Writes data in file (eg plot data) 
 	Args:
@@ -703,9 +703,6 @@ def write_plot_data(filename, data, header = -1):
 	file = open(filename, "w")
 	#file = open(new_file-path,"w")
 	#print(data[0])
-	if(header != -1):
-		file.write(header)
-		file.write("\n")
 	for i in range(0, len(data[0])):
 
 		for j in range(0,len(data)):			
