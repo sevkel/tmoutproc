@@ -715,3 +715,22 @@ def write_plot_data(filename, data, header=""):
 	#file.write(data)
 	file.close()
 
+def read_plot_data(filename):
+	"""
+	Reads data in file (eg plot data) 
+	Args:
+		param1 (String) : Filename
+		
+		
+
+	Returns:
+		datContent, head (Array of lists and header of file)
+	"""
+
+	datContent= [i.strip().split() for i in open(filename).readlines()]
+	try:
+		float(datContent[0][0])
+	except ValueError:
+		return np.transpose(datContent[1:len(datContent)]), datContent[0]
+	return np.transpose(datContent),""
+
