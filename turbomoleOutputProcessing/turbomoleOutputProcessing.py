@@ -731,6 +731,6 @@ def read_plot_data(filename):
 	try:
 		float(datContent[0][0])
 	except ValueError:
-		return np.transpose(datContent[1:len(datContent)]), datContent[0]
-	return np.transpose(datContent),""
+		return np.array(np.transpose(datContent[1:len(datContent)]),dtype=float), datContent[0]
+	return np.array(np.transpose(datContent),dtype=float),""
 
