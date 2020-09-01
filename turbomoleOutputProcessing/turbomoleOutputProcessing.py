@@ -687,14 +687,13 @@ def calculate_localization_mo(c, s_mat, left, right):
 
 
 
-def write_plot_data(filename, data):
+def write_plot_data(filename, data, header=""):
 	"""
 	Writes data in file (eg plot data) 
 	Args:
 		param1 (String) : Filename
 		param2 (tuple) : tuple of lists (each entry is one column in data)
-		param3 ((int, int)) : left (matrix indices of left part start, matrix indices of left part end)
-		param4 ((int, int)) : right (matrix indices of right part start, matrix indices of right part end)
+		param3 (String) : Fileheader
 		
 
 	Returns:
@@ -703,6 +702,10 @@ def write_plot_data(filename, data):
 	file = open(filename, "w")
 	#file = open(new_file-path,"w")
 	#print(data[0])
+	if(len(header) != 0):
+		file.write(header)
+		file.write("\n")
+
 	for i in range(0, len(data[0])):
 
 		for j in range(0,len(data)):			
