@@ -656,6 +656,50 @@ def calculate_localization_mo_i(c_l, c_r, s_ll, s_lr, s_rr ):
 
 	return (Q_l, Q_r, Q_lr, Q_rl)
 
+def calculate_localization_mo_i(i, eigenvectors, s_mat, left, center, right):
+	"""
+	Calculates localization of mo 1 = c_l*s_lr*c_r + c_r*s_lr*c_l+c_l*s_ll*c_l + c_r*s_rr*c_r.
+	The last two summands describe the localization in left and richt part (defined as Q_l and Q_r) or any other
+	given part of mos.
+	Args:
+		param1 (int) : molecular oribital
+		param2 (ndarray) : eigenvectors
+		param3 (ndarray) : smat
+		param4 (tuple (int, int)) : left (matrix indices of left part start, matrix indices of left part end)
+		param5 (tuple (int, int)) : center (matrix indices of center part start, matrix indices of center part end)
+		param6 (tuple (int, int)) : right (matrix indices of right part start, matrix indices of right part end)
+
+	Returns:
+		(Q_l, Q_r) , tuple (float, float)
+	"""
+	def calc_contriubution(vec1, matrix, vec2):
+		tmp = np.dot(matrix, vec2)
+		return np.dot(np.transpose(vec1), tmp)
+
+	s_mat = np.asmatrix(s_mat) 
+	s_ll= s_mat[left[0]:left[1], left[0]:left[1]]
+	s_lc= s_mat[left[0]:left[1], center[0]:center[1]]
+	s_lr = s_mat[left[0]:left[1], right[0]:right[1]]
+	s_cc = s_mat[center[0]:center[1], center[0]:center[1]]
+	s_cr = s_mat[center[0]:center[1], right[0]:right[1]] 
+	s_rr = s_mat[right[0]:right[1], right[0]:right[1]]
+	
+	l = eigenvectors[left[0]:left[1],i]
+	c = eigenvectors[center[0]:center[1],i]
+	r = eigenvectors[right[0]:right[1],i]
+
+	ll = calc_contriubution(l,s_ll,l)
+	lc = calc_contriubution(l,s_lc,c)
+	lr = calc_contriubution(l,s_lr,r)
+	cl = calc_contriubution(c,np.transpose(s_lc), l)
+	cc = calc_contriubution(c,s_cc,c)
+	cr = calc_contriubution(c, s_cr, r)
+	rl = calc_contriubution(r, np.transpose(s_lr), l)
+	rc = calc_contriubution(r, np.transpose(s_cr),c)
+	rr = calc_contriubution(r,s_rr, r)
+
+	return(ll,lc,lr,cl,cc,cr,rl,rc,rr)
+
 
 def calculate_localization_mo(c, s_mat, left, right):
 	"""
