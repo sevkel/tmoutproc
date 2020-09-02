@@ -670,7 +670,7 @@ def calculate_localization_mo_i(i, eigenvectors, s_mat, left, center, right):
 		param6 (tuple (int, int)) : right (matrix indices of right part start, matrix indices of right part end)
 
 	Returns:
-		(Q_l, Q_r) , tuple (float, float)
+		(ll,lc,lr,cl,cc,cr,rl,rc,rr) , tuple (float, float)
 	"""
 	def calc_contriubution(vec1, matrix, vec2):
 		tmp = np.dot(matrix, vec2)
@@ -688,15 +688,15 @@ def calculate_localization_mo_i(i, eigenvectors, s_mat, left, center, right):
 	c = eigenvectors[center[0]:center[1],i]
 	r = eigenvectors[right[0]:right[1],i]
 
-	ll = calc_contriubution(l,s_ll,l)
-	lc = calc_contriubution(l,s_lc,c)
-	lr = calc_contriubution(l,s_lr,r)
-	cl = calc_contriubution(c,np.transpose(s_lc), l)
-	cc = calc_contriubution(c,s_cc,c)
-	cr = calc_contriubution(c, s_cr, r)
-	rl = calc_contriubution(r, np.transpose(s_lr), l)
-	rc = calc_contriubution(r, np.transpose(s_cr),c)
-	rr = calc_contriubution(r,s_rr, r)
+	ll = float(calc_contriubution(l,s_ll,l))
+	lc = float(calc_contriubution(l,s_lc,c))
+	lr = float(calc_contriubution(l,s_lr,r))
+	cl = float(calc_contriubution(c,np.transpose(s_lc), l))
+	cc = float(calc_contriubution(c,s_cc,c))
+	cr = float(calc_contriubution(c, s_cr, r))
+	rl = float(calc_contriubution(r, np.transpose(s_lr), l))
+	rc = float(calc_contriubution(r, np.transpose(s_cr),c))
+	rr = float(calc_contriubution(r,s_rr, r))
 
 	return(ll,lc,lr,cl,cc,cr,rl,rc,rr)
 
