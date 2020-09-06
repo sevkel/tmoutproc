@@ -778,3 +778,21 @@ def read_plot_data(filename):
 		return np.array(np.transpose(datContent[1:len(datContent)]),dtype=float), datContent[0]
 	return np.array(np.transpose(datContent),dtype=float),""
 
+
+def build_permutation_matrix(input_list):
+	"""
+	Builds permutation matrix to permute cols in eigenvector matrix (-> reordering). Usage: (matrix)*permut or permut*eigenvector
+	Args:
+		param1 (list(int)) : List of current order
+		
+		
+
+	Returns:
+		permutation matrix (np.ndarray)
+	"""
+	permut = np.zeros((len(input_list), len(input_list)))
+
+	for i in range(0, len(input_list)):
+		permut[input_list[i],i] = 1
+	#print(permut)
+	return permut
