@@ -778,6 +778,17 @@ def read_plot_data(filename):
 		return np.array(np.transpose(datContent[1:len(datContent)]),dtype=float), datContent[0]
 	return np.array(np.transpose(datContent),dtype=float),""
 
+def read_coord_file(filename):
+	"""
+	Reads data in file (eg plot data) 
+	Args:
+		param1 (String) : Filename
+		
+		
+
+	Returns:
+		atoms, 
+	"""
 
 def build_permutation_matrix(input_list):
 	"""
@@ -796,3 +807,66 @@ def build_permutation_matrix(input_list):
 		permut[input_list[i],i] = 1
 	#print(permut)
 	return permut
+
+import numpy as np
+
+def read_coord_file(filename):
+	"""
+	Reads data in file (eg plot data) 
+	Args:
+		param1 (String) : Filename
+		
+		
+
+	Returns:
+		array of lists [line in coordfile][0=x, 1=y, 2=z, 3=atomtype, optional: 4=fixed]
+	"""
+
+	datContent= [i.strip().split() for i in open(filename).readlines()]
+	datContent= np.transpose(datContent[1:len(datContent)-2])
+	return datContent
+
+def find_c_range_atom(atom, number, coordfile, basis_set="dev-SV(P)"):
+	"""
+	finds atoms range of expansion coef in mos file. number gives wich atoms should be found e.g. two sulfur : first number =1; second = 2
+	Args:
+		param1 (String) : atom type
+		param2 (int) : number of atom type atom
+		param3 (String) : filename for coord file
+		param4 (String) : basis_set="dev-SV(P)"	
+		
+
+	Returns:
+		tuple (index_start, index_end)
+	"""
+	def atom_type_to_number_coeff(atom):
+		if(atom == "c"):
+			return 14
+		elif(current_atom == "h"):
+			return 2
+		elif(current_atom == "au"):
+			return 25
+		elif(current_atom == "s"):
+			return 18
+		else:
+			raise ValueError('Sorry. This feature is not implemented for following atom: ' + current_atom)
+
+	coord_content = read_coord_file(coordfile)
+	if(basis_set=="dev-SV(P)"):
+		number_found_atoms_of_type = 0
+		number_expansion_coeff = 0
+		for i in range(0, len(coord_content)):
+			current_atom = coord_content[i][3]
+			print(current_atom)
+			if(current_atom == atom):				
+				number_found_atoms_of_type+=1
+				if(number_found_atoms_of_type == number):				
+					return (number_expansion_coeff, number_expansion_coeff+atom_type_to_number_coeff(current_atom))	
+				number_expansion_coeff += atom_type_to_number_coeff(current_atom)				
+			else:
+				number_expansion_coeff += atom_type_to_number_coeff(current_atom)
+		raise ValueError('Sorry. Could not find the atom')			
+			
+
+	else:
+		raise ValueError('Sorry. This feature is not implemented for following basis_set: ' + basis_set)
