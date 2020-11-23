@@ -442,8 +442,12 @@ def read_mos_file(filename, skip_lines=1):
 					continue
 				
 				
-				line_split = [line[i:i+n] for i in range(0, len(line), n)]							
-				C_vec.extend([float(line_split[j].replace("D","E"))  for j in range(0,len(line_split)-1)][0:4])
+				line_split = [line[i:i+n] for i in range(0, len(line), n)]
+				try:							
+					C_vec.extend([float(line_split[j].replace("D","E"))  for j in range(0,len(line_split)-1)][0:4])
+				except ValueError:
+					print("sorry faulty mos file " + filename)
+					raise ValueError('Sorry. faulty mos file')
 				#print(len(C_vec))
 				
 			counter += 1
@@ -842,14 +846,14 @@ def find_c_range_atom(atom, number, coordfile, basis_set="dev-SV(P)"):
 	def atom_type_to_number_coeff(atom):
 		if(atom == "c"):
 			return 14
-		elif(current_atom == "h"):
+		elif(atom == "h"):
 			return 2
-		elif(current_atom == "au"):
+		elif(atom == "au"):
 			return 25
-		elif(current_atom == "s"):
+		elif(atom == "s"):
 			return 18
 		else:
-			raise ValueError('Sorry. This feature is not implemented for following atom: ' + current_atom)
+			raise ValueError('Sorry. This feature is not implemented for following atom: ' + atom)
 
 	coord_content = read_coord_file(coordfile)
 	if(basis_set=="dev-SV(P)"):
