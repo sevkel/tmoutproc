@@ -857,7 +857,7 @@ def find_c_range_atom(atom, number, coordfile, basis_set="dev-SV(P)"):
 		number_expansion_coeff = 0
 		for i in range(0, len(coord_content)):
 			current_atom = coord_content[i][3]
-			print(current_atom)
+			#print(current_atom)
 			if(current_atom == atom):				
 				number_found_atoms_of_type+=1
 				if(number_found_atoms_of_type == number):				
