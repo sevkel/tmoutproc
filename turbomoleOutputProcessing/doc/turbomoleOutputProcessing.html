@@ -810,6 +810,7 @@ def read_plot_data(filename):
 def read_coord_file(filename):
         &#34;&#34;&#34;
         Reads data in file (eg plot data) 
+
         Args:
                 param1 (String) : Filename
                 
@@ -822,6 +823,7 @@ def read_coord_file(filename):
 def build_permutation_matrix(input_list):
         &#34;&#34;&#34;
         Builds permutation matrix to permute cols in eigenvector matrix (-&gt; reordering). Usage: (matrix)*permut or permut*eigenvector
+
         Args:
                 param1 (list(int)) : List of current order
                 
@@ -842,6 +844,7 @@ import numpy as np
 def read_coord_file(filename):
         &#34;&#34;&#34;
         Reads data in file (eg plot data) 
+        
         Args:
                 param1 (String) : Filename
                 
@@ -858,6 +861,7 @@ def read_coord_file(filename):
 def find_c_range_atom(atom, number, coordfile, basis_set=&#34;dev-SV(P)&#34;):
         &#34;&#34;&#34;
         finds atoms range of expansion coef in mos file. number gives wich atoms should be found e.g. two sulfur : first number =1; second = 2
+
         Args:
                 param1 (String) : atom type
                 param2 (int) : number of atom type atom
@@ -886,7 +890,7 @@ def find_c_range_atom(atom, number, coordfile, basis_set=&#34;dev-SV(P)&#34;):
                 number_expansion_coeff = 0
                 for i in range(0, len(coord_content)):
                         current_atom = coord_content[i][3]
-                        print(current_atom)
+                        
                         if(current_atom == atom):                               
                                 number_found_atoms_of_type+=1
                                 if(number_found_atoms_of_type == number):                               
@@ -898,7 +902,42 @@ def find_c_range_atom(atom, number, coordfile, basis_set=&#34;dev-SV(P)&#34;):
                         
 
         else:
-                raise ValueError(&#39;Sorry. This feature is not implemented for following basis_set: &#39; + basis_set)</code></pre>
+                raise ValueError(&#39;Sorry. This feature is not implemented for following basis_set: &#39; + basis_set)
+
+
+def load_xyz_file(filename):
+        &#34;&#34;&#34;
+        load xyz file and return data. Returns comment line and coord data. Dat content cols: atoms=0, x=1, y=2, z=3
+                
+                param1 (String) : filename
+                
+
+        Returns:
+                (comment_line (String), datContent (np.ndarray))
+        &#34;&#34;&#34;
+        datContent= [i.strip().split() for i in open(filename).readlines()]
+        comment_line = np.transpose(datContent[1])
+        return (comment_line, np.transpose(datContent[2:len(datContent)]))
+
+def write_xyz_file(filename, comment_line, datContent):
+        &#34;&#34;&#34;
+        writes xyz file.
+
+                param1 (String) : filename
+                param2 (String) : commment_line
+                param3 (np.ndarray) : dat content
+
+        Returns:
+                
+        &#34;&#34;&#34;
+        file = open(filename, &#34;w&#34;)
+        file.write(str(len(datContent[1,:])))
+        file.write(&#34;\n&#34;)
+        file.write(comment_line)
+        file.write(&#34;\n&#34;)
+        for i in range(0,len(datContent[1,:])):
+                file.write(str(datContent[0,i]) + &#34;     &#34; + str(datContent[1,i]) + &#34;    &#34; + str(datContent[2,i]) + &#34;    &#34; + str(datContent[3,i]) + &#34;\n&#34;)
+        file.close()</code></pre>
 </details>
 </section>
 <section>
@@ -924,6 +963,7 @@ def find_c_range_atom(atom, number, coordfile, basis_set=&#34;dev-SV(P)&#34;):
 <pre><code class="python">def build_permutation_matrix(input_list):
         &#34;&#34;&#34;
         Builds permutation matrix to permute cols in eigenvector matrix (-&gt; reordering). Usage: (matrix)*permut or permut*eigenvector
+
         Args:
                 param1 (list(int)) : List of current order
                 
@@ -1367,6 +1407,7 @@ param4 (String) : basis_set="dev-SV(P)" </p>
 <pre><code class="python">def find_c_range_atom(atom, number, coordfile, basis_set=&#34;dev-SV(P)&#34;):
         &#34;&#34;&#34;
         finds atoms range of expansion coef in mos file. number gives wich atoms should be found e.g. two sulfur : first number =1; second = 2
+
         Args:
                 param1 (String) : atom type
                 param2 (int) : number of atom type atom
@@ -1395,7 +1436,7 @@ param4 (String) : basis_set="dev-SV(P)" </p>
                 number_expansion_coeff = 0
                 for i in range(0, len(coord_content)):
                         current_atom = coord_content[i][3]
-                        print(current_atom)
+                        
                         if(current_atom == atom):                               
                                 number_found_atoms_of_type+=1
                                 if(number_found_atoms_of_type == number):                               
@@ -1408,6 +1449,34 @@ param4 (String) : basis_set="dev-SV(P)" </p>
 
         else:
                 raise ValueError(&#39;Sorry. This feature is not implemented for following basis_set: &#39; + basis_set)</code></pre>
+</details>
+</dd>
+<dt id="turbomoleOutputProcessing.load_xyz_file"><code class="name flex">
+<span>def <span class="ident">load_xyz_file</span></span>(<span>filename)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>load xyz file and return data. Returns comment line and coord data. Dat content cols: atoms=0, x=1, y=2, z=3</p>
+<pre><code>    param1 (String) : filename
+</code></pre>
+<h2 id="returns">Returns</h2>
+<p>(comment_line (String), datContent (np.ndarray))</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_xyz_file(filename):
+        &#34;&#34;&#34;
+        load xyz file and return data. Returns comment line and coord data. Dat content cols: atoms=0, x=1, y=2, z=3
+                
+                param1 (String) : filename
+                
+
+        Returns:
+                (comment_line (String), datContent (np.ndarray))
+        &#34;&#34;&#34;
+        datContent= [i.strip().split() for i in open(filename).readlines()]
+        comment_line = np.transpose(datContent[1])
+        return (comment_line, np.transpose(datContent[2:len(datContent)]))</code></pre>
 </details>
 </dd>
 <dt id="turbomoleOutputProcessing.measure_asymmetry"><code class="name flex">
@@ -1520,6 +1589,7 @@ param2 (np.array) : vector2</p>
 <pre><code class="python">def read_coord_file(filename):
         &#34;&#34;&#34;
         Reads data in file (eg plot data) 
+        
         Args:
                 param1 (String) : Filename
                 
@@ -1984,6 +2054,41 @@ Returns:</p></div>
         file.close()</code></pre>
 </details>
 </dd>
+<dt id="turbomoleOutputProcessing.write_xyz_file"><code class="name flex">
+<span>def <span class="ident">write_xyz_file</span></span>(<span>filename, comment_line, datContent)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>writes xyz file.</p>
+<pre><code>    param1 (String) : filename
+    param2 (String) : commment_line
+    param3 (np.ndarray) : dat content
+</code></pre>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write_xyz_file(filename, comment_line, datContent):
+        &#34;&#34;&#34;
+        writes xyz file.
+
+                param1 (String) : filename
+                param2 (String) : commment_line
+                param3 (np.ndarray) : dat content
+
+        Returns:
+                
+        &#34;&#34;&#34;
+        file = open(filename, &#34;w&#34;)
+        file.write(str(len(datContent[1,:])))
+        file.write(&#34;\n&#34;)
+        file.write(comment_line)
+        file.write(&#34;\n&#34;)
+        for i in range(0,len(datContent[1,:])):
+                file.write(str(datContent[0,i]) + &#34;     &#34; + str(datContent[1,i]) + &#34;    &#34; + str(datContent[2,i]) + &#34;    &#34; + str(datContent[3,i]) + &#34;\n&#34;)
+        file.close()</code></pre>
+</details>
+</dd>
 </dl>
 </section>
 <section>
@@ -2006,6 +2111,7 @@ Returns:</p></div>
 <li><code><a title="turbomoleOutputProcessing.diag_F" href="#turbomoleOutputProcessing.diag_F">diag_F</a></code></li>
 <li><code><a title="turbomoleOutputProcessing.eformat" href="#turbomoleOutputProcessing.eformat">eformat</a></code></li>
 <li><code><a title="turbomoleOutputProcessing.find_c_range_atom" href="#turbomoleOutputProcessing.find_c_range_atom">find_c_range_atom</a></code></li>
+<li><code><a title="turbomoleOutputProcessing.load_xyz_file" href="#turbomoleOutputProcessing.load_xyz_file">load_xyz_file</a></code></li>
 <li><code><a title="turbomoleOutputProcessing.measure_asymmetry" href="#turbomoleOutputProcessing.measure_asymmetry">measure_asymmetry</a></code></li>
 <li><code><a title="turbomoleOutputProcessing.measure_difference" href="#turbomoleOutputProcessing.measure_difference">measure_difference</a></code></li>
 <li><code><a title="turbomoleOutputProcessing.outer_product" href="#turbomoleOutputProcessing.outer_product">outer_product</a></code></li>
@@ -2018,6 +2124,7 @@ Returns:</p></div>
 <li><code><a title="turbomoleOutputProcessing.write_matrix_packed" href="#turbomoleOutputProcessing.write_matrix_packed">write_matrix_packed</a></code></li>
 <li><code><a title="turbomoleOutputProcessing.write_mos_file" href="#turbomoleOutputProcessing.write_mos_file">write_mos_file</a></code></li>
 <li><code><a title="turbomoleOutputProcessing.write_plot_data" href="#turbomoleOutputProcessing.write_plot_data">write_plot_data</a></code></li>
+<li><code><a title="turbomoleOutputProcessing.write_xyz_file" href="#turbomoleOutputProcessing.write_xyz_file">write_xyz_file</a></code></li>
 </ul>
 </li>
 </ul>

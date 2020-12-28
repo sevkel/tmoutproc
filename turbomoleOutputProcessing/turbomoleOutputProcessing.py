@@ -781,6 +781,7 @@ def read_plot_data(filename):
 def read_coord_file(filename):
 	"""
 	Reads data in file (eg plot data) 
+
 	Args:
 		param1 (String) : Filename
 		
@@ -793,6 +794,7 @@ def read_coord_file(filename):
 def build_permutation_matrix(input_list):
 	"""
 	Builds permutation matrix to permute cols in eigenvector matrix (-> reordering). Usage: (matrix)*permut or permut*eigenvector
+
 	Args:
 		param1 (list(int)) : List of current order
 		
@@ -813,6 +815,7 @@ import numpy as np
 def read_coord_file(filename):
 	"""
 	Reads data in file (eg plot data) 
+	
 	Args:
 		param1 (String) : Filename
 		
@@ -829,6 +832,7 @@ def read_coord_file(filename):
 def find_c_range_atom(atom, number, coordfile, basis_set="dev-SV(P)"):
 	"""
 	finds atoms range of expansion coef in mos file. number gives wich atoms should be found e.g. two sulfur : first number =1; second = 2
+
 	Args:
 		param1 (String) : atom type
 		param2 (int) : number of atom type atom
@@ -857,7 +861,7 @@ def find_c_range_atom(atom, number, coordfile, basis_set="dev-SV(P)"):
 		number_expansion_coeff = 0
 		for i in range(0, len(coord_content)):
 			current_atom = coord_content[i][3]
-			print(current_atom)
+			
 			if(current_atom == atom):				
 				number_found_atoms_of_type+=1
 				if(number_found_atoms_of_type == number):				
@@ -870,3 +874,38 @@ def find_c_range_atom(atom, number, coordfile, basis_set="dev-SV(P)"):
 
 	else:
 		raise ValueError('Sorry. This feature is not implemented for following basis_set: ' + basis_set)
+
+
+def load_xyz_file(filename):
+	"""
+	load xyz file and return data. Returns comment line and coord data. Dat content cols: atoms=0, x=1, y=2, z=3
+		
+		param1 (String) : filename
+		
+
+	Returns:
+		(comment_line (String), datContent (np.ndarray))
+	"""
+	datContent= [i.strip().split() for i in open(filename).readlines()]
+	comment_line = np.transpose(datContent[1])
+	return (comment_line, np.transpose(datContent[2:len(datContent)]))
+
+def write_xyz_file(filename, comment_line, datContent):
+	"""
+	writes xyz file.
+
+		param1 (String) : filename
+		param2 (String) : commment_line
+		param3 (np.ndarray) : dat content
+
+	Returns:
+		
+	"""
+	file = open(filename, "w")
+	file.write(str(len(datContent[1,:])))
+	file.write("\n")
+	file.write(comment_line)
+	file.write("\n")
+	for i in range(0,len(datContent[1,:])):
+		file.write(str(datContent[0,i]) + "	" + str(datContent[1,i]) + "	" + str(datContent[2,i]) + "	" + str(datContent[3,i]) + "\n")
+	file.close()
