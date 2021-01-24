@@ -1,0 +1,491 @@
+
+<!DOCTYPE html>
+
+<html lang="Python3">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>turbomoleOutputProcessing package &#8212; turbomoleOutputProcessing  documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">turbomoleOutputProcessing  documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">turbomoleOutputProcessing package</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="turbomoleoutputprocessing-package">
+<h1>turbomoleOutputProcessing package<a class="headerlink" href="#turbomoleoutputprocessing-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="turbomoleoutputprocessing-setup-module">
+<h2>turbomoleOutputProcessing.setup module<a class="headerlink" href="#turbomoleoutputprocessing-setup-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-turbomoleOutputProcessing.turbomoleOutputProcessing">
+<span id="turbomoleoutputprocessing-turbomoleoutputprocessing-module"></span><h2>turbomoleOutputProcessing.turbomoleOutputProcessing module<a class="headerlink" href="#module-turbomoleOutputProcessing.turbomoleOutputProcessing" title="Permalink to this headline">¶</a></h2>
+<p>Package for processing turbomole Output such as mos files</p>
+<dl class="py function">
+<dt id="turbomoleOutputProcessing.turbomoleOutputProcessing.build_permutation_matrix">
+<code class="sig-prename descclassname">turbomoleOutputProcessing.turbomoleOutputProcessing.</code><code class="sig-name descname">build_permutation_matrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_list</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/turbomoleOutputProcessing/turbomoleOutputProcessing.html#build_permutation_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#turbomoleOutputProcessing.turbomoleOutputProcessing.build_permutation_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds permutation matrix to permute cols in eigenvector matrix (-&gt; reordering). Usage: (matrix)*permut or permut*eigenvector</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>param1</strong> (<em>list</em><em>(</em><em>int</em><em>)</em>) -- List of current order</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>permutation matrix (np.ndarray)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="turbomoleOutputProcessing.turbomoleOutputProcessing.calculate_A">
+<code class="sig-prename descclassname">turbomoleOutputProcessing.turbomoleOutputProcessing.</code><code class="sig-name descname">calculate_A</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">prefix_length</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">eigenvalue_source</span><span class="o">=</span><span class="default_value">'mos'</span></em>, <em class="sig-param"><span class="n">eigenvalue_path</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">eigenvalue_col</span><span class="o">=</span><span class="default_value">2</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/turbomoleOutputProcessing/turbomoleOutputProcessing.html#calculate_A"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#turbomoleOutputProcessing.turbomoleOutputProcessing.calculate_A" title="Permalink to this definition">¶</a></dt>
+<dd><p>calculates the A matrix using mos file, reads eigenvalues from qpenergies (-&gt;DFT eigenvalues), input: mosfile and prefixlength (number of lines in the beginning), eigenvalue source (qpenergiesKS or qpenergiesGW),
+if eigenvalue_path is specified you can give custom path to qpenergies and col to read
+returns matrix in scipy.sparse.csc_matrix and eigenvalue list</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>param1</strong> (<em>string</em>) -- filename</p></li>
+<li><p><strong>param2</strong> (<em>int</em>) -- prefix_length (number of skipped lines in mos file)</p></li>
+<li><p><strong>param3</strong> (<em>string</em>) -- eigenvalue_source=&quot;mos&quot; (choose eigenvalue source. If not changed: mos file. &quot;qpenergiesKS&quot; or &quot;qpenergiesGW&quot; : taken from ./data/qpenergies.dat)</p></li>
+<li><p><strong>param4</strong> (<em>string</em>) -- eigenvalue_path=&quot;&quot; (if specified: eigenvalues are taken from qpenergies file with given path)</p></li>
+<li><p><strong>param5</strong> (<em>int</em>) -- eigenvalue_col (if eigenvalue_path is specified the eigenvalue_col in qpenergies is taken (KS=2, GW=3))</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>tuple A_i (scipy.sparse.csc_matrix) ,eigenvalue_list (list)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="turbomoleOutputProcessing.turbomoleOutputProcessing.calculate_F_i">
+<code class="sig-prename descclassname">turbomoleOutputProcessing.turbomoleOutputProcessing.</code><code class="sig-name descname">calculate_F_i</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">i</span></em>, <em class="sig-param"><span class="n">eigenvalues</span></em>, <em class="sig-param"><span class="n">eigenvectors</span></em>, <em class="sig-param"><span class="n">sc_mat</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/turbomoleOutputProcessing/turbomoleOutputProcessing.html#calculate_F_i"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#turbomoleOutputProcessing.turbomoleOutputProcessing.calculate_F_i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates contribution of mo i to fmat
+:param param2: i (mo which is considered)
+:type param2: int
+:param param2: eigenvalues
+:type param2: list
+:param param3: eigenvectors
+:type param3: matrix
+:param param4: s_mat*c_mat
+:type param4: matrix</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>F_i (F_i matrix (contribution of mo i to F_mat))</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="turbomoleOutputProcessing.turbomoleOutputProcessing.calculate_F_splitted">
+<code class="sig-prename descclassname">turbomoleOutputProcessing.turbomoleOutputProcessing.</code><code class="sig-name descname">calculate_F_splitted</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">eigenvalues</span></em>, <em class="sig-param"><span class="n">eigenvectors</span></em>, <em class="sig-param"><span class="n">s_mat_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/turbomoleOutputProcessing/turbomoleOutputProcessing.html#calculate_F_splitted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#turbomoleOutputProcessing.turbomoleOutputProcessing.calculate_F_splitted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates contribution of every mo to fmat
+:param param1: eigenvalues
+:type param1: list
+:param param2: eigenvectors
+:type param2: matrix
+:param param3: path to smat
+:type param3: string</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>F_i (list of matrices)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="turbomoleOutputProcessing.turbomoleOutputProcessing.calculate_localization_mo">
+<code class="sig-prename descclassname">turbomoleOutputProcessing.turbomoleOutputProcessing.</code><code class="sig-name descname">calculate_localization_mo</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">c</span></em>, <em class="sig-param"><span class="n">s_mat</span></em>, <em class="sig-param"><span class="n">left</span></em>, <em class="sig-param"><span class="n">right</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/turbomoleOutputProcessing/turbomoleOutputProcessing.html#calculate_localization_mo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#turbomoleOutputProcessing.turbomoleOutputProcessing.calculate_localization_mo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates localization of mos 1 = c_l*s_lr*c_r + c_r*s_lr*c_l+c_l*s_ll*c_l + c_r*s_rr*c_r.
+The last two summands describe the localization in left and richt part (defined as Q_l and Q_r).
+The algorithm is not restricted to the left and right parts, but can be used to analyse the given
+mos. Thus the L-C, C-R coupling and localization can be analysed, too.
+:param param1: eigencectors
+:type param1: matrix
+:param param2: s matrix
+:type param2: matrix
+:param param3: left (matrix indices of left part start, matrix indices of left part end)
+:type param3: (int, int)
+:param param4: right (matrix indices of right part start, matrix indices of right part end)
+:type param4: (int, int)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>List of tuples (Q_l, Q_r) (Localization of each mo)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="turbomoleOutputProcessing.turbomoleOutputProcessing.calculate_localization_mo_i">
+<code class="sig-prename descclassname">turbomoleOutputProcessing.turbomoleOutputProcessing.</code><code class="sig-name descname">calculate_localization_mo_i</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">i</span></em>, <em class="sig-param"><span class="n">eigenvectors</span></em>, <em class="sig-param"><span class="n">s_mat</span></em>, <em class="sig-param"><span class="n">left</span></em>, <em class="sig-param"><span class="n">center</span></em>, <em class="sig-param"><span class="n">right</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/turbomoleOutputProcessing/turbomoleOutputProcessing.html#calculate_localization_mo_i"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#turbomoleOutputProcessing.turbomoleOutputProcessing.calculate_localization_mo_i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates localization of mo 1 = c_l*s_lr*c_r + c_r*s_lr*c_l+c_l*s_ll*c_l + c_r*s_rr*c_r.
+The last two summands describe the localization in left and richt part (defined as Q_l and Q_r) or any other
+given part of mos.
+:param param1: molecular oribital
+:type param1: int
+:param param2: eigenvectors
+:type param2: ndarray
+:param param3: smat
+:type param3: ndarray
+:param param4: left (matrix indices of left part start, matrix indices of left part end)
+:type param4: tuple (int, int)
+:param param5: center (matrix indices of center part start, matrix indices of center part end)
+:type param5: tuple (int, int)
+:param param6: right (matrix indices of right part start, matrix indices of right part end)
+:type param6: tuple (int, int)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(ll,lc,lr,cl,cc,cr,rl,rc,rr) , tuple (float, float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="turbomoleOutputProcessing.turbomoleOutputProcessing.diag_F">
+<code class="sig-prename descclassname">turbomoleOutputProcessing.turbomoleOutputProcessing.</code><code class="sig-name descname">diag_F</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">f_mat_path</span></em>, <em class="sig-param"><span class="n">s_mat_path</span></em>, <em class="sig-param"><span class="n">eigenvalue_list</span><span class="o">=</span><span class="default_value">[]</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/turbomoleOutputProcessing/turbomoleOutputProcessing.html#diag_F"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#turbomoleOutputProcessing.turbomoleOutputProcessing.diag_F" title="Permalink to this definition">¶</a></dt>
+<dd><p>diagonalizes f mat (generalized), other eigenvalues can be used (eigenvalue_list). Solves Fx=l*S*x
+:param param1: filename of fmat
+:type param1: string
+:param param2: filename of smat
+:type param2: string
+:param param3: eigenvalue_list (if specified eigenvalues are taken from eigenvalue_list)
+:type param3: list()</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>fmat (np.ndarray), eigenvalues (np.array), eigenvectors (matrix)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="turbomoleOutputProcessing.turbomoleOutputProcessing.eformat">
+<code class="sig-prename descclassname">turbomoleOutputProcessing.turbomoleOutputProcessing.</code><code class="sig-name descname">eformat</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">f</span></em>, <em class="sig-param"><span class="n">prec</span></em>, <em class="sig-param"><span class="n">exp_digits</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/turbomoleOutputProcessing/turbomoleOutputProcessing.html#eformat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#turbomoleOutputProcessing.turbomoleOutputProcessing.eformat" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="turbomoleOutputProcessing.turbomoleOutputProcessing.find_c_range_atom">
+<code class="sig-prename descclassname">turbomoleOutputProcessing.turbomoleOutputProcessing.</code><code class="sig-name descname">find_c_range_atom</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">atom</span></em>, <em class="sig-param"><span class="n">number</span></em>, <em class="sig-param"><span class="n">coordfile</span></em>, <em class="sig-param"><span class="n">basis_set</span><span class="o">=</span><span class="default_value">'dev-SV(P)'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/turbomoleOutputProcessing/turbomoleOutputProcessing.html#find_c_range_atom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#turbomoleOutputProcessing.turbomoleOutputProcessing.find_c_range_atom" title="Permalink to this definition">¶</a></dt>
+<dd><p>finds atoms range of expansion coef in mos file. number gives wich atoms should be found e.g. two sulfur : first number =1; second = 2</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>param1</strong> (<em>String</em>) -- atom type</p></li>
+<li><p><strong>param2</strong> (<em>int</em>) -- number of atom type atom</p></li>
+<li><p><strong>param3</strong> (<em>String</em>) -- filename for coord file</p></li>
+<li><p><strong>param4</strong> (<em>String</em>) -- basis_set=&quot;dev-SV(P)&quot;</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>tuple (index_start, index_end)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="turbomoleOutputProcessing.turbomoleOutputProcessing.load_xyz_file">
+<code class="sig-prename descclassname">turbomoleOutputProcessing.turbomoleOutputProcessing.</code><code class="sig-name descname">load_xyz_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/turbomoleOutputProcessing/turbomoleOutputProcessing.html#load_xyz_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#turbomoleOutputProcessing.turbomoleOutputProcessing.load_xyz_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>load xyz file and return data. Returns comment line and coord data. Dat content cols: atoms=0, x=1, y=2, z=3</p>
+<blockquote>
+<div><p>param1 (String): filename</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(comment_line (String), datContent (np.ndarray))</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="turbomoleOutputProcessing.turbomoleOutputProcessing.measure_asymmetry">
+<code class="sig-prename descclassname">turbomoleOutputProcessing.turbomoleOutputProcessing.</code><code class="sig-name descname">measure_asymmetry</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">matrix</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/turbomoleOutputProcessing/turbomoleOutputProcessing.html#measure_asymmetry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#turbomoleOutputProcessing.turbomoleOutputProcessing.measure_asymmetry" title="Permalink to this definition">¶</a></dt>
+<dd><p>gives a measure of asymmetry by calculatin max(<a href="#id1"><span class="problematic" id="id2">|matrix-matrix^T|</span></a>) (absvalue elementwise)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>param1</strong> (<em>np.ndarray</em>) -- Input Matrix</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="turbomoleOutputProcessing.turbomoleOutputProcessing.measure_difference">
+<code class="sig-prename descclassname">turbomoleOutputProcessing.turbomoleOutputProcessing.</code><code class="sig-name descname">measure_difference</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">matrix1</span></em>, <em class="sig-param"><span class="n">matrix2</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/turbomoleOutputProcessing/turbomoleOutputProcessing.html#measure_difference"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#turbomoleOutputProcessing.turbomoleOutputProcessing.measure_difference" title="Permalink to this definition">¶</a></dt>
+<dd><p>gives a measure of difference of two symmetric matrices (only upper triangular)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>param1</strong> (<em>np.ndarray</em>) -- matrix1</p></li>
+<li><p><strong>param2</strong> (<em>np.ndarray</em>) -- matrix2</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>tuple of floats (min_error,max_error,avg_error,var_error)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="turbomoleOutputProcessing.turbomoleOutputProcessing.outer_product">
+<code class="sig-prename descclassname">turbomoleOutputProcessing.turbomoleOutputProcessing.</code><code class="sig-name descname">outer_product</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vector1</span></em>, <em class="sig-param"><span class="n">vector2</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/turbomoleOutputProcessing/turbomoleOutputProcessing.html#outer_product"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#turbomoleOutputProcessing.turbomoleOutputProcessing.outer_product" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates out product</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>param1</strong> (<em>np.array</em>) -- vector1</p></li>
+<li><p><strong>param2</strong> (<em>np.array</em>) -- vector2</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="turbomoleOutputProcessing.turbomoleOutputProcessing.read_coord_file">
+<code class="sig-prename descclassname">turbomoleOutputProcessing.turbomoleOutputProcessing.</code><code class="sig-name descname">read_coord_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/turbomoleOutputProcessing/turbomoleOutputProcessing.html#read_coord_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#turbomoleOutputProcessing.turbomoleOutputProcessing.read_coord_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads data in file (eg plot data)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>param1</strong> (<em>String</em>) -- Filename</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>4=fixed]</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>array of lists [line in coordfile][0=x, 1=y, 2=z, 3=atomtype, optional</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="turbomoleOutputProcessing.turbomoleOutputProcessing.read_mos_file">
+<code class="sig-prename descclassname">turbomoleOutputProcessing.turbomoleOutputProcessing.</code><code class="sig-name descname">read_mos_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">skip_lines</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/turbomoleOutputProcessing/turbomoleOutputProcessing.html#read_mos_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#turbomoleOutputProcessing.turbomoleOutputProcessing.read_mos_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>read mos file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>param1</strong> (<em>string</em>) -- filename</p></li>
+<li><p><strong>param2</strong> (<em>int</em>) -- skip_lines=1 (lines to skip )</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>eigenvalue_list (list),eigenvector_list (np.ndarray)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="turbomoleOutputProcessing.turbomoleOutputProcessing.read_packed_matrix">
+<code class="sig-prename descclassname">turbomoleOutputProcessing.turbomoleOutputProcessing.</code><code class="sig-name descname">read_packed_matrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/turbomoleOutputProcessing/turbomoleOutputProcessing.html#read_packed_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#turbomoleOutputProcessing.turbomoleOutputProcessing.read_packed_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>read packed symmetric matrix from file and creates matrix
+returns matrix in scipy.sparse.csc_matrix
+:param param1: filename
+:type param1: string</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>scipy.sparse.csc_matrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="turbomoleOutputProcessing.turbomoleOutputProcessing.read_plot_data">
+<code class="sig-prename descclassname">turbomoleOutputProcessing.turbomoleOutputProcessing.</code><code class="sig-name descname">read_plot_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/turbomoleOutputProcessing/turbomoleOutputProcessing.html#read_plot_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#turbomoleOutputProcessing.turbomoleOutputProcessing.read_plot_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads data in file (eg plot data)
+:param param1: Filename
+:type param1: String</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>datContent, head (Array of lists and header of file)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="turbomoleOutputProcessing.turbomoleOutputProcessing.read_qpenergies">
+<code class="sig-prename descclassname">turbomoleOutputProcessing.turbomoleOutputProcessing.</code><code class="sig-name descname">read_qpenergies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">col</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">skip_lines</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/turbomoleOutputProcessing/turbomoleOutputProcessing.html#read_qpenergies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#turbomoleOutputProcessing.turbomoleOutputProcessing.read_qpenergies" title="Permalink to this definition">¶</a></dt>
+<dd><p>read qpenergies.dat and returns data of given col as list, skip_lines in beginning of file, convert to eV
+col = 0 qpenergies, col = 1 Kohn-Sham, 2 = GW</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>param1</strong> (<em>string</em>) -- filename</p></li>
+<li><p><strong>param2</strong> (<em>int</em>) -- col=2 (column to read)</p></li>
+<li><p><strong>param3</strong> (<em>int</em>) -- skip_lines=1 (lines without data at beginning of qpenergiesfile)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="turbomoleOutputProcessing.turbomoleOutputProcessing.trace_mo">
+<code class="sig-prename descclassname">turbomoleOutputProcessing.turbomoleOutputProcessing.</code><code class="sig-name descname">trace_mo</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ref_mos</span></em>, <em class="sig-param"><span class="n">input_mos</span></em>, <em class="sig-param"><span class="n">s_mat_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/turbomoleOutputProcessing/turbomoleOutputProcessing.html#trace_mo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#turbomoleOutputProcessing.turbomoleOutputProcessing.trace_mo" title="Permalink to this definition">¶</a></dt>
+<dd><p>traces mos from input_mos with reference to ref_mos (eg when order has changed)
+calculates the scalarproduct of input mos with ref_mos and takes the highest match (close to 1)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>param1</strong> (<em>np.ndarray</em>) -- ref_mos</p></li>
+<li><p><strong>param2</strong> (<em>np.ndarray</em>) -- input_mos</p></li>
+<li><p><strong>param3</strong> (<em>string</em>) -- smat path</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list (index with highest match)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="turbomoleOutputProcessing.turbomoleOutputProcessing.write_matrix_packed">
+<code class="sig-prename descclassname">turbomoleOutputProcessing.turbomoleOutputProcessing.</code><code class="sig-name descname">write_matrix_packed</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">matrix</span></em>, <em class="sig-param"><span class="n">filename</span><span class="o">=</span><span class="default_value">'test'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/turbomoleOutputProcessing/turbomoleOutputProcessing.html#write_matrix_packed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#turbomoleOutputProcessing.turbomoleOutputProcessing.write_matrix_packed" title="Permalink to this definition">¶</a></dt>
+<dd><p>write symmetric scipy.sparse.csc_matrix in  in packed storage form</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>param1</strong> (<em>scipi.sparse.csc_matrix</em>) -- input matrix</p></li>
+<li><p><strong>param2</strong> (<em>string</em>) -- filename</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="turbomoleOutputProcessing.turbomoleOutputProcessing.write_mos_file">
+<code class="sig-prename descclassname">turbomoleOutputProcessing.turbomoleOutputProcessing.</code><code class="sig-name descname">write_mos_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">eigenvalues</span></em>, <em class="sig-param"><span class="n">eigenvectors</span></em>, <em class="sig-param"><span class="n">filename</span><span class="o">=</span><span class="default_value">'mos_new.dat'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/turbomoleOutputProcessing/turbomoleOutputProcessing.html#write_mos_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#turbomoleOutputProcessing.turbomoleOutputProcessing.write_mos_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>write mos file, requires python3</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>param1</strong> (<em>np.array</em>) -- eigenvalues</p></li>
+<li><p><strong>param2</strong> (<em>np.ndarray</em>) -- eigenvectors</p></li>
+<li><p><strong>param3</strong> (<em>string</em>) -- filename=&quot;mos_new.dat&quot;</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="turbomoleOutputProcessing.turbomoleOutputProcessing.write_plot_data">
+<code class="sig-prename descclassname">turbomoleOutputProcessing.turbomoleOutputProcessing.</code><code class="sig-name descname">write_plot_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">header</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/turbomoleOutputProcessing/turbomoleOutputProcessing.html#write_plot_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#turbomoleOutputProcessing.turbomoleOutputProcessing.write_plot_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes data in file (eg plot data)
+:param param1: Filename
+:type param1: String
+:param param2: tuple of lists (each entry is one column in data)
+:type param2: tuple
+:param param3: Fileheader
+:type param3: String</p>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="turbomoleOutputProcessing.turbomoleOutputProcessing.write_xyz_file">
+<code class="sig-prename descclassname">turbomoleOutputProcessing.turbomoleOutputProcessing.</code><code class="sig-name descname">write_xyz_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">comment_line</span></em>, <em class="sig-param"><span class="n">datContent</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/turbomoleOutputProcessing/turbomoleOutputProcessing.html#write_xyz_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#turbomoleOutputProcessing.turbomoleOutputProcessing.write_xyz_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>writes xyz file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>param1</strong> (<em>String</em>) -- filename</p></li>
+<li><p><strong>param2</strong> (<em>String</em>) -- commment_line</p></li>
+<li><p><strong>param3</strong> (<em>np.ndarray</em>) -- dat content</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns:</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-turbomoleOutputProcessing">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-turbomoleOutputProcessing" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">turbomoleOutputProcessing package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#turbomoleoutputprocessing-setup-module">turbomoleOutputProcessing.setup module</a></li>
+<li><a class="reference internal" href="#module-turbomoleOutputProcessing.turbomoleOutputProcessing">turbomoleOutputProcessing.turbomoleOutputProcessing module</a></li>
+<li><a class="reference internal" href="#module-turbomoleOutputProcessing">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/source/turbomoleOutputProcessing.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">turbomoleOutputProcessing  documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">turbomoleOutputProcessing package</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Matthias Blaschke.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
+    </div>
+  </body>
+</html>
