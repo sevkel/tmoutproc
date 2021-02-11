@@ -52,8 +52,8 @@ def outer_product(vector1, vector2):
         Calculates out product
 
         Args:
-                param1 (np.array) : vector1
-                param2 (np.array) : vector2
+                param1 (np.array): vector1
+                param2 (np.array): vector2
 
         Returns:
                 np.ndarray
@@ -76,7 +76,7 @@ def measure_asymmetry(matrix):
         gives a measure of asymmetry by calculatin max(|matrix-matrix^T|) (absvalue elementwise)
 
         Args:
-                param1 (np.ndarray) : Input Matrix
+                param1 (np.ndarray): Input Matrix
 
         Returns:
                 float
@@ -91,8 +91,8 @@ def measure_difference(matrix1, matrix2):
         gives a measure of difference of two symmetric matrices (only upper triangular)
 
         Args:
-                param1 (np.ndarray) : matrix1
-                param2 (np.ndarray) : matrix2
+                param1 (np.ndarray): matrix1
+                param2 (np.ndarray): matrix2
 
         Returns: 
                 tuple of floats (min_error,max_error,avg_error,var_error)
@@ -119,11 +119,11 @@ def calculate_A(filename,prefix_length=2, eigenvalue_source = &#34;mos&#34;, eig
         returns matrix in scipy.sparse.csc_matrix and eigenvalue list
 
         Args:
-                param1 (string) : filename
-                param2 (int) : prefix_length (number of skipped lines in mos file)
-                param3 (string) : eigenvalue_source=&#34;mos&#34; (choose eigenvalue source. If not changed: mos file. &#34;qpenergiesKS&#34; or &#34;qpenergiesGW&#34; : taken from ./data/qpenergies.dat)
-                param4 (string) : eigenvalue_path=&#34;&#34; (if specified: eigenvalues are taken from qpenergies file with given path)
-                param5 (int) : eigenvalue_col (if eigenvalue_path is specified the eigenvalue_col in qpenergies is taken (KS=2, GW=3))
+                param1 (string): filename
+                param2 (int): prefix_length (number of skipped lines in mos file)
+                param3 (string): eigenvalue_source=&#34;mos&#34; (choose eigenvalue source. If not changed: mos file. &#34;qpenergiesKS&#34; or &#34;qpenergiesGW&#34; : taken from ./data/qpenergies.dat)
+                param4 (string): eigenvalue_path=&#34;&#34; (if specified: eigenvalues are taken from qpenergies file with given path)
+                param5 (int): eigenvalue_col (if eigenvalue_path is specified the eigenvalue_col in qpenergies is taken (KS=2, GW=3))
 
         Returns:
                 tuple A_i (scipy.sparse.csc_matrix) ,eigenvalue_list (list)
@@ -228,7 +228,7 @@ def read_packed_matrix(filename):
         read packed symmetric matrix from file and creates matrix
         returns matrix in scipy.sparse.csc_matrix
         Args:
-                param1 (string) : filename
+                param1 (string): filename
 
         Returns:
                 scipy.sparse.csc_matrix
@@ -309,8 +309,8 @@ def write_matrix_packed(matrix, filename=&#34;test&#34;):
         write symmetric scipy.sparse.csc_matrix in  in packed storage form
 
         Args:
-                param1 (scipi.sparse.csc_matrix) : input matrix
-                param2 (string) : filename
+                param1 (scipi.sparse.csc_matrix): input matrix
+                param2 (string): filename
 
         Returns:
 
@@ -351,9 +351,9 @@ def read_qpenergies(filename, col=1, skip_lines=1):
         col = 0 qpenergies, col = 1 Kohn-Sham, 2 = GW
 
         Args:
-                param1 (string) : filename
-                param2 (int) : col=2 (column to read)
-                param3 (int) : skip_lines=1 (lines without data at beginning of qpenergiesfile)
+                param1 (string): filename
+                param2 (int): col=2 (column to read)
+                param3 (int): skip_lines=1 (lines without data at beginning of qpenergiesfile)
 
         Returns:
                 list
@@ -383,9 +383,9 @@ def write_mos_file(eigenvalues, eigenvectors, filename=&#34;mos_new.dat&#34;):
         write mos file, requires python3
 
         Args:
-                param1 (np.array) : eigenvalues
-                param2 (np.ndarray) : eigenvectors
-                param3 (string) : filename=&#34;mos_new.dat&#34;
+                param1 (np.array): eigenvalues
+                param2 (np.ndarray): eigenvectors
+                param3 (string): filename=&#34;mos_new.dat&#34;
         &#34;&#34;&#34;
         f = open(filename, &#34;w&#34;)
         #header
@@ -414,8 +414,8 @@ def read_mos_file(filename, skip_lines=1):
         read mos file 
 
         Args:
-                param1 (string) : filename
-                param2 (int) : skip_lines=1 (lines to skip )
+                param1 (string): filename
+                param2 (int): skip_lines=1 (lines to skip )
 
         Returns:
                 eigenvalue_list (list),eigenvector_list (np.ndarray)
@@ -471,8 +471,12 @@ def read_mos_file(filename, skip_lines=1):
                                         continue
                                 
                                 
-                                line_split = [line[i:i+n] for i in range(0, len(line), n)]                                                      
-                                C_vec.extend([float(line_split[j].replace(&#34;D&#34;,&#34;E&#34;))  for j in range(0,len(line_split)-1)][0:4])
+                                line_split = [line[i:i+n] for i in range(0, len(line), n)]
+                                try:                                                    
+                                        C_vec.extend([float(line_split[j].replace(&#34;D&#34;,&#34;E&#34;))  for j in range(0,len(line_split)-1)][0:4])
+                                except ValueError:
+                                        print(&#34;sorry faulty mos file &#34; + filename)
+                                        raise ValueError(&#39;Sorry. faulty mos file&#39;)
                                 #print(len(C_vec))
                                 
                         counter += 1
@@ -492,11 +496,11 @@ def trace_mo(ref_mos, input_mos, s_mat_path, tolerance=-1, num_cpu = 8):
         calculates the scalarproduct of input mos with ref_mos and takes the highest match (close to 1)
 
         Args:
-                param1 (np.ndarray) : ref_mos
-                param2 (np.ndarray) : input_mos
-                param3 (string) : smat path
-                param4 (int) : tolerance = -1 (if specified a maximum shift of mo index (+-tolerance) is assumed -&gt; saves computation time)
-                param4 (int) : num_cpu (number of cores for calculation)
+                param1 (np.ndarray): ref_mos
+                param2 (np.ndarray): input_mos
+                param3 (string): smat path
+                param4 (int): tolerance = -1 (if specified a maximum shift of mo index (+-tolerance) is assumed -&gt; saves computation time)
+                param4 (int): num_cpu (number of cores for calculation)
 
         Returns:
                 list (index with highest match)
@@ -526,9 +530,9 @@ def trace_mo(ref_mos, input_mos, s_mat_path):
         calculates the scalarproduct of input mos with ref_mos and takes the highest match (close to 1)
 
         Args:
-                param1 (np.ndarray) : ref_mos
-                param2 (np.ndarray) : input_mos
-                param3 (string) : smat path             
+                param1 (np.ndarray): ref_mos
+                param2 (np.ndarray): input_mos
+                param3 (string): smat path              
 
         Returns:
                 list (index with highest match)
@@ -556,9 +560,9 @@ def diag_F(f_mat_path, s_mat_path, eigenvalue_list = list()):
         &#34;&#34;&#34;
         diagonalizes f mat (generalized), other eigenvalues can be used (eigenvalue_list). Solves Fx=l*S*x
         Args:
-                param1 (string) : filename of fmat
-                param2 (string) : filename of smat
-                param3 (list()) : eigenvalue_list (if specified eigenvalues are taken from eigenvalue_list)
+                param1 (string): filename of fmat
+                param2 (string): filename of smat
+                param3 (list()): eigenvalue_list (if specified eigenvalues are taken from eigenvalue_list)
 
         Returns:
                 fmat (np.ndarray), eigenvalues (np.array), eigenvectors (matrix)
@@ -615,11 +619,12 @@ def diag_F(f_mat_path, s_mat_path, eigenvalue_list = list()):
 def calculate_F_i(i, eigenvalues, eigenvectors, sc_mat):
         &#34;&#34;&#34;
         Calculates contribution of mo i to fmat
+
         Args:
-                param2 (int) : i (mo which is considered)
-                param2 (list) : eigenvalues
-                param3 (matrix) : eigenvectors
-                param4 (matrix) : s_mat*c_mat
+                param2 (int): i (mo which is considered)
+                param2 (list): eigenvalues
+                param3 (matrix): eigenvectors
+                param4 (matrix): s_mat*c_mat
 
         Returns:
                 F_i (F_i matrix (contribution of mo i to F_mat))
@@ -636,10 +641,11 @@ def calculate_F_i(i, eigenvalues, eigenvectors, sc_mat):
 def calculate_F_splitted(eigenvalues, eigenvectors, s_mat_path):
         &#34;&#34;&#34;
         Calculates contribution of every mo to fmat 
+
         Args:
-                param1 (list) : eigenvalues
-                param2 (matrix) : eigenvectors
-                param3 (string) : path to smat
+                param1 (list): eigenvalues
+                param2 (matrix): eigenvectors
+                param3 (string): path to smat
 
         Returns:
                 F_i (list of matrices)
@@ -660,12 +666,13 @@ def calculate_localization_mo_i(c_l, c_r, s_ll, s_lr, s_rr ):
         Calculates localization of mo 1 = c_l*s_lr*c_r + c_r*s_lr*c_l+c_l*s_ll*c_l + c_r*s_rr*c_r.
         The last two summands describe the localization in left and richt part (defined as Q_l and Q_r) or any other
         given part of mos.
+
         Args:
-                param1 (array) : mo_left
-                param2 (array) : mo_right
-                param3 (matrix) : s_ll
-                param4 (matrix) : s_lr
-                param5 (matrix) :  s_rr 
+                param1 (array): mo_left
+                param2 (array): mo_right
+                param3 (matrix): s_ll
+                param4 (matrix): s_lr
+                param5 (matrix):  s_rr
 
         Returns:
                 (Q_l, Q_r) , tuple (float, float)
@@ -690,13 +697,14 @@ def calculate_localization_mo_i(i, eigenvectors, s_mat, left, center, right):
         Calculates localization of mo 1 = c_l*s_lr*c_r + c_r*s_lr*c_l+c_l*s_ll*c_l + c_r*s_rr*c_r.
         The last two summands describe the localization in left and richt part (defined as Q_l and Q_r) or any other
         given part of mos.
+
         Args:
-                param1 (int) : molecular oribital
-                param2 (ndarray) : eigenvectors
-                param3 (ndarray) : smat
-                param4 (tuple (int, int)) : left (matrix indices of left part start, matrix indices of left part end)
-                param5 (tuple (int, int)) : center (matrix indices of center part start, matrix indices of center part end)
-                param6 (tuple (int, int)) : right (matrix indices of right part start, matrix indices of right part end)
+                param1 (int): molecular oribital
+                param2 (ndarray): eigenvectors
+                param3 (ndarray): smat
+                param4 (tuple (int, int)): left (matrix indices of left part start, matrix indices of left part end)
+                param5 (tuple (int, int)): center (matrix indices of center part start, matrix indices of center part end)
+                param6 (tuple (int, int)): right (matrix indices of right part start, matrix indices of right part end)
 
         Returns:
                 (ll,lc,lr,cl,cc,cr,rl,rc,rr) , tuple (float, float)
@@ -736,12 +744,12 @@ def calculate_localization_mo(c, s_mat, left, right):
         The last two summands describe the localization in left and richt part (defined as Q_l and Q_r).
         The algorithm is not restricted to the left and right parts, but can be used to analyse the given
         mos. Thus the L-C, C-R coupling and localization can be analysed, too. 
+
         Args:
-                param1 (matrix) : eigencectors
-                param2 (matrix) : s matrix
-                param3 ((int, int)) : left (matrix indices of left part start, matrix indices of left part end)
-                param4 ((int, int)) : right (matrix indices of right part start, matrix indices of right part end)
-                
+                param1 (matrix): eigencectors
+                param2 (matrix): s matrix
+                param3 ((int, int)): left (matrix indices of left part start, matrix indices of left part end)
+                param4 ((int, int)): right (matrix indices of right part start, matrix indices of right part end)
 
         Returns:
                 List of tuples (Q_l, Q_r) (Localization of each mo)
@@ -763,10 +771,11 @@ def calculate_localization_mo(c, s_mat, left, right):
 def write_plot_data(filename, data, header=&#34;&#34;):
         &#34;&#34;&#34;
         Writes data in file (eg plot data) 
+
         Args:
-                param1 (String) : Filename
-                param2 (tuple) : tuple of lists (each entry is one column in data)
-                param3 (String) : Fileheader
+                param1 (String): Filename
+                param2 (tuple): tuple of lists (each entry is one column in data)
+                param3 (String): Fileheader
                 
 
         Returns:
@@ -790,9 +799,10 @@ def write_plot_data(filename, data, header=&#34;&#34;):
 
 def read_plot_data(filename):
         &#34;&#34;&#34;
-        Reads data in file (eg plot data) 
+        Reads data in file (eg plot data)
+
         Args:
-                param1 (String) : Filename
+                param1 (String): Filename
                 
                 
 
@@ -812,7 +822,7 @@ def read_coord_file(filename):
         Reads data in file (eg plot data) 
 
         Args:
-                param1 (String) : Filename
+                param1 (String): Filename
                 
                 
 
@@ -825,7 +835,7 @@ def build_permutation_matrix(input_list):
         Builds permutation matrix to permute cols in eigenvector matrix (-&gt; reordering). Usage: (matrix)*permut or permut*eigenvector
 
         Args:
-                param1 (list(int)) : List of current order
+                param1 (list(int)): List of current order
                 
                 
 
@@ -846,7 +856,7 @@ def read_coord_file(filename):
         Reads data in file (eg plot data) 
         
         Args:
-                param1 (String) : Filename
+                param1 (String): Filename
                 
                 
 
@@ -863,10 +873,10 @@ def find_c_range_atom(atom, number, coordfile, basis_set=&#34;dev-SV(P)&#34;):
         finds atoms range of expansion coef in mos file. number gives wich atoms should be found e.g. two sulfur : first number =1; second = 2
 
         Args:
-                param1 (String) : atom type
-                param2 (int) : number of atom type atom
-                param3 (String) : filename for coord file
-                param4 (String) : basis_set=&#34;dev-SV(P)&#34; 
+                param1 (String): atom type
+                param2 (int): number of atom type atom
+                param3 (String): filename for coord file
+                param4 (String): basis_set=&#34;dev-SV(P)&#34;
                 
 
         Returns:
@@ -875,14 +885,14 @@ def find_c_range_atom(atom, number, coordfile, basis_set=&#34;dev-SV(P)&#34;):
         def atom_type_to_number_coeff(atom):
                 if(atom == &#34;c&#34;):
                         return 14
-                elif(current_atom == &#34;h&#34;):
+                elif(atom == &#34;h&#34;):
                         return 2
-                elif(current_atom == &#34;au&#34;):
+                elif(atom == &#34;au&#34;):
                         return 25
-                elif(current_atom == &#34;s&#34;):
+                elif(atom == &#34;s&#34;):
                         return 18
                 else:
-                        raise ValueError(&#39;Sorry. This feature is not implemented for following atom: &#39; + current_atom)
+                        raise ValueError(&#39;Sorry. This feature is not implemented for following atom: &#39; + atom)
 
         coord_content = read_coord_file(coordfile)
         if(basis_set==&#34;dev-SV(P)&#34;):
@@ -890,7 +900,7 @@ def find_c_range_atom(atom, number, coordfile, basis_set=&#34;dev-SV(P)&#34;):
                 number_expansion_coeff = 0
                 for i in range(0, len(coord_content)):
                         current_atom = coord_content[i][3]
-                        
+
                         if(current_atom == atom):                               
                                 number_found_atoms_of_type+=1
                                 if(number_found_atoms_of_type == number):                               
@@ -908,8 +918,9 @@ def find_c_range_atom(atom, number, coordfile, basis_set=&#34;dev-SV(P)&#34;):
 def load_xyz_file(filename):
         &#34;&#34;&#34;
         load xyz file and return data. Returns comment line and coord data. Dat content cols: atoms=0, x=1, y=2, z=3
-                
-                param1 (String) : filename
+        
+        Args:
+                param1 (String): filename
                 
 
         Returns:
@@ -923,9 +934,10 @@ def write_xyz_file(filename, comment_line, datContent):
         &#34;&#34;&#34;
         writes xyz file.
 
-                param1 (String) : filename
-                param2 (String) : commment_line
-                param3 (np.ndarray) : dat content
+        Args:
+                param1 (String): filename
+                param2 (String): commment_line
+                param3 (np.ndarray): dat content
 
         Returns:
                 
@@ -953,7 +965,7 @@ def write_xyz_file(filename, comment_line, datContent):
 <dd>
 <div class="desc"><p>Builds permutation matrix to permute cols in eigenvector matrix (-&gt; reordering). Usage: (matrix)<em>permut or permut</em>eigenvector</p>
 <h2 id="args">Args</h2>
-<p>param1 (list(int)) : List of current order</p>
+<p>param1 (list(int)): List of current order</p>
 <h2 id="returns">Returns</h2>
 <p>permutation matrix (np.ndarray)</p></div>
 <details class="source">
@@ -965,7 +977,7 @@ def write_xyz_file(filename, comment_line, datContent):
         Builds permutation matrix to permute cols in eigenvector matrix (-&gt; reordering). Usage: (matrix)*permut or permut*eigenvector
 
         Args:
-                param1 (list(int)) : List of current order
+                param1 (list(int)): List of current order
                 
                 
 
@@ -988,11 +1000,18 @@ def write_xyz_file(filename, comment_line, datContent):
 if eigenvalue_path is specified you can give custom path to qpenergies and col to read
 returns matrix in scipy.sparse.csc_matrix and eigenvalue list</p>
 <h2 id="args">Args</h2>
-<p>param1 (string) : filename
-param2 (int) : prefix_length (number of skipped lines in mos file)
-param3 (string) : eigenvalue_source="mos" (choose eigenvalue source. If not changed: mos file. "qpenergiesKS" or "qpenergiesGW" : taken from ./data/qpenergies.dat)
-param4 (string) : eigenvalue_path="" (if specified: eigenvalues are taken from qpenergies file with given path)
-param5 (int) : eigenvalue_col (if eigenvalue_path is specified the eigenvalue_col in qpenergies is taken (KS=2, GW=3))</p>
+<dl>
+<dt><strong><code>param1</code></strong> :&ensp;<code>string</code></dt>
+<dd>filename</dd>
+<dt><strong><code>param2</code></strong> :&ensp;<code>int</code></dt>
+<dd>prefix_length (number of skipped lines in mos file)</dd>
+<dt><strong><code>param3</code></strong> :&ensp;<code>string</code></dt>
+<dd>eigenvalue_source="mos" (choose eigenvalue source. If not changed: mos file. "qpenergiesKS" or "qpenergiesGW" : taken from ./data/qpenergies.dat)</dd>
+<dt><strong><code>param4</code></strong> :&ensp;<code>string</code></dt>
+<dd>eigenvalue_path="" (if specified: eigenvalues are taken from qpenergies file with given path)</dd>
+<dt><strong><code>param5</code></strong> :&ensp;<code>int</code></dt>
+<dd>eigenvalue_col (if eigenvalue_path is specified the eigenvalue_col in qpenergies is taken (KS=2, GW=3))</dd>
+</dl>
 <h2 id="returns">Returns</h2>
 <p>tuple A_i (scipy.sparse.csc_matrix) ,eigenvalue_list (list)</p></div>
 <details class="source">
@@ -1006,11 +1025,11 @@ param5 (int) : eigenvalue_col (if eigenvalue_path is specified the eigenvalue_co
         returns matrix in scipy.sparse.csc_matrix and eigenvalue list
 
         Args:
-                param1 (string) : filename
-                param2 (int) : prefix_length (number of skipped lines in mos file)
-                param3 (string) : eigenvalue_source=&#34;mos&#34; (choose eigenvalue source. If not changed: mos file. &#34;qpenergiesKS&#34; or &#34;qpenergiesGW&#34; : taken from ./data/qpenergies.dat)
-                param4 (string) : eigenvalue_path=&#34;&#34; (if specified: eigenvalues are taken from qpenergies file with given path)
-                param5 (int) : eigenvalue_col (if eigenvalue_path is specified the eigenvalue_col in qpenergies is taken (KS=2, GW=3))
+                param1 (string): filename
+                param2 (int): prefix_length (number of skipped lines in mos file)
+                param3 (string): eigenvalue_source=&#34;mos&#34; (choose eigenvalue source. If not changed: mos file. &#34;qpenergiesKS&#34; or &#34;qpenergiesGW&#34; : taken from ./data/qpenergies.dat)
+                param4 (string): eigenvalue_path=&#34;&#34; (if specified: eigenvalues are taken from qpenergies file with given path)
+                param5 (int): eigenvalue_col (if eigenvalue_path is specified the eigenvalue_col in qpenergies is taken (KS=2, GW=3))
 
         Returns:
                 tuple A_i (scipy.sparse.csc_matrix) ,eigenvalue_list (list)
@@ -1115,10 +1134,16 @@ param5 (int) : eigenvalue_col (if eigenvalue_path is specified the eigenvalue_co
 <dd>
 <div class="desc"><p>Calculates contribution of mo i to fmat</p>
 <h2 id="args">Args</h2>
-<p>param2 (int) : i (mo which is considered)
-param2 (list) : eigenvalues
-param3 (matrix) : eigenvectors
-param4 (matrix) : s_mat*c_mat</p>
+<dl>
+<dt><strong><code>param2</code></strong> :&ensp;<code>int</code></dt>
+<dd>i (mo which is considered)</dd>
+<dt><strong><code>param2</code></strong> :&ensp;<code>list</code></dt>
+<dd>eigenvalues</dd>
+<dt><strong><code>param3</code></strong> :&ensp;<code>matrix</code></dt>
+<dd>eigenvectors</dd>
+<dt><strong><code>param4</code></strong> :&ensp;<code>matrix</code></dt>
+<dd>s_mat*c_mat</dd>
+</dl>
 <h2 id="returns">Returns</h2>
 <p>F_i (F_i matrix (contribution of mo i to F_mat))</p></div>
 <details class="source">
@@ -1128,11 +1153,12 @@ param4 (matrix) : s_mat*c_mat</p>
 <pre><code class="python">def calculate_F_i(i, eigenvalues, eigenvectors, sc_mat):
         &#34;&#34;&#34;
         Calculates contribution of mo i to fmat
+
         Args:
-                param2 (int) : i (mo which is considered)
-                param2 (list) : eigenvalues
-                param3 (matrix) : eigenvectors
-                param4 (matrix) : s_mat*c_mat
+                param2 (int): i (mo which is considered)
+                param2 (list): eigenvalues
+                param3 (matrix): eigenvectors
+                param4 (matrix): s_mat*c_mat
 
         Returns:
                 F_i (F_i matrix (contribution of mo i to F_mat))
@@ -1152,9 +1178,14 @@ param4 (matrix) : s_mat*c_mat</p>
 <dd>
 <div class="desc"><p>Calculates contribution of every mo to fmat </p>
 <h2 id="args">Args</h2>
-<p>param1 (list) : eigenvalues
-param2 (matrix) : eigenvectors
-param3 (string) : path to smat</p>
+<dl>
+<dt><strong><code>param1</code></strong> :&ensp;<code>list</code></dt>
+<dd>eigenvalues</dd>
+<dt><strong><code>param2</code></strong> :&ensp;<code>matrix</code></dt>
+<dd>eigenvectors</dd>
+<dt><strong><code>param3</code></strong> :&ensp;<code>string</code></dt>
+<dd>path to smat</dd>
+</dl>
 <h2 id="returns">Returns</h2>
 <p>F_i (list of matrices)</p></div>
 <details class="source">
@@ -1164,10 +1195,11 @@ param3 (string) : path to smat</p>
 <pre><code class="python">def calculate_F_splitted(eigenvalues, eigenvectors, s_mat_path):
         &#34;&#34;&#34;
         Calculates contribution of every mo to fmat 
+
         Args:
-                param1 (list) : eigenvalues
-                param2 (matrix) : eigenvectors
-                param3 (string) : path to smat
+                param1 (list): eigenvalues
+                param2 (matrix): eigenvectors
+                param3 (string): path to smat
 
         Returns:
                 F_i (list of matrices)
@@ -1191,10 +1223,14 @@ The last two summands describe the localization in left and richt part (defined 
 The algorithm is not restricted to the left and right parts, but can be used to analyse the given
 mos. Thus the L-C, C-R coupling and localization can be analysed, too. </p>
 <h2 id="args">Args</h2>
-<p>param1 (matrix) : eigencectors
-param2 (matrix) : s matrix
-param3 ((int, int)) : left (matrix indices of left part start, matrix indices of left part end)
-param4 ((int, int)) : right (matrix indices of right part start, matrix indices of right part end)</p>
+<dl>
+<dt><strong><code>param1</code></strong> :&ensp;<code>matrix</code></dt>
+<dd>eigencectors</dd>
+<dt><strong><code>param2</code></strong> :&ensp;<code>matrix</code></dt>
+<dd>s matrix</dd>
+</dl>
+<p>param3 ((int, int)): left (matrix indices of left part start, matrix indices of left part end)
+param4 ((int, int)): right (matrix indices of right part start, matrix indices of right part end)</p>
 <h2 id="returns">Returns</h2>
 <p>List of tuples (Q_l, Q_r) (Localization of each mo)</p></div>
 <details class="source">
@@ -1207,12 +1243,12 @@ param4 ((int, int)) : right (matrix indices of right part start, matrix indices 
         The last two summands describe the localization in left and richt part (defined as Q_l and Q_r).
         The algorithm is not restricted to the left and right parts, but can be used to analyse the given
         mos. Thus the L-C, C-R coupling and localization can be analysed, too. 
+
         Args:
-                param1 (matrix) : eigencectors
-                param2 (matrix) : s matrix
-                param3 ((int, int)) : left (matrix indices of left part start, matrix indices of left part end)
-                param4 ((int, int)) : right (matrix indices of right part start, matrix indices of right part end)
-                
+                param1 (matrix): eigencectors
+                param2 (matrix): s matrix
+                param3 ((int, int)): left (matrix indices of left part start, matrix indices of left part end)
+                param4 ((int, int)): right (matrix indices of right part start, matrix indices of right part end)
 
         Returns:
                 List of tuples (Q_l, Q_r) (Localization of each mo)
@@ -1238,12 +1274,17 @@ param4 ((int, int)) : right (matrix indices of right part start, matrix indices 
 The last two summands describe the localization in left and richt part (defined as Q_l and Q_r) or any other
 given part of mos.</p>
 <h2 id="args">Args</h2>
-<p>param1 (int) : molecular oribital
-param2 (ndarray) : eigenvectors
-param3 (ndarray) : smat
-param4 (tuple (int, int)) : left (matrix indices of left part start, matrix indices of left part end)
-param5 (tuple (int, int)) : center (matrix indices of center part start, matrix indices of center part end)
-param6 (tuple (int, int)) : right (matrix indices of right part start, matrix indices of right part end)</p>
+<dl>
+<dt><strong><code>param1</code></strong> :&ensp;<code>int</code></dt>
+<dd>molecular oribital</dd>
+<dt><strong><code>param2</code></strong> :&ensp;<code>ndarray</code></dt>
+<dd>eigenvectors</dd>
+<dt><strong><code>param3</code></strong> :&ensp;<code>ndarray</code></dt>
+<dd>smat</dd>
+</dl>
+<p>param4 (tuple (int, int)): left (matrix indices of left part start, matrix indices of left part end)
+param5 (tuple (int, int)): center (matrix indices of center part start, matrix indices of center part end)
+param6 (tuple (int, int)): right (matrix indices of right part start, matrix indices of right part end)</p>
 <h2 id="returns">Returns</h2>
 <p>(ll,lc,lr,cl,cc,cr,rl,rc,rr) , tuple (float, float)</p></div>
 <details class="source">
@@ -1255,13 +1296,14 @@ param6 (tuple (int, int)) : right (matrix indices of right part start, matrix in
         Calculates localization of mo 1 = c_l*s_lr*c_r + c_r*s_lr*c_l+c_l*s_ll*c_l + c_r*s_rr*c_r.
         The last two summands describe the localization in left and richt part (defined as Q_l and Q_r) or any other
         given part of mos.
+
         Args:
-                param1 (int) : molecular oribital
-                param2 (ndarray) : eigenvectors
-                param3 (ndarray) : smat
-                param4 (tuple (int, int)) : left (matrix indices of left part start, matrix indices of left part end)
-                param5 (tuple (int, int)) : center (matrix indices of center part start, matrix indices of center part end)
-                param6 (tuple (int, int)) : right (matrix indices of right part start, matrix indices of right part end)
+                param1 (int): molecular oribital
+                param2 (ndarray): eigenvectors
+                param3 (ndarray): smat
+                param4 (tuple (int, int)): left (matrix indices of left part start, matrix indices of left part end)
+                param5 (tuple (int, int)): center (matrix indices of center part start, matrix indices of center part end)
+                param6 (tuple (int, int)): right (matrix indices of right part start, matrix indices of right part end)
 
         Returns:
                 (ll,lc,lr,cl,cc,cr,rl,rc,rr) , tuple (float, float)
@@ -1301,9 +1343,13 @@ param6 (tuple (int, int)) : right (matrix indices of right part start, matrix in
 <dd>
 <div class="desc"><p>diagonalizes f mat (generalized), other eigenvalues can be used (eigenvalue_list). Solves Fx=l<em>S</em>x</p>
 <h2 id="args">Args</h2>
-<p>param1 (string) : filename of fmat
-param2 (string) : filename of smat
-param3 (list()) : eigenvalue_list (if specified eigenvalues are taken from eigenvalue_list)</p>
+<dl>
+<dt><strong><code>param1</code></strong> :&ensp;<code>string</code></dt>
+<dd>filename of fmat</dd>
+<dt><strong><code>param2</code></strong> :&ensp;<code>string</code></dt>
+<dd>filename of smat</dd>
+</dl>
+<p>param3 (list()): eigenvalue_list (if specified eigenvalues are taken from eigenvalue_list)</p>
 <h2 id="returns">Returns</h2>
 <p>fmat (np.ndarray), eigenvalues (np.array), eigenvectors (matrix)</p></div>
 <details class="source">
@@ -1314,9 +1360,9 @@ param3 (list()) : eigenvalue_list (if specified eigenvalues are taken from eigen
         &#34;&#34;&#34;
         diagonalizes f mat (generalized), other eigenvalues can be used (eigenvalue_list). Solves Fx=l*S*x
         Args:
-                param1 (string) : filename of fmat
-                param2 (string) : filename of smat
-                param3 (list()) : eigenvalue_list (if specified eigenvalues are taken from eigenvalue_list)
+                param1 (string): filename of fmat
+                param2 (string): filename of smat
+                param3 (list()): eigenvalue_list (if specified eigenvalues are taken from eigenvalue_list)
 
         Returns:
                 fmat (np.ndarray), eigenvalues (np.array), eigenvectors (matrix)
@@ -1394,10 +1440,16 @@ param3 (list()) : eigenvalue_list (if specified eigenvalues are taken from eigen
 <dd>
 <div class="desc"><p>finds atoms range of expansion coef in mos file. number gives wich atoms should be found e.g. two sulfur : first number =1; second = 2</p>
 <h2 id="args">Args</h2>
-<p>param1 (String) : atom type
-param2 (int) : number of atom type atom
-param3 (String) : filename for coord file
-param4 (String) : basis_set="dev-SV(P)" </p>
+<dl>
+<dt><strong><code>param1</code></strong> :&ensp;<code>String</code></dt>
+<dd>atom type</dd>
+<dt><strong><code>param2</code></strong> :&ensp;<code>int</code></dt>
+<dd>number of atom type atom</dd>
+<dt><strong><code>param3</code></strong> :&ensp;<code>String</code></dt>
+<dd>filename for coord file</dd>
+<dt><strong><code>param4</code></strong> :&ensp;<code>String</code></dt>
+<dd>basis_set="dev-SV(P)"</dd>
+</dl>
 <h2 id="returns">Returns</h2>
 <p>tuple (index_start, index_end)</p></div>
 <details class="source">
@@ -1409,10 +1461,10 @@ param4 (String) : basis_set="dev-SV(P)" </p>
         finds atoms range of expansion coef in mos file. number gives wich atoms should be found e.g. two sulfur : first number =1; second = 2
 
         Args:
-                param1 (String) : atom type
-                param2 (int) : number of atom type atom
-                param3 (String) : filename for coord file
-                param4 (String) : basis_set=&#34;dev-SV(P)&#34; 
+                param1 (String): atom type
+                param2 (int): number of atom type atom
+                param3 (String): filename for coord file
+                param4 (String): basis_set=&#34;dev-SV(P)&#34;
                 
 
         Returns:
@@ -1421,14 +1473,14 @@ param4 (String) : basis_set="dev-SV(P)" </p>
         def atom_type_to_number_coeff(atom):
                 if(atom == &#34;c&#34;):
                         return 14
-                elif(current_atom == &#34;h&#34;):
+                elif(atom == &#34;h&#34;):
                         return 2
-                elif(current_atom == &#34;au&#34;):
+                elif(atom == &#34;au&#34;):
                         return 25
-                elif(current_atom == &#34;s&#34;):
+                elif(atom == &#34;s&#34;):
                         return 18
                 else:
-                        raise ValueError(&#39;Sorry. This feature is not implemented for following atom: &#39; + current_atom)
+                        raise ValueError(&#39;Sorry. This feature is not implemented for following atom: &#39; + atom)
 
         coord_content = read_coord_file(coordfile)
         if(basis_set==&#34;dev-SV(P)&#34;):
@@ -1436,7 +1488,7 @@ param4 (String) : basis_set="dev-SV(P)" </p>
                 number_expansion_coeff = 0
                 for i in range(0, len(coord_content)):
                         current_atom = coord_content[i][3]
-                        
+
                         if(current_atom == atom):                               
                                 number_found_atoms_of_type+=1
                                 if(number_found_atoms_of_type == number):                               
@@ -1456,8 +1508,11 @@ param4 (String) : basis_set="dev-SV(P)" </p>
 </code></dt>
 <dd>
 <div class="desc"><p>load xyz file and return data. Returns comment line and coord data. Dat content cols: atoms=0, x=1, y=2, z=3</p>
-<pre><code>    param1 (String) : filename
-</code></pre>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>param1</code></strong> :&ensp;<code>String</code></dt>
+<dd>filename</dd>
+</dl>
 <h2 id="returns">Returns</h2>
 <p>(comment_line (String), datContent (np.ndarray))</p></div>
 <details class="source">
@@ -1467,8 +1522,9 @@ param4 (String) : basis_set="dev-SV(P)" </p>
 <pre><code class="python">def load_xyz_file(filename):
         &#34;&#34;&#34;
         load xyz file and return data. Returns comment line and coord data. Dat content cols: atoms=0, x=1, y=2, z=3
-                
-                param1 (String) : filename
+        
+        Args:
+                param1 (String): filename
                 
 
         Returns:
@@ -1485,7 +1541,10 @@ param4 (String) : basis_set="dev-SV(P)" </p>
 <dd>
 <div class="desc"><p>gives a measure of asymmetry by calculatin max(|matrix-matrix^T|) (absvalue elementwise)</p>
 <h2 id="args">Args</h2>
-<p>param1 (np.ndarray) : Input Matrix</p>
+<dl>
+<dt><strong><code>param1</code></strong> :&ensp;<code>np.ndarray</code></dt>
+<dd>Input Matrix</dd>
+</dl>
 <h2 id="returns">Returns</h2>
 <p>float</p></div>
 <details class="source">
@@ -1497,7 +1556,7 @@ param4 (String) : basis_set="dev-SV(P)" </p>
         gives a measure of asymmetry by calculatin max(|matrix-matrix^T|) (absvalue elementwise)
 
         Args:
-                param1 (np.ndarray) : Input Matrix
+                param1 (np.ndarray): Input Matrix
 
         Returns:
                 float
@@ -1513,9 +1572,13 @@ param4 (String) : basis_set="dev-SV(P)" </p>
 <dd>
 <div class="desc"><p>gives a measure of difference of two symmetric matrices (only upper triangular)</p>
 <h2 id="args">Args</h2>
-<p>param1 (np.ndarray) : matrix1
-param2 (np.ndarray) : matrix2
-Returns:
+<dl>
+<dt><strong><code>param1</code></strong> :&ensp;<code>np.ndarray</code></dt>
+<dd>matrix1</dd>
+<dt><strong><code>param2</code></strong> :&ensp;<code>np.ndarray</code></dt>
+<dd>matrix2</dd>
+</dl>
+<p>Returns:
 tuple of floats (min_error,max_error,avg_error,var_error)</p></div>
 <details class="source">
 <summary>
@@ -1526,8 +1589,8 @@ tuple of floats (min_error,max_error,avg_error,var_error)</p></div>
         gives a measure of difference of two symmetric matrices (only upper triangular)
 
         Args:
-                param1 (np.ndarray) : matrix1
-                param2 (np.ndarray) : matrix2
+                param1 (np.ndarray): matrix1
+                param2 (np.ndarray): matrix2
 
         Returns: 
                 tuple of floats (min_error,max_error,avg_error,var_error)
@@ -1550,8 +1613,12 @@ tuple of floats (min_error,max_error,avg_error,var_error)</p></div>
 <dd>
 <div class="desc"><p>Calculates out product</p>
 <h2 id="args">Args</h2>
-<p>param1 (np.array) : vector1
-param2 (np.array) : vector2</p>
+<dl>
+<dt><strong><code>param1</code></strong> :&ensp;<code>np.array</code></dt>
+<dd>vector1</dd>
+<dt><strong><code>param2</code></strong> :&ensp;<code>np.array</code></dt>
+<dd>vector2</dd>
+</dl>
 <h2 id="returns">Returns</h2>
 <p>np.ndarray</p></div>
 <details class="source">
@@ -1563,8 +1630,8 @@ param2 (np.array) : vector2</p>
         Calculates out product
 
         Args:
-                param1 (np.array) : vector1
-                param2 (np.array) : vector2
+                param1 (np.array): vector1
+                param2 (np.array): vector2
 
         Returns:
                 np.ndarray
@@ -1579,7 +1646,10 @@ param2 (np.array) : vector2</p>
 <dd>
 <div class="desc"><p>Reads data in file (eg plot data) </p>
 <h2 id="args">Args</h2>
-<p>param1 (String) : Filename</p>
+<dl>
+<dt><strong><code>param1</code></strong> :&ensp;<code>String</code></dt>
+<dd>Filename</dd>
+</dl>
 <h2 id="returns">Returns</h2>
 <p>array of lists [line in coordfile][0=x, 1=y, 2=z, 3=atomtype, optional: 4=fixed]</p></div>
 <details class="source">
@@ -1591,7 +1661,7 @@ param2 (np.array) : vector2</p>
         Reads data in file (eg plot data) 
         
         Args:
-                param1 (String) : Filename
+                param1 (String): Filename
                 
                 
 
@@ -1610,8 +1680,12 @@ param2 (np.array) : vector2</p>
 <dd>
 <div class="desc"><p>read mos file </p>
 <h2 id="args">Args</h2>
-<p>param1 (string) : filename
-param2 (int) : skip_lines=1 (lines to skip )</p>
+<dl>
+<dt><strong><code>param1</code></strong> :&ensp;<code>string</code></dt>
+<dd>filename</dd>
+<dt><strong><code>param2</code></strong> :&ensp;<code>int</code></dt>
+<dd>skip_lines=1 (lines to skip )</dd>
+</dl>
 <h2 id="returns">Returns</h2>
 <p>eigenvalue_list (list),eigenvector_list (np.ndarray)</p></div>
 <details class="source">
@@ -1623,8 +1697,8 @@ param2 (int) : skip_lines=1 (lines to skip )</p>
         read mos file 
 
         Args:
-                param1 (string) : filename
-                param2 (int) : skip_lines=1 (lines to skip )
+                param1 (string): filename
+                param2 (int): skip_lines=1 (lines to skip )
 
         Returns:
                 eigenvalue_list (list),eigenvector_list (np.ndarray)
@@ -1680,8 +1754,12 @@ param2 (int) : skip_lines=1 (lines to skip )</p>
                                         continue
                                 
                                 
-                                line_split = [line[i:i+n] for i in range(0, len(line), n)]                                                      
-                                C_vec.extend([float(line_split[j].replace(&#34;D&#34;,&#34;E&#34;))  for j in range(0,len(line_split)-1)][0:4])
+                                line_split = [line[i:i+n] for i in range(0, len(line), n)]
+                                try:                                                    
+                                        C_vec.extend([float(line_split[j].replace(&#34;D&#34;,&#34;E&#34;))  for j in range(0,len(line_split)-1)][0:4])
+                                except ValueError:
+                                        print(&#34;sorry faulty mos file &#34; + filename)
+                                        raise ValueError(&#39;Sorry. faulty mos file&#39;)
                                 #print(len(C_vec))
                                 
                         counter += 1
@@ -1700,7 +1778,10 @@ param2 (int) : skip_lines=1 (lines to skip )</p>
 <div class="desc"><p>read packed symmetric matrix from file and creates matrix
 returns matrix in scipy.sparse.csc_matrix</p>
 <h2 id="args">Args</h2>
-<p>param1 (string) : filename</p>
+<dl>
+<dt><strong><code>param1</code></strong> :&ensp;<code>string</code></dt>
+<dd>filename</dd>
+</dl>
 <h2 id="returns">Returns</h2>
 <p>scipy.sparse.csc_matrix</p></div>
 <details class="source">
@@ -1712,7 +1793,7 @@ returns matrix in scipy.sparse.csc_matrix</p>
         read packed symmetric matrix from file and creates matrix
         returns matrix in scipy.sparse.csc_matrix
         Args:
-                param1 (string) : filename
+                param1 (string): filename
 
         Returns:
                 scipy.sparse.csc_matrix
@@ -1790,9 +1871,12 @@ returns matrix in scipy.sparse.csc_matrix</p>
 <span>def <span class="ident">read_plot_data</span></span>(<span>filename)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Reads data in file (eg plot data) </p>
+<div class="desc"><p>Reads data in file (eg plot data)</p>
 <h2 id="args">Args</h2>
-<p>param1 (String) : Filename</p>
+<dl>
+<dt><strong><code>param1</code></strong> :&ensp;<code>String</code></dt>
+<dd>Filename</dd>
+</dl>
 <h2 id="returns">Returns</h2>
 <p>datContent, head (Array of lists and header of file)</p></div>
 <details class="source">
@@ -1801,9 +1885,10 @@ returns matrix in scipy.sparse.csc_matrix</p>
 </summary>
 <pre><code class="python">def read_plot_data(filename):
         &#34;&#34;&#34;
-        Reads data in file (eg plot data) 
+        Reads data in file (eg plot data)
+
         Args:
-                param1 (String) : Filename
+                param1 (String): Filename
                 
                 
 
@@ -1826,9 +1911,14 @@ returns matrix in scipy.sparse.csc_matrix</p>
 <div class="desc"><p>read qpenergies.dat and returns data of given col as list, skip_lines in beginning of file, convert to eV
 col = 0 qpenergies, col = 1 Kohn-Sham, 2 = GW</p>
 <h2 id="args">Args</h2>
-<p>param1 (string) : filename
-param2 (int) : col=2 (column to read)
-param3 (int) : skip_lines=1 (lines without data at beginning of qpenergiesfile)</p>
+<dl>
+<dt><strong><code>param1</code></strong> :&ensp;<code>string</code></dt>
+<dd>filename</dd>
+<dt><strong><code>param2</code></strong> :&ensp;<code>int</code></dt>
+<dd>col=2 (column to read)</dd>
+<dt><strong><code>param3</code></strong> :&ensp;<code>int</code></dt>
+<dd>skip_lines=1 (lines without data at beginning of qpenergiesfile)</dd>
+</dl>
 <h2 id="returns">Returns</h2>
 <p>list</p></div>
 <details class="source">
@@ -1841,9 +1931,9 @@ param3 (int) : skip_lines=1 (lines without data at beginning of qpenergiesfile)<
         col = 0 qpenergies, col = 1 Kohn-Sham, 2 = GW
 
         Args:
-                param1 (string) : filename
-                param2 (int) : col=2 (column to read)
-                param3 (int) : skip_lines=1 (lines without data at beginning of qpenergiesfile)
+                param1 (string): filename
+                param2 (int): col=2 (column to read)
+                param3 (int): skip_lines=1 (lines without data at beginning of qpenergiesfile)
 
         Returns:
                 list
@@ -1871,10 +1961,15 @@ param3 (int) : skip_lines=1 (lines without data at beginning of qpenergiesfile)<
 <div class="desc"><p>traces mos from input_mos with reference to ref_mos (eg when order has changed)
 calculates the scalarproduct of input mos with ref_mos and takes the highest match (close to 1)</p>
 <h2 id="args">Args</h2>
-<p>param1 (np.ndarray) : ref_mos
-param2 (np.ndarray) : input_mos
-param3 (string) : smat path
-</p>
+<dl>
+<dt><strong><code>param1</code></strong> :&ensp;<code>np.ndarray</code></dt>
+<dd>ref_mos</dd>
+<dt><strong><code>param2</code></strong> :&ensp;<code>np.ndarray</code></dt>
+<dd>input_mos</dd>
+<dt><strong><code>param3</code></strong> :&ensp;<code>string</code></dt>
+<dd>smat path
+</dd>
+</dl>
 <h2 id="returns">Returns</h2>
 <p>list (index with highest match)</p></div>
 <details class="source">
@@ -1887,9 +1982,9 @@ param3 (string) : smat path
         calculates the scalarproduct of input mos with ref_mos and takes the highest match (close to 1)
 
         Args:
-                param1 (np.ndarray) : ref_mos
-                param2 (np.ndarray) : input_mos
-                param3 (string) : smat path             
+                param1 (np.ndarray): ref_mos
+                param2 (np.ndarray): input_mos
+                param3 (string): smat path              
 
         Returns:
                 list (index with highest match)
@@ -1918,9 +2013,13 @@ param3 (string) : smat path
 <div class="desc"><p>write symmetric scipy.sparse.csc_matrix in
 in packed storage form</p>
 <h2 id="args">Args</h2>
-<p>param1 (scipi.sparse.csc_matrix) : input matrix
-param2 (string) : filename
-Returns:</p></div>
+<dl>
+<dt><strong><code>param1</code></strong> :&ensp;<code>scipi.sparse.csc_matrix</code></dt>
+<dd>input matrix</dd>
+<dt><strong><code>param2</code></strong> :&ensp;<code>string</code></dt>
+<dd>filename</dd>
+</dl>
+<p>Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1930,8 +2029,8 @@ Returns:</p></div>
         write symmetric scipy.sparse.csc_matrix in  in packed storage form
 
         Args:
-                param1 (scipi.sparse.csc_matrix) : input matrix
-                param2 (string) : filename
+                param1 (scipi.sparse.csc_matrix): input matrix
+                param2 (string): filename
 
         Returns:
 
@@ -1972,9 +2071,14 @@ Returns:</p></div>
 <dd>
 <div class="desc"><p>write mos file, requires python3</p>
 <h2 id="args">Args</h2>
-<p>param1 (np.array) : eigenvalues
-param2 (np.ndarray) : eigenvectors
-param3 (string) : filename="mos_new.dat"</p></div>
+<dl>
+<dt><strong><code>param1</code></strong> :&ensp;<code>np.array</code></dt>
+<dd>eigenvalues</dd>
+<dt><strong><code>param2</code></strong> :&ensp;<code>np.ndarray</code></dt>
+<dd>eigenvectors</dd>
+<dt><strong><code>param3</code></strong> :&ensp;<code>string</code></dt>
+<dd>filename="mos_new.dat"</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1984,9 +2088,9 @@ param3 (string) : filename="mos_new.dat"</p></div>
         write mos file, requires python3
 
         Args:
-                param1 (np.array) : eigenvalues
-                param2 (np.ndarray) : eigenvectors
-                param3 (string) : filename=&#34;mos_new.dat&#34;
+                param1 (np.array): eigenvalues
+                param2 (np.ndarray): eigenvectors
+                param3 (string): filename=&#34;mos_new.dat&#34;
         &#34;&#34;&#34;
         f = open(filename, &#34;w&#34;)
         #header
@@ -2017,10 +2121,15 @@ param3 (string) : filename="mos_new.dat"</p></div>
 <dd>
 <div class="desc"><p>Writes data in file (eg plot data) </p>
 <h2 id="args">Args</h2>
-<p>param1 (String) : Filename
-param2 (tuple) : tuple of lists (each entry is one column in data)
-param3 (String) : Fileheader
-Returns:</p></div>
+<dl>
+<dt><strong><code>param1</code></strong> :&ensp;<code>String</code></dt>
+<dd>Filename</dd>
+<dt><strong><code>param2</code></strong> :&ensp;<code>tuple</code></dt>
+<dd>tuple of lists (each entry is one column in data)</dd>
+<dt><strong><code>param3</code></strong> :&ensp;<code>String</code></dt>
+<dd>Fileheader</dd>
+</dl>
+<p>Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2028,10 +2137,11 @@ Returns:</p></div>
 <pre><code class="python">def write_plot_data(filename, data, header=&#34;&#34;):
         &#34;&#34;&#34;
         Writes data in file (eg plot data) 
+
         Args:
-                param1 (String) : Filename
-                param2 (tuple) : tuple of lists (each entry is one column in data)
-                param3 (String) : Fileheader
+                param1 (String): Filename
+                param2 (tuple): tuple of lists (each entry is one column in data)
+                param3 (String): Fileheader
                 
 
         Returns:
@@ -2059,10 +2169,15 @@ Returns:</p></div>
 </code></dt>
 <dd>
 <div class="desc"><p>writes xyz file.</p>
-<pre><code>    param1 (String) : filename
-    param2 (String) : commment_line
-    param3 (np.ndarray) : dat content
-</code></pre>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>param1</code></strong> :&ensp;<code>String</code></dt>
+<dd>filename</dd>
+<dt><strong><code>param2</code></strong> :&ensp;<code>String</code></dt>
+<dd>commment_line</dd>
+<dt><strong><code>param3</code></strong> :&ensp;<code>np.ndarray</code></dt>
+<dd>dat content</dd>
+</dl>
 <p>Returns:</p></div>
 <details class="source">
 <summary>
@@ -2072,9 +2187,10 @@ Returns:</p></div>
         &#34;&#34;&#34;
         writes xyz file.
 
-                param1 (String) : filename
-                param2 (String) : commment_line
-                param3 (np.ndarray) : dat content
+        Args:
+                param1 (String): filename
+                param2 (String): commment_line
+                param3 (np.ndarray): dat content
 
         Returns:
                 

@@ -23,8 +23,8 @@ def outer_product(vector1, vector2):
 	Calculates out product
 
 	Args:
-		param1 (np.array) : vector1
-		param2 (np.array) : vector2
+		param1 (np.array): vector1
+		param2 (np.array): vector2
 
 	Returns:
 		np.ndarray
@@ -47,7 +47,7 @@ def measure_asymmetry(matrix):
 	gives a measure of asymmetry by calculatin max(|matrix-matrix^T|) (absvalue elementwise)
 
 	Args:
-		param1 (np.ndarray) : Input Matrix
+		param1 (np.ndarray): Input Matrix
 
 	Returns:
 		float
@@ -590,6 +590,7 @@ def diag_F(f_mat_path, s_mat_path, eigenvalue_list = list()):
 def calculate_F_i(i, eigenvalues, eigenvectors, sc_mat):
 	"""
 	Calculates contribution of mo i to fmat
+
 	Args:
 		param2 (int): i (mo which is considered)
 		param2 (list): eigenvalues
@@ -611,6 +612,7 @@ def calculate_F_i(i, eigenvalues, eigenvectors, sc_mat):
 def calculate_F_splitted(eigenvalues, eigenvectors, s_mat_path):
 	"""
 	Calculates contribution of every mo to fmat 
+
 	Args:
 		param1 (list): eigenvalues
 		param2 (matrix): eigenvectors
@@ -635,6 +637,7 @@ def calculate_localization_mo_i(c_l, c_r, s_ll, s_lr, s_rr ):
 	Calculates localization of mo 1 = c_l*s_lr*c_r + c_r*s_lr*c_l+c_l*s_ll*c_l + c_r*s_rr*c_r.
 	The last two summands describe the localization in left and richt part (defined as Q_l and Q_r) or any other
 	given part of mos.
+
 	Args:
 		param1 (array): mo_left
 		param2 (array): mo_right
@@ -665,6 +668,7 @@ def calculate_localization_mo_i(i, eigenvectors, s_mat, left, center, right):
 	Calculates localization of mo 1 = c_l*s_lr*c_r + c_r*s_lr*c_l+c_l*s_ll*c_l + c_r*s_rr*c_r.
 	The last two summands describe the localization in left and richt part (defined as Q_l and Q_r) or any other
 	given part of mos.
+
 	Args:
 		param1 (int): molecular oribital
 		param2 (ndarray): eigenvectors
@@ -711,6 +715,7 @@ def calculate_localization_mo(c, s_mat, left, right):
 	The last two summands describe the localization in left and richt part (defined as Q_l and Q_r).
 	The algorithm is not restricted to the left and right parts, but can be used to analyse the given
 	mos. Thus the L-C, C-R coupling and localization can be analysed, too. 
+
 	Args:
 		param1 (matrix): eigencectors
 		param2 (matrix): s matrix
@@ -737,6 +742,7 @@ def calculate_localization_mo(c, s_mat, left, right):
 def write_plot_data(filename, data, header=""):
 	"""
 	Writes data in file (eg plot data) 
+
 	Args:
 		param1 (String): Filename
 		param2 (tuple): tuple of lists (each entry is one column in data)
@@ -764,7 +770,8 @@ def write_plot_data(filename, data, header=""):
 
 def read_plot_data(filename):
 	"""
-	Reads data in file (eg plot data) 
+	Reads data in file (eg plot data)
+
 	Args:
 		param1 (String): Filename
 		
@@ -882,7 +889,8 @@ def find_c_range_atom(atom, number, coordfile, basis_set="dev-SV(P)"):
 def load_xyz_file(filename):
 	"""
 	load xyz file and return data. Returns comment line and coord data. Dat content cols: atoms=0, x=1, y=2, z=3
-		
+	
+	Args:
 		param1 (String): filename
 		
 

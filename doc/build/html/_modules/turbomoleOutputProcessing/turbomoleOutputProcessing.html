@@ -7,32 +7,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>turbomoleOutputProcessing.turbomoleOutputProcessing &#8212; turbomoleOutputProcessing  documentation</title>
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
-    <link rel="search" title="Search" href="../../search.html" /> 
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">turbomoleOutputProcessing  documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">turbomoleOutputProcessing.turbomoleOutputProcessing</a></li> 
-      </ul>
-    </div>  
+  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <h1>Source code for turbomoleOutputProcessing.turbomoleOutputProcessing</h1><div class="highlight"><pre>
@@ -61,8 +56,8 @@
 <span class="sd">	Calculates out product</span>
 
 <span class="sd">	Args:</span>
-<span class="sd">		param1 (np.array) : vector1</span>
-<span class="sd">		param2 (np.array) : vector2</span>
+<span class="sd">		param1 (np.array): vector1</span>
+<span class="sd">		param2 (np.array): vector2</span>
 
 <span class="sd">	Returns:</span>
 <span class="sd">		np.ndarray</span>
@@ -85,7 +80,7 @@
 <span class="sd">	gives a measure of asymmetry by calculatin max(|matrix-matrix^T|) (absvalue elementwise)</span>
 
 <span class="sd">	Args:</span>
-<span class="sd">		param1 (np.ndarray) : Input Matrix</span>
+<span class="sd">		param1 (np.ndarray): Input Matrix</span>
 
 <span class="sd">	Returns:</span>
 <span class="sd">		float</span>
@@ -628,6 +623,7 @@
 <div class="viewcode-block" id="calculate_F_i"><a class="viewcode-back" href="../../source/turbomoleOutputProcessing.html#turbomoleOutputProcessing.turbomoleOutputProcessing.calculate_F_i">[docs]</a><span class="k">def</span> <span class="nf">calculate_F_i</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">eigenvalues</span><span class="p">,</span> <span class="n">eigenvectors</span><span class="p">,</span> <span class="n">sc_mat</span><span class="p">):</span>
 	<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">	Calculates contribution of mo i to fmat</span>
+
 <span class="sd">	Args:</span>
 <span class="sd">		param2 (int): i (mo which is considered)</span>
 <span class="sd">		param2 (list): eigenvalues</span>
@@ -649,6 +645,7 @@
 <div class="viewcode-block" id="calculate_F_splitted"><a class="viewcode-back" href="../../source/turbomoleOutputProcessing.html#turbomoleOutputProcessing.turbomoleOutputProcessing.calculate_F_splitted">[docs]</a><span class="k">def</span> <span class="nf">calculate_F_splitted</span><span class="p">(</span><span class="n">eigenvalues</span><span class="p">,</span> <span class="n">eigenvectors</span><span class="p">,</span> <span class="n">s_mat_path</span><span class="p">):</span>
 	<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">	Calculates contribution of every mo to fmat </span>
+
 <span class="sd">	Args:</span>
 <span class="sd">		param1 (list): eigenvalues</span>
 <span class="sd">		param2 (matrix): eigenvectors</span>
@@ -673,6 +670,7 @@
 <span class="sd">	Calculates localization of mo 1 = c_l*s_lr*c_r + c_r*s_lr*c_l+c_l*s_ll*c_l + c_r*s_rr*c_r.</span>
 <span class="sd">	The last two summands describe the localization in left and richt part (defined as Q_l and Q_r) or any other</span>
 <span class="sd">	given part of mos.</span>
+
 <span class="sd">	Args:</span>
 <span class="sd">		param1 (array): mo_left</span>
 <span class="sd">		param2 (array): mo_right</span>
@@ -703,6 +701,7 @@
 <span class="sd">	Calculates localization of mo 1 = c_l*s_lr*c_r + c_r*s_lr*c_l+c_l*s_ll*c_l + c_r*s_rr*c_r.</span>
 <span class="sd">	The last two summands describe the localization in left and richt part (defined as Q_l and Q_r) or any other</span>
 <span class="sd">	given part of mos.</span>
+
 <span class="sd">	Args:</span>
 <span class="sd">		param1 (int): molecular oribital</span>
 <span class="sd">		param2 (ndarray): eigenvectors</span>
@@ -749,6 +748,7 @@
 <span class="sd">	The last two summands describe the localization in left and richt part (defined as Q_l and Q_r).</span>
 <span class="sd">	The algorithm is not restricted to the left and right parts, but can be used to analyse the given</span>
 <span class="sd">	mos. Thus the L-C, C-R coupling and localization can be analysed, too. </span>
+
 <span class="sd">	Args:</span>
 <span class="sd">		param1 (matrix): eigencectors</span>
 <span class="sd">		param2 (matrix): s matrix</span>
@@ -775,6 +775,7 @@
 <div class="viewcode-block" id="write_plot_data"><a class="viewcode-back" href="../../source/turbomoleOutputProcessing.html#turbomoleOutputProcessing.turbomoleOutputProcessing.write_plot_data">[docs]</a><span class="k">def</span> <span class="nf">write_plot_data</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
 	<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">	Writes data in file (eg plot data) </span>
+
 <span class="sd">	Args:</span>
 <span class="sd">		param1 (String): Filename</span>
 <span class="sd">		param2 (tuple): tuple of lists (each entry is one column in data)</span>
@@ -802,7 +803,8 @@
 
 <div class="viewcode-block" id="read_plot_data"><a class="viewcode-back" href="../../source/turbomoleOutputProcessing.html#turbomoleOutputProcessing.turbomoleOutputProcessing.read_plot_data">[docs]</a><span class="k">def</span> <span class="nf">read_plot_data</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
 	<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">	Reads data in file (eg plot data) </span>
+<span class="sd">	Reads data in file (eg plot data)</span>
+
 <span class="sd">	Args:</span>
 <span class="sd">		param1 (String): Filename</span>
 <span class="sd">		</span>
@@ -920,7 +922,8 @@
 <div class="viewcode-block" id="load_xyz_file"><a class="viewcode-back" href="../../source/turbomoleOutputProcessing.html#turbomoleOutputProcessing.turbomoleOutputProcessing.load_xyz_file">[docs]</a><span class="k">def</span> <span class="nf">load_xyz_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
 	<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">	load xyz file and return data. Returns comment line and coord data. Dat content cols: atoms=0, x=1, y=2, z=3</span>
-<span class="sd">		</span>
+<span class="sd">	</span>
+<span class="sd">	Args:</span>
 <span class="sd">		param1 (String): filename</span>
 <span class="sd">		</span>
 
@@ -953,12 +956,41 @@
 	<span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 </pre></div>
 
-            <div class="clearer"></div>
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">turbomoleOutputProcessing</a></h1>
+
+
+
+<p class="blurb">A package to process Turbomole Output</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=blaschma&repo=blaschma/turbomoleOuptputProcessing&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
 <div id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
@@ -969,27 +1001,33 @@
     </div>
 </div>
 <script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">turbomoleOutputProcessing  documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">turbomoleOutputProcessing.turbomoleOutputProcessing</a></li> 
-      </ul>
+    <div class="footer">
+      &copy;2021, Matthias Blaschke.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.4.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
     </div>
-    <div class="footer" role="contentinfo">
-        &#169; Copyright 2021, Matthias Blaschke.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
-    </div>
+
+    
+    <a href="https://github.com/blaschma/blaschma/turbomoleOuptputProcessing" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
   </body>
 </html>
