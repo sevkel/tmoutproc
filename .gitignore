@@ -1,4 +1,4 @@
 venv
 turbomoleOuptputProcessing.egg-info
 .idea
-doc/build
+doc/build/*
