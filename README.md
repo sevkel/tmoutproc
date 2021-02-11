@@ -1,5 +1,6 @@
 turbo Output Processing
 ==============
+This package can be used to process Output of Turbomole Calculations. There is no connection to TURBOMOLE GmbH!
 
 
 Installation
