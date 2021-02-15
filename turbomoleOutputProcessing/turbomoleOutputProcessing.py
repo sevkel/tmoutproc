@@ -862,6 +862,11 @@ def find_c_range_atom(atom, number, coordfile, basis_set="dev-SV(P)"):
 			return 25
 		elif(atom == "s"):
 			return 18
+		elif(atom == "zn"):
+			return 24
+		elif(atom == "o"):
+			return 14
+
 		else:
 			raise ValueError('Sorry. This feature is not implemented for following atom: ' + atom)
 
