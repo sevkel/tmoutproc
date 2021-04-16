@@ -788,18 +788,7 @@ def read_plot_data(filename):
 		return np.array(np.transpose(datContent[1:len(datContent)]),dtype=float), datContent[0]
 	return np.array(np.transpose(datContent),dtype=float),""
 
-def read_coord_file(filename):
-	"""
-	Reads data in file (eg plot data) 
 
-	Args:
-		param1 (String): Filename
-		
-		
-
-	Returns:
-		atoms, 
-	"""
 
 def build_permutation_matrix(input_list):
 	"""
@@ -836,6 +825,7 @@ def read_coord_file(filename):
 	"""
 
 	datContent= [i.strip().split() for i in open(filename).readlines()]
+	datContent=np.array(datContent, dtype=object)
 	datContent= np.transpose(datContent[1:len(datContent)-2])
 	return datContent
 
