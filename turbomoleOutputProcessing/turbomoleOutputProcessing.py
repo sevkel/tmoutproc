@@ -780,12 +780,14 @@ def read_plot_data(filename):
 	Returns:
 		datContent, head (Array of lists and header of file)
 	"""
-
 	datContent= [i.strip().split() for i in open(filename).readlines()]
 	try:
 		float(datContent[0][0])
 	except ValueError:
-		return np.array(np.transpose(datContent[1:len(datContent)]),dtype=float), datContent[0]
+		datContent = np.transpose(datContent[1:len(datContent)])
+		#for 1D-01 to 1E-01 conversion
+		datContent = np.core.defchararray.replace(datContent,'D', 'E')
+		return np.array(datContent,dtype=float), datContent[0]
 	return np.array(np.transpose(datContent),dtype=float),""
 
 

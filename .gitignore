@@ -2,3 +2,4 @@ venv
 turbomoleOuptputProcessing.egg-info
 .idea
 doc/build/*
+*.pyc
