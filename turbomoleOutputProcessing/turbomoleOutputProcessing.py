@@ -831,6 +831,31 @@ def read_coord_file(filename):
 	datContent= np.transpose(datContent[1:len(datContent)-2])
 	return datContent
 
+def write_coord_file(filename, datContent):
+	"""
+	writes coord file.
+
+	Args:
+		param1 (String): filename
+		param3 (np.ndarray): dat content
+
+	Returns:
+		
+	"""
+	file = open(filename, "w")
+	file.write("$coord")
+	file.write("\n")
+	for i in range(0,len(coord)):
+		if(len(coord[i])==4):
+			file.write(str(coord[i][0]) + " " + str(coord[i][1]) + " " + str(coord[i][2]) + " " + str(coord[i][3]) + "\n" )
+		elif(len(coord[i])==5):
+			file.write(str(coord[i][0]) + " " + str(coord[i][1]) + " " + str(coord[i][2]) + " " + str(coord[i][3]) + " "+ str(coord[i][4]) + "\n" )
+		else:
+			print("Coord file seems to be funny")
+	file.write("$user-defined bonds" + "\n")
+	file.write("$end")
+	file.close()
+
 def find_c_range_atom(atom, number, coordfile, basis_set="dev-SV(P)"):
 	"""
 	finds atoms range of expansion coef in mos file. number gives wich atoms should be found e.g. two sulfur : first number =1; second = 2
