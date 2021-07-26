@@ -831,7 +831,7 @@ def read_coord_file(filename):
 	datContent= np.transpose(datContent[1:len(datContent)-2])
 	return datContent
 
-def write_coord_file(filename, datContent):
+def write_coord_file(filename, coord):
 	"""
 	writes coord file.
 
