@@ -946,18 +946,26 @@ def write_xyz_file(filename, comment_line, datContent):
 		file.write(str(datContent[0,i]) + "	" + str(datContent[1,i]) + "	" + str(datContent[2,i]) + "	" + str(datContent[3,i]) + "\n")
 	file.close()
 
-def read_hessian(filename):
+def read_hessian(filename, n_atoms):
 	"""
 	Reads hessian from turbomole format and converts it to matrix of float
 	Args:
 		param1 (String) : Filename
+		param2 (int) : Number of atoms
 
 	Returns:
 		np.ndarray 
 	"""
-
 	skip_lines=1
-	datContent = [i.strip().split() for i in open("hessian").readlines()[(skip_lines):]]
-	hessian = np.asarray(datContent, float)
-	
+	datContent = [i.strip().split() for i in open(filename).readlines()[(skip_lines):]]
+	#for three dimensions 3N dimensions
+	n_atoms = n_atoms*3
+	hessian = np.zeros((n_atoms, n_atoms))
+	counter=0
+	for j in range(0,len(datContent)):
+		for i in range(0,len(datContent[j])):
+			counter +=1
+			row = int((counter-1)/(n_atoms))
+			col = (counter-row*n_atoms)-1
+			hessian[row,col]=float(datContent[j][i])	
 	return hessian
