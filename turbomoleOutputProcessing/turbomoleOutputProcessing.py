@@ -945,3 +945,19 @@ def write_xyz_file(filename, comment_line, datContent):
 	for i in range(0,len(datContent[1,:])):
 		file.write(str(datContent[0,i]) + "	" + str(datContent[1,i]) + "	" + str(datContent[2,i]) + "	" + str(datContent[3,i]) + "\n")
 	file.close()
+
+def read_hessian(filename):
+	"""
+	Reads hessian from turbomole format and converts it to matrix of float
+	Args:
+		param1 (String) : Filename
+
+	Returns:
+		np.ndarray 
+	"""
+
+	skip_lines=1
+	datContent = [i.strip().split() for i in open("hessian").readlines()[(skip_lines):]]
+	hessian = np.asarray(datContent, float)
+	
+	return hessian
