@@ -968,4 +968,6 @@ def read_hessian(filename, n_atoms):
 			row = int((counter-1)/(n_atoms))
 			col = (counter-row*n_atoms)-1
 			hessian[row,col]=float(datContent[j][i])	
+	if(counter != n_atoms**2):
+		raise ValueError('n_atoms wrong. Check dimensions')		
 	return hessian
