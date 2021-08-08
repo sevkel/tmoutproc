@@ -5,6 +5,7 @@ Package for processing turbomole Output such as mos files
 
 import numpy as np
 import math
+import fnmatch
 from scipy.sparse import coo_matrix
 from scipy.sparse.linalg import inv
 import scipy.sparse
@@ -827,8 +828,16 @@ def read_coord_file(filename):
 	"""
 
 	datContent= [i.strip().split() for i in open(filename).readlines()]
+	#filter everything but $coord information
+	cut = 0
+	for i in range(1, len(datContent)):
+		if(len(datContent[i])<4):
+			cut = i
+			datContent=datContent[0:cut+1]
+			break
+
 	datContent=np.array(datContent, dtype=object)
-	datContent= np.transpose(datContent[1:len(datContent)-2])
+	datContent= np.transpose(datContent[1:len(datContent)-1])
 	return datContent
 
 def write_coord_file(filename, coord):
@@ -971,3 +980,83 @@ def read_hessian(filename, n_atoms):
 	if(counter != n_atoms**2):
 		raise ValueError('n_atoms wrong. Check dimensions')		
 	return hessian
+
+def create_dynamical_matrix(filename_hessian, filename_coord):
+	"""
+	Creates dynamical matrix by mass weighting hessian
+	Args:
+		param1 (String) : Filename to hessian
+		param2 (String) : Filename to coord file (xyz or turbomole format)
+
+	Returns:
+		np.ndarray 
+	"""
+	#read atoms from file
+	atoms = list()
+	#check if xyz or turbomoleformat is parsed
+	if(fnmatch.fnmatch(filename_coord, '*.xyz')):
+		datContent = load_xyz_file(filename_coord)[1][0]
+		atoms.extend(datContent)
+	else:
+		datContent = read_coord_file(filename_coord)
+		atoms = [str(datContent[i][3]).lower() for i in range(0,len(datContent))]
+	#determine atom masses
+	masses = list()
+	for i in range(0,len(atoms)):
+		masses.append(atom_weight(atoms[i]))
+
+	#create dynamical matrix by mass weighting hessian
+	hessian = read_hessian(filename_hessian, len(atoms))
+
+	dynamical_matrix=np.zeros((len(atoms)*3,len(atoms)*3))
+	for i in range(0,len(atoms)*3):
+		dynamical_matrix[i,i]=(1./np.sqrt(masses[int(i/3)]*masses[int(i/3)]))*hessian[i,i]
+		for j in range(0,i):
+			dynamical_matrix[i,j]=(1./np.sqrt(masses[int(i/3)]*masses[int(j/3)]))*hessian[i,j]
+			dynamical_matrix[j,i]=dynamical_matrix[i,j]
+	return dynamical_matrix
+
+
+def atom_weight(atom):
+	"""
+	Return mass of atom in kg
+	Args:
+		param1 (String) : Atom type
+
+	Returns:
+		float 
+	"""
+	atom = atom.lower()
+
+	u = 1.66053906660E-27
+	if(atom == "c"):
+		return 12.011*u
+	elif(atom == "h"):
+		return 1.008*u
+	elif(atom == "au"):
+		return 196.966570*u
+	elif(atom == "s"):
+		return 32.06*u
+	elif(atom == "zn"):
+		return 65.38*u
+	elif(atom == "o"):
+		return 15.999*u
+	elif(atom == "fe"):
+		return 55.845*u
+	elif(atom == "f"):
+		return 18.9984*u
+	elif(atom == "cl"):
+		return 35.45*u
+	elif(atom == "br"):
+		return 97.904*u
+	elif(atom == "i"):
+		return 126.90447*u
+	elif(atom == "test"):
+		return 1.0
+
+
+	else:
+		raise ValueError('Sorry. This feature is not implemented for following atom: ' + atom)
+
+
+
