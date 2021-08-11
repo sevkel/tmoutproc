@@ -981,12 +981,13 @@ def read_hessian(filename, n_atoms):
 		raise ValueError('n_atoms wrong. Check dimensions')		
 	return hessian
 
-def create_dynamical_matrix(filename_hessian, filename_coord):
+def create_dynamical_matrix(filename_hessian, filename_coord, t2SI=False):
 	"""
-	Creates dynamical matrix by mass weighting hessian
+	Creates dynamical matrix by mass weighting hessian. Default output in turbomole format (hartree/bohr**2)
 	Args:
 		param1 (String) : Filename to hessian
 		param2 (String) : Filename to coord file (xyz or turbomole format)
+		param3 (boolean) : convert ouptput from turbomole (hartree/bohr**2) in SI units
 
 	Returns:
 		np.ndarray 
@@ -1003,25 +1004,35 @@ def create_dynamical_matrix(filename_hessian, filename_coord):
 	#determine atom masses
 	masses = list()
 	for i in range(0,len(atoms)):
-		masses.append(atom_weight(atoms[i]))
+		if(t2SI==True):
+			masses.append(atom_weight(atoms[i],u2kg=True))
+		else:
+			masses.append(atom_weight(atoms[i]))
 
 	#create dynamical matrix by mass weighting hessian
 	hessian = read_hessian(filename_hessian, len(atoms))
 
 	dynamical_matrix=np.zeros((len(atoms)*3,len(atoms)*3))
 	for i in range(0,len(atoms)*3):
+		if(t2SI==True):
+			#har/bohr**2 -> J/m**2
+			hessian[i,i] = hessian[i,i]*(((1.89)**2)/(2.294))*1000
 		dynamical_matrix[i,i]=(1./np.sqrt(masses[int(i/3)]*masses[int(i/3)]))*hessian[i,i]
 		for j in range(0,i):
+			#har/bohr**2 -> J/m**2
+			if(t2SI==True):
+				hessian[i,j] = hessian[i,j]*(((1.89)**2)/(2.294))*1000
 			dynamical_matrix[i,j]=(1./np.sqrt(masses[int(i/3)]*masses[int(j/3)]))*hessian[i,j]
 			dynamical_matrix[j,i]=dynamical_matrix[i,j]
 	return dynamical_matrix
 
 
-def atom_weight(atom):
+def atom_weight(atom, u2kg=False):
 	"""
-	Return mass of atom in kg
+	Return mass of atom in kg or au (au is default)
 	Args:
 		param1 (String) : Atom type
+		param2 (boolean) : convert to kg
 
 	Returns:
 		float 
@@ -1029,6 +1040,9 @@ def atom_weight(atom):
 	atom = atom.lower()
 
 	u = 1.66053906660E-27
+	if(u2kg==False):	
+		u=1
+
 	if(atom == "c"):
 		return 12.011*u
 	elif(atom == "h"):
@@ -1051,6 +1065,10 @@ def atom_weight(atom):
 		return 97.904*u
 	elif(atom == "i"):
 		return 126.90447*u
+	elif(atom == "n"):
+		return 14.0067
+	elif(atom == "si"):
+		return 28.085
 	elif(atom == "test"):
 		return 1.0
 
