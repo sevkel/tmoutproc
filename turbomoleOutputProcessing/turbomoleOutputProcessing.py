@@ -971,8 +971,13 @@ def read_hessian(filename, n_atoms):
 	n_atoms = n_atoms*3
 	hessian = np.zeros((n_atoms, n_atoms))
 	counter=0
+	#output from aoforce calculation
+	if(len(datContent[0])==7):
+		lower = 2
+	if(len(datContent[0])==5):
+		lower = 0
 	for j in range(0,len(datContent)):
-		for i in range(0,len(datContent[j])):
+		for i in range(lower,len(datContent[j])):
 			counter +=1
 			row = int((counter-1)/(n_atoms))
 			col = (counter-row*n_atoms)-1
