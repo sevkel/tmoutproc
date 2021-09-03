@@ -975,11 +975,18 @@ def read_hessian(filename, n_atoms):
 	#output from aoforce calculation
 	if(len(datContent[0])==7):
 		lower = 2
-	if(len(datContent[0])==5):
+		aoforce_format = True
+		# because of $end statement
+		datContent = datContent[:len(datContent)-1]
+	elif(len(datContent[0])==5):
 		lower = 0
-	for j in range(0,len(datContent)-1):
+		aoforce_format = False
+	else:
+		aoforce_format = False
+
+	for j in range(0,len(datContent)):
 		#handle aoforce calculation and mismatch of first lines 1 1, .., 1|10  (-> read wrong)
-		if(lower == 2):
+		if(aoforce_format == True):			
 			try:
 				int(datContent[j][1])
 			except ValueError:
@@ -991,8 +998,9 @@ def read_hessian(filename, n_atoms):
 			hessian[row,col]=float(datContent[j][i])
 
 		#reset lower for next lines
-		lower = 2	
-
+		if(aoforce_format == True):
+			lower = 2	
+			
 	if(counter != n_atoms**2):
 		raise ValueError('n_atoms wrong. Check dimensions')		
 	return hessian
