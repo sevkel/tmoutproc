@@ -967,6 +967,7 @@ def read_hessian(filename, n_atoms):
 	"""
 	skip_lines=1
 	datContent = [i.strip().split() for i in open(filename).readlines()[(skip_lines):]]
+	
 	#for three dimensions 3N dimensions
 	n_atoms = n_atoms*3
 	hessian = np.zeros((n_atoms, n_atoms))
@@ -976,12 +977,22 @@ def read_hessian(filename, n_atoms):
 		lower = 2
 	if(len(datContent[0])==5):
 		lower = 0
-	for j in range(0,len(datContent)):
+	for j in range(0,len(datContent)-1):
+		#handle aoforce calculation and mismatch of first lines 1 1, .., 1|10  (-> read wrong)
+		if(lower == 2):
+			try:
+				int(datContent[j][1])
+			except ValueError:
+				lower = 1
 		for i in range(lower,len(datContent[j])):
 			counter +=1
 			row = int((counter-1)/(n_atoms))
 			col = (counter-row*n_atoms)-1
-			hessian[row,col]=float(datContent[j][i])	
+			hessian[row,col]=float(datContent[j][i])
+
+		#reset lower for next lines
+		lower = 2	
+
 	if(counter != n_atoms**2):
 		raise ValueError('n_atoms wrong. Check dimensions')		
 	return hessian
