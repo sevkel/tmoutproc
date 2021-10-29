@@ -983,6 +983,7 @@ def read_hessian(filename, n_atoms):
 		aoforce_format = False
 	else:
 		aoforce_format = False
+		lower = 0
 
 	for j in range(0,len(datContent)):
 		#handle aoforce calculation and mismatch of first lines 1 1, .., 1|10  (-> read wrong)
