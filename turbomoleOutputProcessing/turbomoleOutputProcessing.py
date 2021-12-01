@@ -961,7 +961,7 @@ def load_xyz_file(filename):
 	comment_line = np.transpose(datContent[1])
 	return (comment_line, np.transpose(datContent[2:len(datContent)]))
 
-def write_xyz_file(filename, comment_line, datContent):
+def write_xyz_file(filename, comment_line, coord_xyz):
 	"""
 	writes xyz file.
 
@@ -974,12 +974,12 @@ def write_xyz_file(filename, comment_line, datContent):
 		
 	"""
 	file = open(filename, "w")
-	file.write(str(len(datContent[1,:])))
+	file.write(str(len(coord_xyz)))
 	file.write("\n")
 	file.write(comment_line)
 	file.write("\n")
-	for i in range(0,len(datContent[1,:])):
-		file.write(str(datContent[0,i]) + "	" + str(datContent[1,i]) + "	" + str(datContent[2,i]) + "	" + str(datContent[3,i]) + "\n")
+	for i in range(0,len(coord_xyz)):
+		file.write(str(coord_xyz[i][0]) + "	" + str(coord_xyz[i][1]) + "	" + str(coord_xyz[i][2])+ "	" + str(coord_xyz[i][3]) + "\n")
 	file.close()
 
 def read_hessian(filename, n_atoms):
