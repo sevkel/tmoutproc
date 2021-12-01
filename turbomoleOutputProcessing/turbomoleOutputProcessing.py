@@ -948,7 +948,7 @@ def find_c_range_atom(atom, number, coordfile, basis_set="dev-SV(P)"):
 
 def load_xyz_file(filename):
 	warnings.warn("deprecated", DeprecationWarning)
-	return load_xyz_file(filename)
+	return read_xyz_file(filename)
 
 def write_xyz_file(filename, comment_line, datContent):
 	"""
