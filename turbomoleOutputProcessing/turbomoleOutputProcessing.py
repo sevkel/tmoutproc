@@ -1231,7 +1231,6 @@ def fix_atoms(coord, indices):
 	if(indices == "all"):
 		for j in range(0, len(coord)):
 			if(len(coord[j])==4):
-				print(coord[j])
 				new = list(coord[j])
 				new.append("f")
 				coord[j] = new
