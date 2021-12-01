@@ -15,7 +15,7 @@ from scipy.sparse import identity
 from scipy.linalg import eig
 from functools import partial
 from multiprocessing import Pool
-
+import warnings
 
 __ang2bohr__ = 1.88973
 
@@ -947,19 +947,8 @@ def find_c_range_atom(atom, number, coordfile, basis_set="dev-SV(P)"):
 
 
 def load_xyz_file(filename):
-	"""
-	load xyz file and return data. Returns comment line and coord data. Dat content cols: atoms=0, x=1, y=2, z=3
-	
-	Args:
-		param1 (String): filename
-		
-
-	Returns:
-		(comment_line (String), datContent (np.ndarray))
-	"""
-	datContent= [i.strip().split() for i in open(filename).readlines()]
-	comment_line = np.transpose(datContent[1])
-	return (comment_line, np.transpose(datContent[2:len(datContent)]))
+	warnings.warn("deprecated", DeprecationWarning)
+	return load_xyz_file(filename)
 
 def write_xyz_file(filename, comment_line, datContent):
 	"""
