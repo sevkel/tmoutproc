@@ -17,7 +17,7 @@ from functools import partial
 from multiprocessing import Pool
 
 
-
+__ang2bohr__ = 1.88973
 
 def outer_product(vector1, vector2):
 	"""
@@ -838,6 +838,7 @@ def read_coord_file(filename):
 
 	datContent=np.array(datContent, dtype=object)
 	datContent= np.transpose(datContent[1:len(datContent)-1])
+	datContent = np.transpose(datContent)
 	return datContent
 
 def read_xyz_file(filename):
@@ -863,7 +864,7 @@ def read_xyz_file(filename):
 			break
 
 	datContent=np.array(datContent, dtype=object)
-	datContent= np.transpose(datContent[1:len(datContent)-1])
+	datContent= np.transpose(datContent[2:len(datContent)])
 	return datContent
 
 def write_coord_file(filename, coord):
@@ -1131,9 +1132,9 @@ def atom_weight(atom, u2kg=False):
 def align_molecule(coord, axis, molecule_axis):
 	"""
 	Aligns molecule stored in coord along axis. Molecule_axis[0/1] give the indices of molecules which define the molecule
-	axis. Please note: coord = np.transpose(top.load_xyz_file(filename)[1]) -> will be fixed in a later version
+	axis. Please note: coord = top.load_xyz_file(filename)
 	Args:
-		coord: coord file read with top from xyz file (coord = np.transpose(top.load_xyz_file(filename)[1]))
+		coord: coord file read with top from xyz file (coord = op.load_xyz_file(filename)))
 		axis: axis is aligned along axis -> axis[x,y,z]
 		molecule_axis: indices of atoms in coord which define the molecule axis (index1, index2)
 
@@ -1197,3 +1198,49 @@ def align_molecule(coord, axis, molecule_axis):
 		return coord
 	else:
 		return coord
+
+def x2t(coord_xyz):
+	"""
+	Transforms coord_xyz from xyz format to turbomole
+	Args:
+		coord_xyz: coord array in xyz
+
+	Returns:
+	coord in turbomole format
+	"""
+	coord = np.empty(coord_xyz.shape[0], dtype=object)
+	for j in range(0, len(coord_xyz)):
+		x = round(float(coord_xyz[j][1]), 5)
+		y = round(float(coord_xyz[j][2]), 5)
+		z = round(float(coord_xyz[j][3]), 5)
+		element = coord_xyz[j][0].lower()
+		coord[j] = list([x*__ang2bohr__, y*__ang2bohr__, z*__ang2bohr__, element])
+
+	return coord
+
+def fix_atoms(coord, indices):
+	"""
+	fixes atoms in indices in turbomole coord file coord
+	Args:
+		coord: coord file read with top.read_coord_file
+		indices: array-like of indices in coord file which should be fixed. "all" is also possible -> every atom is fixed
+
+	Returns:
+	coord with fixed atoms
+	"""
+	if(indices == "all"):
+		for j in range(0, len(coord)):
+			if(len(coord[j])==4):
+				print(coord[j])
+				new = list(coord[j])
+				new.append("f")
+				coord[j] = new
+	else:
+		for j in indices:
+			if(len(coord[j])==4):
+				new = list(coord[j])
+				new.append("f")
+				coord[j] = new
+
+	return coord
+
