@@ -1120,7 +1120,8 @@ def atom_weight(atom, u2kg=False):
 	elif(atom == "f"):
 		return 18.9984*u
 	elif(atom == "cl"):
-		return 35.45*u
+		return 1.008*u
+		#return 35.45*u
 	elif(atom == "br"):
 		return 97.904*u
 	elif(atom == "i"):
@@ -1250,4 +1251,34 @@ def fix_atoms(coord, indices):
 				coord[j] = new
 
 	return coord
+
+def atom_type_to_number(atom_type):
+	if(atom_type.lower == "h"):
+		return 1
+	elif(atom_type.lower == "c"):
+		return 6
+	elif(atom_type.lower == "n"):
+		return 7
+	elif(atom_type.lower == "o"):
+		return 8
+	elif(atom_type.lower == "f"):
+		return 9
+	elif(atom_type.lower == "cl"):
+		return 17
+	elif(atom_type.lower == "br"):
+		return 35
+	elif(atom_type.lower == "i"):
+		return 53
+	elif(atom_type.lower == "au"):
+		return 79
+	elif(atom_type.lower == "s"):
+		return 16
+	elif(atom_type.lower == "si"):
+		return 14
+	else:
+		print("Sorry I do not know this atom yet")
+		return -1
+	
+
+
 
