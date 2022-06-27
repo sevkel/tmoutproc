@@ -3,3 +3,4 @@ turbomoleOuptputProcessing.egg-info
 .idea
 doc/build/*
 *.pyc
+__pycache__
