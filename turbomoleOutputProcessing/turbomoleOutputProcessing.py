@@ -990,7 +990,7 @@ def write_xyz_file(filename, comment_line, coord_xyz):
 		file.write(str(coord_xyz[i][0]) + "	" + str(coord_xyz[i][1]) + "	" + str(coord_xyz[i][2])+ "	" + str(coord_xyz[i][3]) + "\n")
 	file.close()
 
-def read_hessian(filename, n_atoms):
+def read_hessian(filename, n_atoms, dimensions=3):
 	"""
 	Reads hessian from turbomole format and converts it to matrix of float
 	Args:
@@ -1004,7 +1004,7 @@ def read_hessian(filename, n_atoms):
 	datContent = [i.strip().split() for i in open(filename).readlines()[(skip_lines):]]
 	
 	#for three dimensions 3N dimensions
-	n_atoms = n_atoms*3
+	n_atoms = n_atoms*dimensions
 	hessian = np.zeros((n_atoms, n_atoms))
 	counter=0
 	#output from aoforce calculation
@@ -1041,13 +1041,14 @@ def read_hessian(filename, n_atoms):
 		raise ValueError('n_atoms wrong. Check dimensions')		
 	return hessian
 
-def create_dynamical_matrix(filename_hessian, filename_coord, t2SI=False):
+def create_dynamical_matrix(filename_hessian, filename_coord, t2SI=False, dimensions=3):
 	"""
 	Creates dynamical matrix by mass weighting hessian. Default output in turbomole format (hartree/bohr**2)
 	Args:
 		param1 (String) : Filename to hessian
 		param2 (String) : Filename to coord file (xyz or turbomole format)
 		param3 (boolean) : convert ouptput from turbomole (hartree/bohr**2) in SI units
+		param3 (int) : number of dimensions
 
 	Returns:
 		np.ndarray 
@@ -1070,19 +1071,19 @@ def create_dynamical_matrix(filename_hessian, filename_coord, t2SI=False):
 			masses.append(atom_weight(atoms[i]))
 
 	#create dynamical matrix by mass weighting hessian
-	hessian = read_hessian(filename_hessian, len(atoms))
+	hessian = read_hessian(filename_hessian, len(atoms), dimensions)
 
-	dynamical_matrix=np.zeros((len(atoms)*3,len(atoms)*3))
-	for i in range(0,len(atoms)*3):
+	dynamical_matrix=np.zeros((len(atoms)*dimensions,len(atoms)*dimensions))
+	for i in range(0,len(atoms)*dimensions):
 		if(t2SI==True):
 			#har/bohr**2 -> J/m**2
 			hessian[i,i] = hessian[i,i]*(((1.89)**2)/(2.294))*1000
-		dynamical_matrix[i,i]=(1./np.sqrt(masses[int(i/3)]*masses[int(i/3)]))*hessian[i,i]
+		dynamical_matrix[i,i]=(1./np.sqrt(masses[int(i/dimensions)]*masses[int(i/dimensions)]))*hessian[i,i]
 		for j in range(0,i):
 			#har/bohr**2 -> J/m**2
 			if(t2SI==True):
 				hessian[i,j] = hessian[i,j]*(((1.89)**2)/(2.294))*1000
-			dynamical_matrix[i,j]=(1./np.sqrt(masses[int(i/3)]*masses[int(j/3)]))*hessian[i,j]
+			dynamical_matrix[i,j]=(1./np.sqrt(masses[int(i/dimensions)]*masses[int(j/dimensions)]))*hessian[i,j]
 			dynamical_matrix[j,i]=dynamical_matrix[i,j]
 	return dynamical_matrix
 
