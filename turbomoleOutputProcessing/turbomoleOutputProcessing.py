@@ -1295,7 +1295,7 @@ def atom_type_to_number(atom_type):
 	elif(atom_type.lower() == "si"):
 		return 14
 	else:
-		print("Sorry I do not know this atom yet")
+		print("Sorry I do not know this atom yet.")
 		return -1
 	
 
