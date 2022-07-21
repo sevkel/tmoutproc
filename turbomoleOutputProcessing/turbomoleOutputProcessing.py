@@ -1,7 +1,7 @@
 """
 Package for processing turbomole Output such as mos files
 """
-
+__docformat__ = "google"
 
 import numpy as np
 import math
@@ -907,6 +907,15 @@ def find_c_range_atom(atom, number, coordfile, basis_set="dev-SV(P)"):
 		tuple (index_start, index_end)
 	"""
 	def atom_type_to_number_coeff(atom):
+		"""
+		returns ordinal number of atom
+
+		Args:
+			param1 (String): atom type		
+
+		Returns:
+			ordinal number (int)
+			"""
 		if(atom == "c"):
 			return 14
 		elif(atom == "h"):
@@ -1254,6 +1263,15 @@ def fix_atoms(coord, indices):
 	return coord
 
 def atom_type_to_number(atom_type):
+	"""
+	returns ordinal number of atom
+
+	Args:
+		param1 (String): atom type		
+
+	Returns:
+		ordinal number (int)
+	"""
 	if(atom_type.lower() == "h"):
 		return 1
 	elif(atom_type.lower() == "c"):
