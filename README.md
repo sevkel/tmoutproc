@@ -1,5 +1,7 @@
 turbo Output Processing
 ==============
+[![website](https://github.com/blaschma/turbomoleOuptputProcessing/actions/workflows/docs.yml/badge.svg)](https://github.com/blaschma/turbomoleOuptputProcessing/actions/workflows/docs.yml)
+
 This package can be used to process Output of Turbomole Calculations. There is no connection to TURBOMOLE GmbH!
 
 
@@ -12,4 +14,4 @@ pip install .
 ````
 Documentaion
 ------------
-Find the documentation [here](https://topdocu.github.io/)
+Find the documentation [here](https://blaschma.github.io/turbomoleOuptputProcessing/turbomoleOutputProcessing/turbomoleOutputProcessing.html)
