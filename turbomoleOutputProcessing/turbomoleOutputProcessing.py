@@ -4,18 +4,12 @@ Package for processing turbomole Output such as mos files
 __docformat__ = "google"
 
 import numpy as np
-import math
 import fnmatch
-from scipy.sparse import coo_matrix
-from scipy.sparse.linalg import inv
 import scipy.sparse
 import re as r
-from scipy.sparse.linalg import inv
-from scipy.sparse import identity
 from scipy.linalg import eig
 from functools import partial
 from multiprocessing import Pool
-import warnings
 
 __ang2bohr__ = 1.88973
 
@@ -148,7 +142,6 @@ def calculate_A(filename,prefix_length=2, eigenvalue_source = "mos", eigenvalue_
 					elif(eigenvalue_source == "qpenergiesKS" or eigenvalue_source == "qpenergiesGW" or eigenvalue_path != ""):
 						if(beginning == True):
 							beginning = False
-							pass
 						else:
 							#print("eigenvalue from eigenvaluelist")
 							eigenvalue_old = eigenvalue_list[level-2]
@@ -237,8 +230,7 @@ def read_packed_matrix(filename):
 				counter+=1
 				continue
 			line_split = r.split('\s+', line)
-			matrix_entry = np.float(line_split[2])
-			matrix_enty = round(float(line_split[2]),24)			
+			matrix_entry = np.float(line_split[2])		
 
 			#calculate row and col			
 			if(col == col_old+1):
@@ -256,7 +248,6 @@ def read_packed_matrix(filename):
 					data.append(matrix_entry)
 					i.append(row)
 					j.append(col)
-					pass
 			col += 1				
 			counter+=1
 
@@ -282,11 +273,9 @@ def write_matrix_packed(matrix, filename="test"):
 	"""
 	print("writing packed matrix")
 	num_rows = matrix.shape[0]
-	num_elements_to_write = (num_rows**2+num_rows)/2
-	
+	num_elements_to_write = (num_rows**2+num_rows)/2	
 
-	col = 0
-	row = 0
+
 	element_counter = 1
 	f = open(filename, "w")
 
@@ -335,7 +324,6 @@ def read_qpenergies(filename, col=1, skip_lines=1):
 		energy = float(datContent[i][col])/har_to_ev
 		#print("qpenergy " + str(energy))
 		qpenergies.append(energy)
-		pass	
 	return qpenergies
 
 
@@ -805,7 +793,6 @@ def build_permutation_matrix(input_list):
 	#print(permut)
 	return permut
 
-import numpy as np
 
 def read_coord_file(filename):
 	"""
