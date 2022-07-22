@@ -202,6 +202,19 @@ def read_packed_matrix(filename):
 	Args:
 		param1 (string): filename
 
+
+	Example:
+		761995      nmat
+		   1                 1.000000000000000000000000       
+		   2                0.9362738788014223212385900       
+		   3                 1.000000000000000222044605       
+		   4                0.4813841609941338917089126       
+		   5                0.6696882728399407014308053       
+		   6                 1.000000000000000000000000  
+		   .
+		   .
+		   .
+
 	Returns:
 		scipy.sparse.csc_matrix
 
@@ -223,34 +236,19 @@ def read_packed_matrix(filename):
 			if(counter == -1):
 				counter+=1
 				continue
-			#line_split = [i.split() for i in line]
 			line_split = r.split('\s+', line)
-			#print(counter)
-			#print(line_split[2])
-
 			matrix_entry = np.float(line_split[2])
-			#print(eformat(matrix_entry,100,5))
-			#print(line_split[2])
-			#print(eformat(np.longdouble(line_split[2]),100,5))
-			#print("-----")
-			#matrix_entry = round(matrix_entry,25)
-			matrix_enty = round(float(line_split[2]),24)
+			matrix_enty = round(float(line_split[2]),24)			
 
-			
-
-			#calculate row and col
-			
+			#calculate row and col			
 			if(col == col_old+1):
 				col_old = col
 				col = 0;
 				row += 1
-			#print("setting up row " + str(counter))
-			#print(row,col)
+
 			#skip zero elemts
 			if(matrix_entry != 0.0):
 				data.append(matrix_entry)
-				#print(matrix_entry)
-				#print("------")
 				i.append(col)
 				j.append(row)
 				#symmetrize matrix
@@ -259,14 +257,9 @@ def read_packed_matrix(filename):
 					i.append(row)
 					j.append(col)
 					pass
-			col += 1	
-
-			
+			col += 1				
 			counter+=1
-			#for testing
-			if(counter>25):
-				#break
-				pass
+
 	
 	coo = coo_matrix((data, (i, j)), shape=(row+1, row+1))
 	csc = scipy.sparse.csc_matrix(coo, dtype = float)	
