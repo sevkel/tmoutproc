@@ -1,3 +1,4 @@
+.coverage
 venv
 turbomoleOuptputProcessing.egg-info
 .idea

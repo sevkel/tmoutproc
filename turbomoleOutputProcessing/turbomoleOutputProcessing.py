@@ -796,7 +796,7 @@ def build_permutation_matrix(input_list):
 
 def read_coord_file(filename):
 	"""
-	Reads data in file (eg plot data) 
+	Reads data in file (eg plot data). Coordinates are not converted to float
 	
 	Args:
 		param1 (String): Filename
