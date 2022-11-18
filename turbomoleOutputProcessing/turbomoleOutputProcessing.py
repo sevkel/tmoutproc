@@ -1277,6 +1277,35 @@ def atom_type_to_number(atom_type):
 	else:
 		print("Sorry I do not know this atom yet")
 		return -1
+
+def determine_n_orbitals(coord_path, basis_set="dev-SV(P)"):
+	"""
+	Determines number of orbitals for calculation using coord file (turbomole format, xyz support is planned) and basis set.
+	Args:
+		coord_path (String): path to coord file (turbomole coord file)
+		basis_set (String): basis set
+
+	Returns:
+		n_orbitals (int): Number of orbitals
+
+	"""
+	if(basis_set!="dev-SV(P)"):
+		raise ValueError("Only support for dev-SV(P) Basis set right now.")
+
+	coord = read_coord_file(coord_path)
+	atom_dict = {}
+	ranges = list()
+	for i, item in enumerate(coord):
+		try:
+			atom_dict[item[3]] += 1
+		except KeyError:
+			atom_dict[item[3]] = 1
+
+		start, end = find_c_range_atom(item[3], atom_dict[item[3]], coord_path)
+		ranges.append((start, end, item[3]))
+	n_orbitals = ranges[-1][1]
+
+	return n_orbitals
 	
 
 
