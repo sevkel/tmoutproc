@@ -10,6 +10,7 @@ import re as r
 from scipy.linalg import eig
 from functools import partial
 from multiprocessing import Pool
+from scipy.sparse import coo_matrix
 
 __ang2bohr__ = 1.88973
 
