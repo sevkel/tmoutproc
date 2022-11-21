@@ -1307,6 +1307,21 @@ def determine_n_orbitals(coord_path, basis_set="dev-SV(P)"):
 	n_orbitals = ranges[-1][1]
 
 	return n_orbitals
+
+def remove_fixed_atoms(coord):
+	"""
+	Removes fixed atoms from turbomole coord file. 
+	Args:
+		coord: coord file data loaded with read_coord_file
+
+	Returns:
+		coord: filtered coord file data
+	"""
+	coord_filtered = list()
+	for i, item in enumerate(coord):
+		if(len(item)<5):
+			coord_filtered.append(item)
+	return np.array(coord_filtered)
 	
 
 
