@@ -28,4 +28,4 @@ def test_remove_fixed_atoms():
 
 if __name__ == '__main__':
     test_load_xyz_file()
-    determine_n_orbitals()
+    test_determine_n_orbitals()

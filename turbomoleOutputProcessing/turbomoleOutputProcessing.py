@@ -11,6 +11,7 @@ from scipy.linalg import eig
 from functools import partial
 from multiprocessing import Pool
 from scipy.sparse import coo_matrix
+from . import  constants
 
 __ang2bohr__ = 1.88973
 
@@ -1080,53 +1081,29 @@ def create_dynamical_matrix(filename_hessian, filename_coord, t2SI=False, dimens
 
 def atom_weight(atom, u2kg=False):
 	"""
-	Return mass of atom in kg or au (au is default)
-	Args:
-		param1 (String) : Atom type
-		param2 (boolean) : convert to kg
+    Return mass of atom in kg or au (au is default)
+    Args:
+        param1 (String) : Atom type
+        param2 (boolean) : convert to kg
 
-	Returns:
-		float 
-	"""
+    Returns:
+        float
+    """
 	atom = atom.lower()
 
-	u = 1.66053906660E-27
-	if(u2kg==False):	
-		u=1
-
-	if(atom == "c"):
-		return 12.011*u
-	elif(atom == "h"):
-		return 1.008*u
-	elif(atom == "au"):
-		return 196.966570*u
-	elif(atom == "s"):
-		return 32.06*u
-	elif(atom == "zn"):
-		return 65.38*u
-	elif(atom == "o"):
-		return 15.999*u
-	elif(atom == "fe"):
-		return 55.845*u
-	elif(atom == "f"):
-		return 18.9984*u
-	elif(atom == "cl"):
-		return 1.008*u
-		#return 35.45*u
-	elif(atom == "br"):
-		return 97.904*u
-	elif(atom == "i"):
-		return 126.90447*u
-	elif(atom == "n"):
-		return 14.0067
-	elif(atom == "si"):
-		return 28.085
-	elif(atom == "test"):
+	u = constants.U2KG
+	if (u2kg == False):
+		u = 1
+	if (atom == "test"):
 		return 1.0
+	try:
+		dict_entry = constants.ATOM_DICT_SYM[atom]
+		atom_weight = dict_entry[2]
+	except KeyError as e:
+		error_text = (f"Element {atom} cannot be found. Raising exception {e}")
+		raise ValueError(error_text)
 
-
-	else:
-		raise ValueError('Sorry. This feature is not implemented for following atom: ' + atom)
+	return atom_weight * u
 
 
 def align_molecule(coord, axis, molecule_axis):
@@ -1322,6 +1299,105 @@ def remove_fixed_atoms(coord):
 		if(len(item)<5):
 			coord_filtered.append(item)
 	return np.array(coord_filtered)
+
+def create_sysinfo(coord_path, basis_path, output_path):
+	"""
+	Create sysinfo according to given template. Sysinfo is used for transport calculations used by Theo 1 Group of
+	University of Augsburg. It contains information about the orbitals, the charge, number of ecps and the coordinates of the positions
+	{number atom} {orbital_index_start} {orbital_index_end} {charge} {number ecps} {x in Bohr} {y in Bohr} {z in Bohr}
+	Args:
+		coord_path (String): Path to turbomole coord file
+		basis_path (String): Path to turbomole basis file
+		output_path (String): Path where sysinfo is written
+
+	Returns:
+
+	"""
+	coord = read_coord_file('coord')
+	# number of atoms:
+	natoms = np.size(coord)
+	# split cd into position array and element vector
+	pos = np.zeros(shape=(natoms, 3))
+	el = []
+	for i in range(natoms):
+		pos[i, :] = coord[i][0:3]
+		el.append(coord[i][3])
+
+	# make list from dictionary from list el
+	# --> get rid of the douplicates
+	# eldif is a list of all different elements in coord
+	eldif = list(dict.fromkeys(el))
+	# dictionary for Number of orbitals:
+	Norb_dict = dict.fromkeys(eldif, 0)
+	# dictionary for Number of ECP-electrons:
+	Necp_dict = dict.fromkeys(eldif, 0)
+
+	for elkind in eldif:
+		nf = 0
+		# the space in searchstr is to avoid additional findings (e.g. for s)
+		searchstr = elkind + ' '
+		# search for element in file 'basis'
+		with open('basis') as fp:
+			lines = fp.readlines()
+			for line in lines:
+				if line.find(searchstr) != -1:
+					nf += 1
+					if (nf == 1):
+						# first occurence: name of basis set
+						continue
+					if (nf == 2):
+						# second occurence electron configuration per atom
+						# this might look weird but leads to the part
+						# inside the []-brackets
+						config = line.strip().split('[')[1].split(']')[0]
+						Norb_dict[elkind] = get_norb_from_config(config)
+					if (nf == 3):
+						# third occurence: information on core-potential
+						# number of core electrons is 2 lines after that
+						nl_ecp = lines.index(line)
+						# get number of core electrons
+						N_ecp = lines[nl_ecp + 2].strip().split()[2]
+						# save this number in corresponding dictionary
+						Necp_dict[elkind] = N_ecp
+
+	iorb = 0
+	with open(output_path, 'w') as file:
+		file.write(f"{natoms:>22}\n")
+		for iat in range(natoms):
+			atomic_number = constants.ATOM_DICT_SYM[el[iat]][0]
+			charge = atomic_number - int(Necp_dict[el[iat]])
+			file.write(f"{iat:>8} {iorb + 1:>8} {iorb + Norb_dict[el[iat]]:>8} {charge:>24} {Necp_dict[el[iat]]:>8} {pos[iat, 0]:>24} {pos[iat, 1]:>24} {pos[iat, 2]:>24}\n")
+			iorb = iorb + Norb_dict[el[iat]]
+
+def get_norb_from_config(config):
+	"""
+	Get number of orbitals from turbomole config string (for example [6s3p2d])
+	Args:
+		config (String): configuration string
+
+	Returns:
+		Norb (int): Number of orbitals
+	"""
+	orbital_types = ['s', 'p', 'd', 'f']
+	orbital_degeneracy = [1, 3, 5, 7]
+	number_of_orbital_types = np.zeros(len(orbital_types))
+
+	for i in range(0,len(orbital_types)):
+		ns, config = config.split(orbital_types[i])
+		ns = int(ns)
+		number_of_orbital_types[i] = ns
+		if config == '':
+			break
+	if (config != ''):
+		raise ValueError(f"There is something wrong with this configuration")
+
+	Norb = np.sum(number_of_orbital_types*orbital_degeneracy)
+	return int(Norb)
+
+
+
+
+
 	
 
 
