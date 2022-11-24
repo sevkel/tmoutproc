@@ -1366,7 +1366,7 @@ def create_sysinfo(coord_path, basis_path, output_path):
 		for iat in range(natoms):
 			atomic_number = constants.ATOM_DICT_SYM[el[iat]][0]
 			charge = atomic_number - int(Necp_dict[el[iat]])
-			file.write(f"{iat:>8} {iorb + 1:>8} {iorb + Norb_dict[el[iat]]:>8} {charge:>24} {Necp_dict[el[iat]]:>8} {pos[iat, 0]:>24} {pos[iat, 1]:>24} {pos[iat, 2]:>24}\n")
+			file.write(f"{iat+1:>8} {iorb + 1:>8} {iorb + Norb_dict[el[iat]]:>8} {charge:>24.12f} {Necp_dict[el[iat]]:>8} {pos[iat, 0]:>24} {pos[iat, 1]:>24} {pos[iat, 2]:>24}\n")
 			iorb = iorb + Norb_dict[el[iat]]
 
 def get_norb_from_config(config):
