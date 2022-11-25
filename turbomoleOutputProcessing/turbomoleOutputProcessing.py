@@ -1394,6 +1394,56 @@ def get_norb_from_config(config):
 	Norb = np.sum(number_of_orbital_types*orbital_degeneracy)
 	return int(Norb)
 
+def shift_xyz_coord(coord_xyz, x_shift, y_shift, z_shift):
+	"""
+	Shifts coordinates in coord file loaded with load_xyz_file.
+	Args:
+		coord_xyz: Coord file loaded with load_xyz_file
+		x_shift: x shift in Angstrom
+		y_shift: y shift in Angstrom
+		z_shift: z shift in Angstrom
+
+	Returns:
+		coord_xyz: Shifted xyz coord file
+	"""
+
+	try:
+		if len(coord_xyz[1,:]) == 0:
+			raise ValueError("coord file is empty")
+	except IndexError as e:
+		raise ValueError(f"Is it a xyz file? {e}")
+	except TypeError as e:
+		raise ValueError(f"Is it a xyz file? {e}")
+
+
+	for i in range(0,len(coord_xyz[1,:])):
+		coord_xyz[1,i] = round(float(coord_xyz[1,i])+x_shift,5)
+		coord_xyz[2,i] = round(float(coord_xyz[2,i])+y_shift,5)
+		coord_xyz[3,i] = round(float(coord_xyz[3,i])+z_shift,5)
+	return coord_xyz
+
+def shift_coord_file(coord, x_shift, y_shift, z_shift):
+	"""
+	Shifts coordinates in coord file loaded with read_coord_file.
+	Args:
+		coord_xyz: Coord file loaded with read_coord_file
+		x_shift: x shift in Bohr
+		y_shift: y shift in Bohr
+		z_shift: z shift in Bohr
+
+	Returns:
+		coord: Shifted coord file
+	"""
+
+	if len(coord) == 0:
+		raise ValueError("coord file is empty")
+
+	for i in range(0,len(coord)):
+		coord[i][0] = round(float(coord[i][0])+x_shift,5)
+		coord[i][1] = round(float(coord[i][1])+y_shift,5)
+		coord[i][2] = round(float(coord[i][2])+z_shift,5)
+	return coord
+
 
 
 
