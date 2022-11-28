@@ -947,18 +947,26 @@ def find_c_range_atom(atom, number, coordfile, basis_set="dev-SV(P)"):
 
 def load_xyz_file(filename):
 	"""
-	load xyz file and return data. Returns comment line and coord data. Dat content cols: atoms=0, x=1, y=2, z=3
-	
+	load xyz file and returns data. Returns comment line and coord data. Dat content cols: atoms=0 (Str), x=1 (float), y=2 (float), z=3 (float).
+	coord[:,i] ... Entries for atom i
+	coord[i,:] ... Atoms types (str) [i=0], x (float) [i=1], y (float) [i=2], x (float) [z=3] for all atoms
+
 	Args:
 		param1 (String): filename
-		
+
 
 	Returns:
-		(comment_line (String), datContent (np.ndarray))
+		(comment_line (String), coord (np.ndarray))
 	"""
-	datContent= [i.strip().split() for i in open(filename).readlines()]
+	datContent = [i.strip().split() for i in open(filename).readlines()]
 	comment_line = np.transpose(datContent[1])
-	return (comment_line, np.transpose(datContent[2:len(datContent)]))
+	datContent = np.array(datContent[2:len(datContent)], dtype=object)
+	for i, item in enumerate(datContent):
+		datContent[i, 1] = float(item[1])
+		datContent[i, 2] = float(item[2])
+		datContent[i, 3] = float(item[3])
+	coord = np.transpose(datContent)
+	return (comment_line, coord)
 
 def write_xyz_file(filename, comment_line, coord_xyz):
 	"""
