@@ -2,12 +2,12 @@ from setuptools import setup
 
 setup(
     # Needed to silence warnings (and to be a worthwhile package)
-    name='turbomoleOuptputProcessing',
-    url='https://github.com/blaschma/turbomoleOuptputProcessing',
+    name='tmoutproc',
+    url='https://github.com/blaschma/tmoutproc',
     author='Matthias Blaschke',
     author_email='matthias.blaschke@student.uni-augsburg.de',
     # Needed to actually package something
-    packages=['turbomoleOuptputProcessing'],
+    packages=['tmoutproc'],
     # Needed for dependencies
     install_requires=['numpy', 'scipy', 're', 'functools'],
     # *strongly* suggested for sharing
