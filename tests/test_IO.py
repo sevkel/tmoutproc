@@ -1,4 +1,4 @@
-from turbomoleOutputProcessing import turbomoleOutputProcessing as top
+from tmoutproc import tmoutproc as top
 import pytest
 import numpy as np
 

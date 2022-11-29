@@ -2,12 +2,12 @@ from setuptools import setup
 
 setup(
     # Needed to silence warnings (and to be a worthwhile package)
-    name='turbomoleOuptputProcessing',
-    url='https://github.com/jladan/package_demo',
+    name='tmoutproc',
+    url='https://github.com/blaschma/tmoutproc',
     author='Matthias Blaschke',
-    author_email='matthias.blaschke@student.uni-augsburg.de',
+    author_email='matthias.blaschke@uni-a.de',
     # Needed to actually package something
-    packages=['turbomoleOutputProcessing'],
+    packages=['tmoutproc'],
     # Needed for dependencies
     install_requires=['numpy', 'scipy', 'pdoc'],
     # *strongly* suggested for sharing
