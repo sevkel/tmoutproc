@@ -798,7 +798,8 @@ def build_permutation_matrix(input_list):
 
 def read_coord_file(filename):
 	"""
-	Reads data in file (eg plot data). Coordinates are not converted to float
+	Reads data in file (eg plot data). Coordinates are converted to float. Method is implemented in this way to allow
+	fixed and unfixed atoms and their detection by the length of the lists.
 	
 	Args:
 		param1 (String): Filename
@@ -820,6 +821,10 @@ def read_coord_file(filename):
 
 	datContent=np.array(datContent, dtype=object)
 	datContent= np.transpose(datContent[1:len(datContent)-1])
+	for i, item in enumerate(datContent):
+		datContent[i][0] = float(item[0])
+		datContent[i][1] = float(item[1])
+		datContent[i][2] = float(item[2])
 	datContent = np.transpose(datContent)
 	return datContent
 
@@ -1452,6 +1457,44 @@ def shift_coord_file(coord, x_shift, y_shift, z_shift):
 		coord[i][2] = round(float(coord[i][2])+z_shift,5)
 	return coord
 
+def sort_xyz_coord(coord_xyz, axis):
+	"""
+	Sort coord_xyz according to axis (x=0, y=1, z=2)
+	Args:
+		coord_xyz: Coord file loaded with load_xyz_file
+		axis: Axis (x=0, y=1, z=2)
+
+	Returns:
+		coord_xyz: Sorted coord_xyz
+	"""
+	allowed = [0,1,2]
+	if(axis not in allowed):
+		raise ValueError(f"Axis {axis} not valid.")
+	coord_xyz = np.transpose(coord_xyz)
+	coord_xyz = coord_xyz[coord_xyz[:, axis+1].argsort()]
+	coord_xyz = np.transpose(coord_xyz)
+
+	return coord_xyz
+
+def sort_coord(coord, axis):
+	"""
+	Sort coord_xyz according to axis (x=0, y=1, z=2)
+	Args:
+		coord_xyz: Coord file loaded with load_xyz_file
+		axis: Axis (x=0, y=1, z=2)
+
+	Returns:
+		coord_xyz: Sorted coord_xyz
+	"""
+	allowed = [0,1,2]
+	if(axis not in allowed):
+		raise ValueError(f"Axis {axis} not valid.")
+
+	coord = np.transpose(coord)
+	coord = sorted(coord, key=lambda item: item[axis])
+	coord = np.transpose(coord)
+
+	return coord
 
 
 

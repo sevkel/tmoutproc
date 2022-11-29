@@ -56,6 +56,40 @@ def test_shift_coord_file():
     assert np.isclose(float(coord_shifted[89][1]), -0.90619926580304 + 2.0)
     assert np.isclose(float(coord_shifted[89][2]), 39.80494546134004 + 3.0)
 
+def test_sort_xyz_coord():
+    coord_xyz = top.load_xyz_file("./tests/test_data/benz.xyz")[1]
+    with pytest.raises(ValueError):
+        top.sort_xyz_coord(coord_xyz, axis=3)
+    axes = [2,1,0]
+    # test sorting
+    for axis in axes:
+        coord_sorted = top.sort_xyz_coord(coord_xyz, axis=axis)
+        assert coord_sorted.shape == coord_xyz.shape
+        assert all(coord_sorted[axis+1, i] <= coord_sorted[axis+1, i+1] for i in range(len(coord_sorted[:, axis+1]) - 1))
+    # test if elements are correct
+    assert coord_sorted[0, 0] == "H"
+    assert coord_sorted[1, 0] == -6.35080
+    assert coord_sorted[2, 0] == 0.85915
+    assert coord_sorted[3, 0] == 0.00000
+
+def test_sort_coord():
+    coord = top.read_coord_file("./tests/test_data/coord_PCP")
+    with pytest.raises(ValueError):
+        top.sort_xyz_coord(coord, axis=3)
+    axes = [2,0,1]
+    for axis in axes:
+        coord_sorted = top.sort_coord(coord, axis)
+        assert len(coord_sorted) == len(coord)
+        assert all(coord_sorted[i][axis] <= coord_sorted[i+1][axis] for i in range(len(coord_sorted) - 1))
+
+    assert coord_sorted[0][0] == 0.60280373649437
+    assert coord_sorted[0][1] == -10.34910401877428
+    assert coord_sorted[0][2] == 39.80494546134004
+    assert coord_sorted[0][3] == 'au'
+    assert coord_sorted[0][4] == 'f'
+
+
+
 if __name__ == '__main__':
     test_load_xyz_file()
     test_determine_n_orbitals()
