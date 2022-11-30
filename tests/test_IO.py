@@ -101,6 +101,16 @@ def test_read_hessian():
         assert np.max(np.abs(hessian-np.transpose(hessian))) == 0
         assert hessian[0,0]
 
+def test_read_symmetric_from_triangular():
+    hessian = top.read_symmetric_from_triangular("./tests/test_data/hessian_direct")
+    #symmetry
+    assert np.max(hessian-np.transpose(hessian)) == 0
+    assert hessian.shape == (3*3, 3*3)
+    assert hessian[0,0] == 3.806638367204165E-002
+    assert hessian[8,8] == 0.235824323786876
+    assert hessian[7,8] == -0.222050038511708
+    assert hessian[6,8] == -0.112940116315714
+
 if __name__ == '__main__':
     test_load_xyz_file()
     test_determine_n_orbitals()

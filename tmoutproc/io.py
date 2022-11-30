@@ -503,18 +503,50 @@ def read_hessian(filename, n_atoms, dimensions=3):
     return hessian
 
 
-def read_symmetric_from_tiangluar(input_path):
-    # TODO: Implement
-    pass
+def read_symmetric_from_triangular(input_path, skip_lines=0):
+    """
+    Read symmetric matrix stored in triangular form.
+    Example Input : a, b, d, c, e, f
+    Example Output:
+    a b c
+    b d e
+    c e f
+    Args:
+        input_path (String): Path to file
+        skip_lines (int): Lines of file which sould be skipped (e.g. header stuff)
+
+    Returns:
+
+    """
+    datContent = np.asarray([i.strip().split() for i in open(input_path).readlines()[(skip_lines):]])
+    datContent = datContent.flatten()
+    #assume matrix has size n(n+1)/2=len(datContent)
+    len_ = int((-1+np.sqrt(1+8*len(datContent)))/2)
+    matrix = np.zeros((len_,len_), dtype = float)
+    col = 0
+    col_old = 0
+    row = 0
+    for i, item in enumerate(datContent):
+        if(col == col_old + 1):
+            col_old = col
+            col = 0
+            row += 1
+        matrix[col, row] = float(item)
+        matrix[row, col] = float(item)
+        col +=1
+
+    return matrix
 
 
 def write_symmetric_to_triangular(matrix, output_path, threshold=0.0):
     """
     Write symmetric matrix to file. The triangular form ist written to file.
+    Example Input:
     a b c
     b d e
     c e f
-    -> a, b, d, c, e, f
+    Example Output:
+    a, b, d, c, e, f
     Args:
         matrix (numpy.ndarray'): Symmetric matrix
         output_path (String): Path of output file
@@ -593,7 +625,7 @@ def create_dynamical_matrix(filename_hessian, filename_coord, t2SI=False, dimens
     return dynamical_matrix
 
 def create_sysinfo(coord_path, basis_path, output_path):
-	"""
+    """
 	Create sysinfo according to given template. Sysinfo is used for transport calculations used by Theo 1 Group of
 	University of Augsburg. It contains information about the orbitals, the charge, number of ecps and the coordinates of the positions
 	{number atom} {orbital_index_start} {orbital_index_end} {charge} {number ecps} {x in Bohr} {y in Bohr} {z in Bohr}
@@ -605,58 +637,59 @@ def create_sysinfo(coord_path, basis_path, output_path):
 	Returns:
 
 	"""
-	coord = io.read_coord_file(coord_path)
-	# number of atoms:
-	natoms = np.size(coord)
-	# split cd into position array and element vector
-	pos = np.zeros(shape=(natoms, 3))
-	el = []
-	for i in range(natoms):
-		pos[i, :] = coord[i][0:3]
-		el.append(coord[i][3])
+    coord = io.read_coord_file(coord_path)
+    # number of atoms:
+    natoms = np.size(coord)
+    # split cd into position array and element vector
+    pos = np.zeros(shape=(natoms, 3))
+    el = []
+    for i in range(natoms):
+        pos[i, :] = coord[i][0:3]
+        el.append(coord[i][3])
 
-	# make list from dictionary from list el
-	# --> get rid of the douplicates
-	# eldif is a list of all different elements in coord
-	eldif = list(dict.fromkeys(el))
-	# dictionary for Number of orbitals:
-	Norb_dict = dict.fromkeys(eldif, 0)
-	# dictionary for Number of ECP-electrons:
-	Necp_dict = dict.fromkeys(eldif, 0)
+    # make list from dictionary from list el
+    # --> get rid of the douplicates
+    # eldif is a list of all different elements in coord
+    eldif = list(dict.fromkeys(el))
+    # dictionary for Number of orbitals:
+    Norb_dict = dict.fromkeys(eldif, 0)
+    # dictionary for Number of ECP-electrons:
+    Necp_dict = dict.fromkeys(eldif, 0)
 
-	for elkind in eldif:
-		nf = 0
-		# the space in searchstr is to avoid additional findings (e.g. for s)
-		searchstr = elkind + ' '
-		# search for element in file 'basis'
-		with open(basis_path) as fp:
-			lines = fp.readlines()
-			for line in lines:
-				if line.find(searchstr) != -1:
-					nf += 1
-					if (nf == 1):
-						# first occurence: name of basis set
-						continue
-					if (nf == 2):
-						# second occurence electron configuration per atom
-						# this might look weird but leads to the part
-						# inside the []-brackets
-						config = line.strip().split('[')[1].split(']')[0]
-						Norb_dict[elkind] = get_norb_from_config(config)
-					if (nf == 3):
-						# third occurence: information on core-potential
-						# number of core electrons is 2 lines after that
-						nl_ecp = lines.index(line)
-						# get number of core electrons
-						N_ecp = lines[nl_ecp + 2].strip().split()[2]
-						# save this number in corresponding dictionary
-						Necp_dict[elkind] = N_ecp
+    for elkind in eldif:
+        nf = 0
+        # the space in searchstr is to avoid additional findings (e.g. for s)
+        searchstr = elkind + ' '
+        # search for element in file 'basis'
+        with open(basis_path) as fp:
+            lines = fp.readlines()
+            for line in lines:
+                if line.find(searchstr) != -1:
+                    nf += 1
+                    if (nf == 1):
+                        # first occurence: name of basis set
+                        continue
+                    if (nf == 2):
+                        # second occurence electron configuration per atom
+                        # this might look weird but leads to the part
+                        # inside the []-brackets
+                        config = line.strip().split('[')[1].split(']')[0]
+                        Norb_dict[elkind] = get_norb_from_config(config)
+                    if (nf == 3):
+                        # third occurence: information on core-potential
+                        # number of core electrons is 2 lines after that
+                        nl_ecp = lines.index(line)
+                        # get number of core electrons
+                        N_ecp = lines[nl_ecp + 2].strip().split()[2]
+                        # save this number in corresponding dictionary
+                        Necp_dict[elkind] = N_ecp
 
-	iorb = 0
-	with open(output_path, 'w') as file:
-		file.write(f"{natoms:>22}\n")
-		for iat in range(natoms):
-			atomic_number = constants.ATOM_DICT_SYM[el[iat]][0]
-			charge = atomic_number - int(Necp_dict[el[iat]])
-			file.write(f"{iat+1:>8} {iorb + 1:>8} {iorb + Norb_dict[el[iat]]:>8} {charge:>24.12f} {Necp_dict[el[iat]]:>8} {pos[iat, 0]:>24} {pos[iat, 1]:>24} {pos[iat, 2]:>24}\n")
-			iorb = iorb + Norb_dict[el[iat]]
+    iorb = 0
+    with open(output_path, 'w') as file:
+        file.write(f"{natoms:>22}\n")
+        for iat in range(natoms):
+            atomic_number = constants.ATOM_DICT_SYM[el[iat]][0]
+            charge = atomic_number - int(Necp_dict[el[iat]])
+            file.write(f"{iat+1:>8} {iorb + 1:>8} {iorb + Norb_dict[el[iat]]:>8} {charge:>24.12f} {Necp_dict[el[iat]]:>8} {pos[iat, 0]:>24} {pos[iat, 1]:>24} {pos[iat, 2]:>24}\n")
+            iorb = iorb + Norb_dict[el[iat]]
+
