@@ -25,7 +25,7 @@ jobs:
       - run: pip install -e .
       # ADJUST THIS: build your documentation into docs/.
       - run: echo "PYTHONPATH=home/runner/work/tmoutproc/"  >> $GITHUB_ENV
-      - run: pdoc tmoutproc -o docs/
+      - run: python -m pdoc tmoutproc -o docs/
       # We use a custom build script for pdoc itself, ideally you just run `pdoc -o docs/ ...` here.
 
       - run: tar --directory docs/ -hcf artifact.tar .
