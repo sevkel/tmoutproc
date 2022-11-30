@@ -24,7 +24,7 @@ jobs:
       # ADJUST THIS: install all dependencies (including pdoc)
       - run: pip install -e .
       # ADJUST THIS: build your documentation into docs/.
-      - run: echo "PYTHONPATH=home/runner/work/tmoutproc/"  >> $GITHUB_ENV
+      - run: echo "PYTHONPATH=home/runner/work/tmoutproc/tmoutproc"  >> $GITHUB_ENV
       - run: python -m pdoc tmoutproc -o docs/
       # We use a custom build script for pdoc itself, ideally you just run `pdoc -o docs/ ...` here.
 
