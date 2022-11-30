@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: tmoutproc
+Version: 0.1
+Summary: Package for processing turbomole Output such as mos files
+Home-page: https://github.com/blaschma/tmoutproc
+Author: Matthias Blaschke
+Author-email: matthias.blaschke@uni-a.de
+License: MIT
+Description: UNKNOWN
+Platform: UNKNOWN

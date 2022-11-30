@@ -23,5 +23,5 @@ Find the documentation [here](https://blaschma.github.io/tmoutproc/tmoutproc/tmo
 Usage
 ------------
 ``
-from tmoutproc import tmoutproc as top
+import tmoutproc as top
 ``

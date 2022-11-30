@@ -1,4 +1,4 @@
-from tmoutproc import tmoutproc as top
+import tmoutproc as top
 import pytest
 import numpy as np
 
@@ -88,7 +88,18 @@ def test_sort_coord():
     assert coord_sorted[0][3] == 'au'
     assert coord_sorted[0][4] == 'f'
 
+def test_read_hessian():
+    #"""
+    hessians = ["hessian_tm", "hessian_xtb"]
+    for hessian in hessians:
+        with pytest.raises(ValueError):
+            top.read_hessian(f"./tests/test_data/{hessian}", n_atoms=1, dimensions=3)
+        with pytest.raises(ValueError):
+            top.read_hessian(f"./tests/test_data/{hessian}", n_atoms=3, dimensions=3)
 
+        hessian = top.read_hessian(f"./tests/test_data/{hessian}", n_atoms=2, dimensions=3)
+        assert np.max(np.abs(hessian-np.transpose(hessian))) == 0
+        assert hessian[0,0]
 
 if __name__ == '__main__':
     test_load_xyz_file()

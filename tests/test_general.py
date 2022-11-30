@@ -1,4 +1,4 @@
-from tmoutproc import tmoutproc as top
+import tmoutproc as top
 from tmoutproc import constants
 import pytest
 import numpy as np
