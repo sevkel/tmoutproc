@@ -23,6 +23,7 @@ jobs:
 
       # ADJUST THIS: install all dependencies (including pdoc)
       - run: pip install -e .
+      - run: pip install git+https://github.com/blaschma/tmoutproc.git
       # ADJUST THIS: build your documentation into docs/.
       - run: pdoc ./tmoutproc/tmoutproc -o docs/
       # We use a custom build script for pdoc itself, ideally you just run `pdoc -o docs/ ...` here.
