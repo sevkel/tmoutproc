@@ -11,7 +11,7 @@ from scipy.linalg import eig
 from functools import partial
 from multiprocessing import Pool
 from scipy.sparse import coo_matrix
-from . import  constants
+from .constants import *
 
 __ang2bohr__ = 1.88973
 

@@ -189,3 +189,5 @@ ATOM_DICT_ANUM = {1: ['h', 'Hydrogen', 1.008],
                  91: ['pa', 'Protactinium', 231.035881],
                  92: ['u', 'Uranium', 238.028913]}
 
+if __name__ == '__main__':
+    pass
