@@ -1,4 +1,6 @@
+__name__ = "__main__"
 from setuptools import setup
+
 
 setup(
     name='tmoutproc',
@@ -11,3 +13,4 @@ setup(
     license='MIT',
     description='Package for processing turbomole Output',
 )
+
