@@ -16,6 +16,54 @@ from . import io as io
 
 __ang2bohr__ = 1.88973
 
+def create_dynamical_matrix(filename_hessian, filename_coord, t2SI=False, dimensions=3):
+    """
+    Creates dynamical matrix by mass weighting hessian. Default output in turbomole format (hartree/bohr**2)
+    Args:
+        param1 (String) : Filename to hessian
+        param2 (String) : Filename to coord file (xyz or turbomole format)
+        param3 (boolean) : convert ouptput from turbomole (hartree/bohr**2) in SI units
+        param3 (int) : number of dimensions
+
+    Returns:
+        np.ndarray
+    """
+    # read atoms from file
+    atoms = list()
+    # check if xyz or turbomoleformat is parsed
+    if (fnmatch.fnmatch(filename_coord, '*.xyz')):
+        datContent = io.read_xyz_file(filename_coord)[1][0]
+        atoms.extend(datContent)
+    else:
+        datContent = io.read_coord_file(filename_coord)
+        atoms = [str(datContent[i][3]).lower() for i in range(0, len(datContent))]
+    # determine atom masses
+    masses = list()
+    for i in range(0, len(atoms)):
+        if (t2SI == True):
+            masses.append(atom_weight(atoms[i], u2kg=True))
+        else:
+            masses.append(atom_weight(atoms[i]))
+
+    # create dynamical matrix by mass weighting hessian
+    hessian = io.read_hessian(filename_hessian, len(atoms), dimensions)
+
+    dynamical_matrix = np.zeros((len(atoms) * dimensions, len(atoms) * dimensions))
+    for i in range(0, len(atoms) * dimensions):
+        if (t2SI == True):
+            # har/bohr**2 -> J/m**2
+            hessian[i, i] = hessian[i, i] * (((1.89) ** 2) / (2.294)) * 1000
+        dynamical_matrix[i, i] = (1. / np.sqrt(masses[int(i / dimensions)] * masses[int(i / dimensions)])) * hessian[
+            i, i]
+        for j in range(0, i):
+            # har/bohr**2 -> J/m**2
+            if (t2SI == True):
+                #TODO: No hard coded conversion
+                hessian[i, j] = hessian[i, j] * (((1.89) ** 2) / (2.294)) * 1000
+            dynamical_matrix[i, j] = (1. / np.sqrt(masses[int(i / dimensions)] * masses[int(j / dimensions)])) * \
+                                     hessian[i, j]
+            dynamical_matrix[j, i] = dynamical_matrix[i, j]
+    return dynamical_matrix
 
 def diag_F(f_mat_path, s_mat_path, eigenvalue_list=list()):
     """

@@ -115,6 +115,8 @@ def test_read_symmetric_from_triangular():
     hessian_reread = top.read_symmetric_from_triangular("/tmp/hessian")
     assert np.max(np.abs(hessian_reread-hessian)) == 0
 
+
+
 if __name__ == '__main__':
     test_load_xyz_file()
     test_determine_n_orbitals()
