@@ -4,13 +4,14 @@ import numpy as np
 
 def test_load_xyz_file():
     #problem not acutal code is used but installed code
-    header, coord_xyz = top.load_xyz_file("./tests/test_data/benz.xyz")
+    coord_xyz = top.read_xyz_file("./tests/test_data/benz.xyz")
 
-    assert header[0] == "Header"
     assert coord_xyz.shape == (4,12)
     assert coord_xyz[0, 0] == "C"
     assert float(coord_xyz[1, 0]) == -2.97431
     assert coord_xyz[0, 6] == "H"
+    coord_xyz, header = top.read_xyz_file("./tests/test_data/benz.xyz", return_header=True)
+    assert header == "Header eins"
 
 def test_determine_n_orbitals():
     #test if basis set is checked
@@ -28,7 +29,7 @@ def test_remove_fixed_atoms():
     assert float(coord_PCP_filtered [0][0]) == -0.03330929466830, "Wrong value in coord_PCP_filtered"
 
 def test_shift_xyz_coord():
-    coord_xyz = top.load_xyz_file("./tests/test_data/benz.xyz")[1]
+    coord_xyz = top.read_xyz_file("./tests/test_data/benz.xyz")
     coord = top.read_coord_file("./tests/test_data/coord_PCP")
 
     with pytest.raises(ValueError):
@@ -57,7 +58,7 @@ def test_shift_coord_file():
     assert np.isclose(float(coord_shifted[89][2]), 39.80494546134004 + 3.0)
 
 def test_sort_xyz_coord():
-    coord_xyz = top.load_xyz_file("./tests/test_data/benz.xyz")[1]
+    coord_xyz = top.read_xyz_file("./tests/test_data/benz.xyz")
     with pytest.raises(ValueError):
         top.sort_xyz_coord(coord_xyz, axis=3)
     axes = [2,1,0]

@@ -48,32 +48,6 @@ def read_coord_file(filename):
     return datContent
 
 
-def read_xyz_file(filename):
-    """
-    Reads data in file (eg plot data)
-
-    Args:
-        param1 (String): Filename
-
-
-
-    Returns:
-        array of lists [line in coordfile][0=x, 1=y, 2=z, 3=atomtype, optional: 4=fixed]
-    """
-
-    datContent = [i.strip().split() for i in open(filename).readlines()]
-    # filter everything but $coord information
-    cut = 0
-    for i in range(2, len(datContent)):
-        if (len(datContent[i]) < 4):
-            cut = i
-            datContent = datContent[0:cut + 1]
-            break
-
-    datContent = np.array(datContent, dtype=object)
-    datContent = np.transpose(datContent[2:len(datContent)])
-    return datContent
-
 
 def write_coord_file(filename, coord):
     """
@@ -401,18 +375,19 @@ def read_plot_data(filename):
     return np.array(np.transpose(datContent), dtype=float), ""
 
 
-def load_xyz_file(filename):
+def read_xyz_file(filename, return_header = False):
     """
-    load xyz file and returns data. Returns comment line and coord data. Dat content cols: atoms=0 (Str), x=1 (float), y=2 (float), z=3 (float).
+    load xyz file and returns data as coord_xyz.
     coord[:,i] ... Entries for atom i
     coord[i,:] ... Atoms types (str) [i=0], x (float) [i=1], y (float) [i=2], x (float) [z=3] for all atoms
 
     Args:
         param1 (String): filename
+        param2 (Boolean): return_header: If set to true (coord_xyz, header) is returned
 
 
     Returns:
-        (comment_line (String), coord (np.ndarray))
+        coord_xyz, header (optional)
     """
     datContent = [i.strip().split() for i in open(filename).readlines()]
     comment_line = np.transpose(datContent[1])
@@ -421,8 +396,12 @@ def load_xyz_file(filename):
         datContent[i, 1] = float(item[1])
         datContent[i, 2] = float(item[2])
         datContent[i, 3] = float(item[3])
-    coord = np.transpose(datContent)
-    return (comment_line, coord)
+    coord_xyz = np.transpose(datContent)
+    if(return_header):
+        header = " ".join(str(x) for x in comment_line)
+        return (coord_xyz, str(header))
+    else:
+        return coord_xyz
 
 
 def write_xyz_file(filename, comment_line, coord_xyz):
@@ -442,9 +421,10 @@ def write_xyz_file(filename, comment_line, coord_xyz):
     file.write("\n")
     file.write(comment_line)
     file.write("\n")
+
     for i in range(0, len(coord_xyz)):
-        file.write(str(coord_xyz[i][0]) + "	" + str(coord_xyz[i][1]) + "	" + str(coord_xyz[i][2]) + "	" + str(
-            coord_xyz[i][3]) + "\n")
+        file.write(str(coord_xyz[0,i]) + "	" + str(coord_xyz[1,i]) + "	" + str(coord_xyz[2,i]) + "	" + str(
+            coord_xyz[3,i]) + "\n")
     file.close()
 
 
@@ -590,7 +570,7 @@ def create_dynamical_matrix(filename_hessian, filename_coord, t2SI=False, dimens
     atoms = list()
     # check if xyz or turbomoleformat is parsed
     if (fnmatch.fnmatch(filename_coord, '*.xyz')):
-        datContent = load_xyz_file(filename_coord)[1][0]
+        datContent = read_xyz_file(filename_coord)[1][0]
         atoms.extend(datContent)
     else:
         datContent = io.read_coord_file(filename_coord)

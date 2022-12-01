@@ -19,9 +19,9 @@ __ang2bohr__ = 1.88973
 
 def shift_xyz_coord(coord_xyz, x_shift, y_shift, z_shift):
     """
-	Shifts coordinates in coord file loaded with load_xyz_file.
+	Shifts coordinates in coord file loaded with read_xyz_file.
 	Args:
-		coord_xyz: Coord file loaded with load_xyz_file
+		coord_xyz: Coord file loaded with read_xyz_file
 		x_shift: x shift in Angstrom
 		y_shift: y shift in Angstrom
 		z_shift: z shift in Angstrom
@@ -72,7 +72,7 @@ def sort_xyz_coord(coord_xyz, axis):
     """
 	Sort coord_xyz according to axis (x=0, y=1, z=2)
 	Args:
-		coord_xyz: Coord file loaded with load_xyz_file
+		coord_xyz: Coord file loaded with read_xyz_file
 		axis: Axis (x=0, y=1, z=2)
 
 	Returns:
@@ -92,7 +92,7 @@ def sort_coord(coord, axis):
     """
 	Sort coord_xyz according to axis (x=0, y=1, z=2)
 	Args:
-		coord_xyz: Coord file loaded with load_xyz_file
+		coord_xyz: Coord file loaded with read_xyz_file
 		axis: Axis (x=0, y=1, z=2)
 
 	Returns:
@@ -111,9 +111,9 @@ def sort_coord(coord, axis):
 def align_molecule(coord, axis, molecule_axis):
 	"""
 	Aligns molecule stored in coord along axis. Molecule_axis[0/1] give the indices of molecules which define the molecule
-	axis. Please note: coord = top.load_xyz_file(filename)
+	axis. Please note: coord = top.read_xyz_file(filename)
 	Args:
-		coord: coord file read with top from xyz file (coord = op.load_xyz_file(filename)))
+		coord: coord file read with top from xyz file (coord = op.read_xyz_file(filename)))
 		axis: axis is aligned along axis -> axis[x,y,z]
 		molecule_axis: indices of atoms in coord which define the molecule axis (index1, index2)
 
