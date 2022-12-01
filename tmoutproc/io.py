@@ -626,3 +626,40 @@ def create_sysinfo(coord_path, basis_path, output_path):
             file.write(f"{iat+1:>8} {iorb + 1:>8} {iorb + Norb_dict[el[iat]]:>8} {charge:>24.12f} {Necp_dict[el[iat]]:>8} {pos[iat, 0]:>24} {pos[iat, 1]:>24} {pos[iat, 2]:>24}\n")
             iorb = iorb + Norb_dict[el[iat]]
 
+
+def read_from_flag_to_flag(control_path, flag, output_path):
+    """
+    Reads file in control_path from flag to next flag or end of file. This can be used to get parts of the turbomole
+    control file. Flags begin with "$". The extracted part is written to file output_path without the leading flag. If
+    flag is found and corresponding part contains data, status 0 is returned, file is written. If flag is not found,
+    status -1 is returned and no file is written. If flag is found, but corresponding part contains no data, status -2
+    is returned and no file is written.
+    Args:
+        control_path (String): Path to considered file
+        flag (String): Flag which
+        output_path (String): Path to output file
+
+    Returns:
+        status (int)
+    """
+    found_part = False
+    part = list()
+    with open(control_path) as input_file:
+        lines = input_file.readlines()
+        for line in lines:
+            if(line.find(flag) != -1):
+                found_part = True
+                continue
+            if (found_part == False):
+                continue
+            if line.startswith("$"):
+                break
+            part.append(line)
+    if(found_part == False):
+        return -1
+    if(found_part == True and len(part) == 0):
+        return -2
+    with open(output_path, "w") as output_file:
+        for line in part:
+            output_file.write(f"{line}\n")
+    return 0
