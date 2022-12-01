@@ -110,6 +110,9 @@ def test_read_symmetric_from_triangular():
     assert hessian[8,8] == 0.235824323786876
     assert hessian[7,8] == -0.222050038511708
     assert hessian[6,8] == -0.112940116315714
+    top.write_symmetric_to_triangular(hessian, "/tmp/hessian")
+    hessian_reread = top.read_symmetric_from_triangular("/tmp/hessian")
+    assert np.max(np.abs(hessian_reread-hessian)) == 0
 
 if __name__ == '__main__':
     test_load_xyz_file()

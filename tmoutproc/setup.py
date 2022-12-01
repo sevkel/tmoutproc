@@ -1,4 +1,3 @@
-__name__ = "__main__"
 from setuptools import setup
 
 

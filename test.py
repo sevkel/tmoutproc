@@ -1,5 +1,7 @@
-import tmoutproc as top
+import os
 
 if __name__ == '__main__':
-    c = top.read_symmetric_from_triangular("./tests/test_data/hessian_direct")
-    print("ende")
+    try:
+        os.system("pdoc ./tmoutproc -o docs/")
+    except RuntimeError as e:
+        print(e)

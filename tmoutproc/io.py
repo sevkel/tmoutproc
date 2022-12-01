@@ -562,12 +562,10 @@ def write_symmetric_to_triangular(matrix, output_path, threshold=0.0):
     shape = matrix.shape[0]
     if (shape != matrix.shape[1]):
         raise ValueError("Matrix is not quadratic")
-    print(matrix[0, 0])
     with open(output_path, "w") as file:
         counter = 0
         for i in range(0, shape):
             for j in range(0, i + 1):
-                print(i, j)
                 counter += 1
                 if counter == 3:
                     counter = 0
