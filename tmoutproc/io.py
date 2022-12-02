@@ -627,7 +627,7 @@ def create_sysinfo(coord_path, basis_path, output_path):
             iorb = iorb + Norb_dict[el[iat]]
 
 
-def read_from_flag_to_flag(control_path, flag, output_path):
+def read_from_flag_to_flag(control_path, flag, output_path, header="", footer=""):
     """
     Reads file in control_path from flag to next flag or end of file. This can be used to get parts of the turbomole
     control file. Flags begin with "$". The extracted part is written to file output_path without the leading flag. If
@@ -638,6 +638,8 @@ def read_from_flag_to_flag(control_path, flag, output_path):
         control_path (String): Path to considered file
         flag (String): Flag which
         output_path (String): Path to output file
+        header (String): Header added to output file
+        footer (String): Footer added to output file
 
     Returns:
         status (int)
@@ -660,6 +662,10 @@ def read_from_flag_to_flag(control_path, flag, output_path):
     if(found_part == True and len(part) == 0):
         return -2
     with open(output_path, "w") as output_file:
+        if header != "":
+            output_file.write(f"{header}\n")
         for line in part:
-            output_file.write(f"{line}\n")
+            output_file.write(f"{line}")
+        if footer != "":
+            output_file.write(f"{header}")
     return 0
