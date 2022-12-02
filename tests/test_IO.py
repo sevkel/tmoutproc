@@ -2,6 +2,7 @@ import tmoutproc as top
 import pytest
 import numpy as np
 import os.path
+import filecmp
 
 def test_load_xyz_file():
     #problem not acutal code is used but installed code
@@ -53,6 +54,11 @@ def test_read_from_flag_to_flag():
     status = top.read_from_flag_to_flag(control_path, "$nprhessian", "/tmp/flag_output.dat")
     assert status == 0
     assert os.path.exists("/tmp/flag_output.dat") == True
+
+def test_create_sysinfo():
+    test_data_path = "./tests/test_data"
+    top.create_sysinfo(f"{test_data_path}/coord_sysinfo", f"{test_data_path}/basis_sysinfo", "/tmp/sysinfo.dat")
+    assert filecmp.cmp(f"{test_data_path}/sysinfo.dat", "/tmp/sysinfo.dat") == True
 
 
 if __name__ == '__main__':

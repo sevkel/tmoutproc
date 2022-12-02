@@ -13,6 +13,7 @@ from multiprocessing import Pool
 from scipy.sparse import coo_matrix
 from .constants import *
 from .io import *
+from .calc_utils import get_norb_from_config
 
 __ang2bohr__ = 1.88973
 
@@ -570,7 +571,7 @@ def create_sysinfo(coord_path, basis_path, output_path):
 	Returns:
 
 	"""
-    coord = io.read_coord_file(coord_path)
+    coord = read_coord_file(coord_path)
     # number of atoms:
     natoms = np.size(coord)
     # split cd into position array and element vector
@@ -621,7 +622,7 @@ def create_sysinfo(coord_path, basis_path, output_path):
     with open(output_path, 'w') as file:
         file.write(f"{natoms:>22}\n")
         for iat in range(natoms):
-            atomic_number = constants.ATOM_DICT_SYM[el[iat]][0]
+            atomic_number = ATOM_DICT_SYM[el[iat]][0]
             charge = atomic_number - int(Necp_dict[el[iat]])
             file.write(f"{iat+1:>8} {iorb + 1:>8} {iorb + Norb_dict[el[iat]]:>8} {charge:>24.12f} {Necp_dict[el[iat]]:>8} {pos[iat, 0]:>24} {pos[iat, 1]:>24} {pos[iat, 2]:>24}\n")
             iorb = iorb + Norb_dict[el[iat]]
