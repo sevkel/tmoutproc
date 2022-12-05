@@ -121,7 +121,7 @@ def read_packed_matrix(filename, output="sparse"):
             if (counter == -1):
                 counter += 1
                 continue
-            line_split = r.split('\s+', line)
+            line_split = r.split('\\s+', line)
             matrix_entry = float(line_split[2])
 
             # calculate row and col
@@ -154,7 +154,7 @@ def read_packed_matrix(filename, output="sparse"):
 
 
 def write_packed_matrix(matrix, filename, header="default", footer=""):
-    f"""
+    """
     write symmetric scipy.sparse.csc_matrix in  in packed storage form
 
     Args:

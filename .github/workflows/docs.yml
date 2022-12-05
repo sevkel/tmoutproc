@@ -30,7 +30,7 @@ jobs:
       - run: echo "PYTHONPATH=home/runner/work/tmoutproc/tmoutproc"  >> $GITHUB_ENV
       - run: echo $(ls)
       - run: echo $(pwd)
-      - run: pdoc ./tmoutproc -o docs/
+      - run: pdoc ./tmoutproc/ -o docs/
       # We use a custom build script for pdoc itself, ideally you just run `pdoc -o docs/ ...` here.
 
       - run: tar --directory docs/ -hcf artifact.tar .
