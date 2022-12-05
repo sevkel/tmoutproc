@@ -83,6 +83,7 @@ def read_packed_matrix(filename, output="sparse"):
     """
     Reads packed symmetric matrix from file and creates matrix
     returns matrix in scipy.sparse.csc_matrix or dense matrix (np.ndarray) depending on output param
+
     Args:
         param1 (String): filename
         param2 (String): Output format: "sparse" (->scipy.sparse.csc_matrix) or "dense" (->np.ndarray)
@@ -435,6 +436,7 @@ def write_xyz_file(filename, comment_line, coord_xyz):
 def read_hessian(filename, n_atoms, dimensions=3):
     """
     Reads hessian from turbomole format and converts it to matrix of float
+
     Args:
         param1 (String) : Filename
         param2 (int) : Number of atoms
@@ -495,6 +497,7 @@ def read_symmetric_from_triangular(input_path, skip_lines=0):
     a b c
     b d e
     c e f
+
     Args:
         input_path (String): Path to file
         skip_lines (int): Lines of file which sould be skipped (e.g. header stuff)
@@ -531,6 +534,7 @@ def write_symmetric_to_triangular(matrix, output_path, threshold=0.0):
     c e f
     Example Output:
     a, b, d, c, e, f
+
     Args:
         matrix (numpy.ndarray): Symmetric matrix
         output_path (String): Path of output file
@@ -565,6 +569,7 @@ def create_sysinfo(coord_path, basis_path, output_path):
 	Create sysinfo according to given template. Sysinfo is used for transport calculations used by Theo 1 Group of
 	University of Augsburg. It contains information about the orbitals, the charge, number of ecps and the coordinates of the positions
 	{number atom} {orbital_index_start} {orbital_index_end} {charge} {number ecps} {x in Bohr} {y in Bohr} {z in Bohr}
+
 	Args:
 		coord_path (String): Path to turbomole coord file
 		basis_path (String): Path to turbomole basis file
@@ -637,6 +642,7 @@ def read_from_flag_to_flag(control_path, flag, output_path, header="", footer=""
     flag is found and corresponding part contains data, status 0 is returned, file is written. If flag is not found,
     status -1 is returned and no file is written. If flag is found, but corresponding part contains no data, status -2
     is returned and no file is written.
+
     Args:
         control_path (String): Path to considered file
         flag (String): Flag which

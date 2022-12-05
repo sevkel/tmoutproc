@@ -20,6 +20,7 @@ __ang2bohr__ = 1.88973
 def shift_xyz_coord(coord_xyz, x_shift, y_shift, z_shift):
     """
 	Shifts coordinates in coord file loaded with read_xyz_file.
+
 	Args:
 		coord_xyz: Coord file loaded with read_xyz_file
 		x_shift: x shift in Angstrom
@@ -48,6 +49,7 @@ def shift_xyz_coord(coord_xyz, x_shift, y_shift, z_shift):
 def shift_coord_file(coord, x_shift, y_shift, z_shift):
     """
 	Shifts coordinates in coord file loaded with io.read_coord_file.
+
 	Args:
 		coord_xyz: Coord file loaded with io.read_coord_file
 		x_shift: x shift in Bohr
@@ -71,6 +73,7 @@ def shift_coord_file(coord, x_shift, y_shift, z_shift):
 def sort_xyz_coord(coord_xyz, axis):
     """
 	Sort coord_xyz according to axis (x=0, y=1, z=2)
+
 	Args:
 		coord_xyz: Coord file loaded with read_xyz_file
 		axis: Axis (x=0, y=1, z=2)
@@ -91,6 +94,7 @@ def sort_xyz_coord(coord_xyz, axis):
 def sort_coord(coord, axis):
     """
 	Sort coord_xyz according to axis (x=0, y=1, z=2)
+
 	Args:
 		coord_xyz: Coord file loaded with read_xyz_file
 		axis: Axis (x=0, y=1, z=2)
@@ -112,6 +116,7 @@ def align_molecule(coord, axis, molecule_axis):
 	"""
 	Aligns molecule stored in coord along axis. Molecule_axis[0/1] give the indices of molecules which define the molecule
 	axis. Please note: coord = top.read_xyz_file(filename)
+
 	Args:
 		coord: coord file read with top from xyz file (coord = op.read_xyz_file(filename)))
 		axis: axis is aligned along axis -> axis[x,y,z]
@@ -181,6 +186,7 @@ def align_molecule(coord, axis, molecule_axis):
 def x2t(coord_xyz):
 	"""
 	Transforms coord_xyz from xyz format to turbomole
+
 	Args:
 		coord_xyz: coord array in xyz
 
@@ -200,6 +206,7 @@ def x2t(coord_xyz):
 def fix_atoms(coord, indices):
 	"""
 	fixes atoms in indices in turbomole coord file coord
+
 	Args:
 		coord: coord file read with top.io.read_coord_file
 		indices: array-like of indices in coord file which should be fixed. "all" is also possible -> every atom is fixed
@@ -225,6 +232,7 @@ def fix_atoms(coord, indices):
 def remove_fixed_atoms(coord):
 	"""
 	Removes fixed atoms from turbomole coord file.
+
 	Args:
 		coord: coord file data loaded with io.read_coord_file
 

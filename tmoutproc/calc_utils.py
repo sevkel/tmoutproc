@@ -19,6 +19,7 @@ __ang2bohr__ = 1.88973
 def create_dynamical_matrix(filename_hessian, filename_coord, t2SI=False, dimensions=3):
     """
     Creates dynamical matrix by mass weighting hessian. Default output in turbomole format (hartree/bohr**2)
+
     Args:
         param1 (String) : Filename to hessian
         param2 (String) : Filename to coord file (xyz or turbomole format)
@@ -68,6 +69,7 @@ def create_dynamical_matrix(filename_hessian, filename_coord, t2SI=False, dimens
 def diag_F(f_mat_path, s_mat_path, eigenvalue_list=list()):
     """
     diagonalizes f mat (generalized), other eigenvalues can be used (eigenvalue_list). Solves Fx=l*S*x
+
     Args:
         param1 (string): filename of fmat
         param2 (string): filename of smat
@@ -196,6 +198,7 @@ def find_c_range_atom(atom, number, coordfile, basis_set="dev-SV(P)"):
 def atom_weight(atom, u2kg=False):
     """
     Return mass of atom in kg or au (au is default)
+
     Args:
         param1 (String) : Atom type
         param2 (boolean) : convert to kg
@@ -260,6 +263,7 @@ def atom_type_to_number(atom_type):
 def determine_n_orbitals(coord_path, basis_set="dev-SV(P)"):
     """
     Determines number of orbitals for calculation using coord file (turbomole format, xyz support is planned) and basis set.
+
     Args:
         coord_path (String): path to coord file (turbomole coord file)
         basis_set (String): basis set
@@ -290,6 +294,7 @@ def determine_n_orbitals(coord_path, basis_set="dev-SV(P)"):
 def get_norb_from_config(config):
     """
     Get number of orbitals from turbomole config string (for example [6s3p2d])
+    
     Args:
         config (String): configuration string
 
