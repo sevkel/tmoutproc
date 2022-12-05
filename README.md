@@ -1,6 +1,6 @@
 tmoutproc
 ==============
-[![website](https://github.com/blaschma/tmoutproc/actions/workflows/docs.yml/badge.svg)](https://github.com/blaschma/tmoutproc/actions/workflows/docs.yml)
+[![Documentation Status](https://readthedocs.org/projects/tmoutproc/badge/?version=latest)](https://tmoutproc.readthedocs.io/en/latest/?badge=latest)
 [![test](https://github.com/blaschma/tmoutproc/actions/workflows/pytest.yml/badge.svg)](https://github.com/blaschma/tmoutproc/actions/workflows/pytest.yml)
 
 This package can be used to process Output of Turbomole Calculations. There is no connection to TURBOMOLE GmbH! The code
@@ -23,7 +23,7 @@ pip install git+https://github.com/blaschma/tmoutproc.git
 
 Documentaion
 ------------
-Find the documentation [here](https://blaschma.github.io/tmoutproc/tmoutproc/tmoutproc.html)
+Find the documentation [here](tmoutproc.readthedocs.io)
 
 Usage
 ------------
