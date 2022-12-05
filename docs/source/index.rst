@@ -10,6 +10,7 @@ still needs some polishing and improvement here and there, as it is developed st
 However, we are working on it and the methods provided are well tested and used in production codes. If you find a bug
 or see room for improvement, please let us know!
 The package is divided in three modules:
+
 * tmoutproc.calc_utils: Methods useful for calculations using turbomole output
 * tmoutproc.geometry_utils: Methods useful for calculations using turbomole output
 * tmoutproc.io: Input/Output Methods (Loading and saving coord files in xyz and turbomole format, ...)
