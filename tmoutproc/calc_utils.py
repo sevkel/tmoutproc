@@ -294,7 +294,7 @@ def determine_n_orbitals(coord_path, basis_set="dev-SV(P)"):
 def get_norb_from_config(config):
     """
     Get number of orbitals from turbomole config string (for example [6s3p2d])
-    
+
     Args:
         config (String): configuration string
 
