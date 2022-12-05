@@ -23,7 +23,7 @@ pip install git+https://github.com/blaschma/tmoutproc.git
 
 Documentaion
 ------------
-Find the documentation [here](tmoutproc.readthedocs.io)
+Find the documentation [here](https://tmoutproc.readthedocs.io)
 
 Usage
 ------------
