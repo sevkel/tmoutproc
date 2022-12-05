@@ -2,8 +2,7 @@
 venv
 turbomoleOuptputProcessing.egg-info
 .idea
-doc/build/*
-./docs/*
+docs/build/*
 build/*
 *.pyc
 __pycache__
