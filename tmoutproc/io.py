@@ -79,13 +79,13 @@ def write_coord_file(filename, coord):
     file.write("$end")
     file.close()
 
-
-def read_packed_matrix(filename):
+def read_packed_matrix(filename, output="sparse"):
     """
-    read packed symmetric matrix from file and creates matrix
-    returns matrix in scipy.sparse.csc_matrix
+    Reads packed symmetric matrix from file and creates matrix
+    returns matrix in scipy.sparse.csc_matrix or dense matrix (np.ndarray) depending on output param
     Args:
-        param1 (string): filename
+        param1 (String): filename
+        param2 (String): Output format: "sparse" (->scipy.sparse.csc_matrix) or "dense" (->np.ndarray)
 
 
     Example:
@@ -122,7 +122,7 @@ def read_packed_matrix(filename):
                 counter += 1
                 continue
             line_split = r.split('\s+', line)
-            matrix_entry = np.float(line_split[2])
+            matrix_entry = float(line_split[2])
 
             # calculate row and col
             if (col == col_old + 1):
@@ -145,47 +145,49 @@ def read_packed_matrix(filename):
 
     coo = coo_matrix((data, (i, j)), shape=(row + 1, row + 1))
     csc = scipy.sparse.csc_matrix(coo, dtype=float)
+    if(output == "sparse"):
+        return (csc)
+    elif(output == "dense"):
+        return csc.todense()
+    else:
+        raise ValueError(f"Input {output=} not valid")
 
-    return (csc)
 
-
-def write_matrix_packed(matrix, filename="test"):
-    """
+def write_packed_matrix(matrix, filename, header="default", footer=""):
+    f"""
     write symmetric scipy.sparse.csc_matrix in  in packed storage form
 
     Args:
-        param1 (scipi.sparse.csc_matrix): input matrix
-        param2 (string): filename
+        param1 (scipy.sparse.csc_matrix or np.ndarray): input matrix
+        param2 (String): filename
+        param3 (String): Header. Unless otherwise specified "num_elements_to_write      nmat" is written to file
+        param4 (String): Footer. Default setting is no footer ("")
 
     Returns:
 
     """
-    print("writing packed matrix")
+
     num_rows = matrix.shape[0]
     num_elements_to_write = (num_rows ** 2 + num_rows) / 2
 
     element_counter = 1
-    f = open(filename, "w")
+    with open(filename, "w") as f:
+        if(header == "default"):
+            line_beginning_spaces = ' ' * (12 - len(str(num_elements_to_write)))
+            f.write(line_beginning_spaces + str(int(num_elements_to_write)) + "      nmat\n")
+        elif(header != ""):
+            f.write(f"{header}\n")
 
-    line_beginning_spaces = ' ' * (12 - len(str(num_elements_to_write)))
-    f.write(line_beginning_spaces + str(num_elements_to_write) + "      nmat\n")
+        for r in range(0, num_rows):
+            num_cols = r + 1
+            for c in range(0, num_cols):
+                matrix_element = matrix[r, c]
+                f.write(f"{element_counter:>20}{matrix_element:>43.16e}\n")
+                element_counter += 1
+        if(footer != ""):
+            f.write(footer)
 
-    for r in range(0, num_rows):
-        # print("writing row " +str(r))
-        num_cols = r + 1
-        for c in range(0, num_cols):
-            matrix_element = matrix[r, c]
-            line_beginning_spaces = ' ' * (20 - len(str(int(element_counter))))
-            if (matrix_element >= 0):
-                line_middle_spaces = ' ' * 16
-            else:
-                line_middle_spaces = ' ' * 15
 
-            f.write(line_beginning_spaces + str(int(element_counter)) + line_middle_spaces + eformat(matrix_element, 14,
-                                                                                                     5) + "\n")
-            element_counter += 1
-    f.close()
-    print("writing done")
 
 
 def read_qpenergies(filename, col=1, skip_lines=1):

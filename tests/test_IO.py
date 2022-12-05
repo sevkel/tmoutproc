@@ -3,6 +3,7 @@ import pytest
 import numpy as np
 import os.path
 import filecmp
+import scipy.sparse
 
 def test_load_xyz_file():
     #problem not acutal code is used but installed code
@@ -60,6 +61,27 @@ def test_create_sysinfo():
     top.create_sysinfo(f"{test_data_path}/coord_sysinfo", f"{test_data_path}/basis_sysinfo", "/tmp/sysinfo.dat")
     assert filecmp.cmp(f"{test_data_path}/sysinfo.dat", "/tmp/sysinfo.dat") == True
 
+def test_read_write_matrix_packed():
+    test_data_path = "./tests/test_data"
+    matrix = top.read_packed_matrix(f"{test_data_path}/fmat_ao_cs_benz.dat")
+    assert type(matrix) == scipy.sparse.csc_matrix
+    matrix_dense = top.read_packed_matrix(f"{test_data_path}/fmat_ao_cs_benz.dat", output="dense")
+    with pytest.raises(ValueError):
+        top.read_packed_matrix(f"{test_data_path}/fmat_ao_cs_benz.dat", output="notvalid")
+    assert np.max(np.abs(matrix.todense()-matrix_dense)) == 0
+    assert matrix_dense[0,0] == -9.885587065525669459020719
+    n = int((-1+np.sqrt(1+8*4656))/2)
+    assert matrix_dense.shape == (n,n)
+    assert matrix_dense[n-1, n-1] == -0.3948151940509845303495240
+    assert np.max(matrix_dense-np.transpose(matrix_dense)) == 0
+
+    top.write_packed_matrix(matrix_dense, "/tmp/packed_matrix_dense")
+    re_read_dense = top.read_packed_matrix("/tmp/packed_matrix_dense", "dense")
+    assert np.max(np.abs(re_read_dense - matrix_dense)) == 0
+
+    top.write_packed_matrix(matrix, "/tmp/packed_matrix")
+    re_read_dense = top.read_packed_matrix("/tmp/packed_matrix")
+    assert np.max(np.abs(re_read_dense - matrix)) == 0
 
 if __name__ == '__main__':
     test_load_xyz_file()
