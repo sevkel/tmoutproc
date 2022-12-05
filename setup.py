@@ -7,7 +7,7 @@ setup(
     author='Matthias Blaschke',
     author_email='matthias.blaschke@student.uni-augsburg.de',
     packages=['tmoutproc'],
-    install_requires=['numpy', 'scipy', 're', 'functools'],
+    install_requires=['numpy', 'scipy'],
     version='0.1',
     license='MIT',
     description='Package for processing turbomole Output',
