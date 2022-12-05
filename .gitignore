@@ -5,4 +5,4 @@ turbomoleOuptputProcessing.egg-info
 docs/build/*
 build/*
 *.pyc
-__pycache__
+__pycache__/
