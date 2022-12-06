@@ -5,7 +5,7 @@ import os.path
 import filecmp
 import scipy.sparse
 
-def test_load_xyz_file():
+def test_read_write_xyz_file():
     #problem not acutal code is used but installed code
     coord_xyz = top.read_xyz_file("./tests/test_data/benz.xyz")
 
@@ -15,6 +15,12 @@ def test_load_xyz_file():
     assert coord_xyz[0, 6] == "H"
     coord_xyz, header = top.read_xyz_file("./tests/test_data/benz.xyz", return_header=True)
     assert header == "Header eins"
+
+    top.write_xyz_file("/tmp/xyz.xyz", coord_xyz, "test")
+    coord_xyz_reread, header = top.read_xyz_file("/tmp/xyz.xyz", return_header=True)
+    assert header == "test"
+    assert coord_xyz.shape == coord_xyz_reread.shape
+    assert np.max(np.abs(coord_xyz[1:3,:]-coord_xyz_reread[1:3,:])) == 0
 
 def test_read_hessian():
     #"""
@@ -82,6 +88,8 @@ def test_read_write_matrix_packed():
     top.write_packed_matrix(matrix, "/tmp/packed_matrix")
     re_read_dense = top.read_packed_matrix("/tmp/packed_matrix")
     assert np.max(np.abs(re_read_dense - matrix)) == 0
+
+
 
 if __name__ == '__main__':
     test_load_xyz_file()

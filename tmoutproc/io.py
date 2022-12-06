@@ -409,27 +409,27 @@ def read_xyz_file(filename, return_header = False):
         return coord_xyz
 
 
-def write_xyz_file(filename, comment_line, coord_xyz):
+def write_xyz_file(filename, coord_xyz, comment_line=""):
     """
     writes xyz file.
 
     Args:
         param1 (String): filename
-        param2 (String): commment_line
-        param3 (np.ndarray): dat content
+        param2 (np.ndarray): coord_xyz
+        param3 (String): comment_line
 
     Returns:
 
     """
-    file = open(filename, "w")
-    file.write(str(len(coord_xyz)))
-    file.write("\n")
-    file.write(comment_line)
-    file.write("\n")
+    with open(filename, "w") as file:
+        file.write(str(len(coord_xyz)))
+        file.write("\n")
+        file.write(comment_line)
+        file.write("\n")
 
-    for i in range(0, len(coord_xyz)):
-        file.write(str(coord_xyz[0,i]) + "	" + str(coord_xyz[1,i]) + "	" + str(coord_xyz[2,i]) + "	" + str(
-            coord_xyz[3,i]) + "\n")
+        for i in range(0, coord_xyz.shape[1]):
+            file.write(str(coord_xyz[0,i]) + "	" + str(coord_xyz[1,i]) + "	" + str(coord_xyz[2,i]) + "	" + str(
+                coord_xyz[3,i]) + "\n")
     file.close()
 
 

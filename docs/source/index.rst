@@ -12,7 +12,7 @@ or see room for improvement, please let us know!
 The package is divided in three modules:
 
 * tmoutproc.calc_utils: Methods useful for calculations using turbomole output
-* tmoutproc.geometry_utils: Methods useful for calculations using turbomole output
+* tmoutproc.geometry_utils: Methods useful for manipulating coord files in xyz and turbomole format
 * tmoutproc.io: Input/Output Methods (Loading and saving coord files in xyz and turbomole format, ...)
 
 * See available modules: :ref:`modindex`
