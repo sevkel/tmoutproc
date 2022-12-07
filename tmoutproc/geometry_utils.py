@@ -193,13 +193,13 @@ def x2t(coord_xyz):
 	Returns:
 	coord in turbomole format
 	"""
-	coord = np.empty(coord_xyz.shape[0], dtype=object)
-	for j in range(0, len(coord_xyz)):
-		x = round(float(coord_xyz[j][1]), 5)
-		y = round(float(coord_xyz[j][2]), 5)
-		z = round(float(coord_xyz[j][3]), 5)
-		element = coord_xyz[j][0].lower()
-		coord[j] = list([x*__ang2bohr__, y*__ang2bohr__, z*__ang2bohr__, element])
+	coord = np.empty(coord_xyz.shape[1], dtype=object)
+	for j in range(0, coord_xyz.shape[1]):
+		x = round(float(coord_xyz[1, j]), 5)
+		y = round(float(coord_xyz[2, j]), 5)
+		z = round(float(coord_xyz[3, j]), 5)
+		element = coord_xyz[0,j].lower()
+		coord[j] = list([x*constants.ANG2BOHR, y*constants.ANG2BOHR, z*constants.ANG2BOHR, element])
 
 	return coord
 
@@ -243,4 +243,5 @@ def remove_fixed_atoms(coord):
 	for i, item in enumerate(coord):
 		if(len(item)<5):
 			coord_filtered.append(item)
-	return np.array(coord_filtered)
+	coord_filtered = [[float(coord_filtered[i][0]), float(coord_filtered[i][1]), float(coord_filtered[i][2]), coord_filtered[i][3]] for i in range(0,len(coord_filtered))]
+	return coord_filtered

@@ -71,3 +71,44 @@ def test_sort_coord():
     assert coord_sorted[0][2] == 39.80494546134004
     assert coord_sorted[0][3] == 'au'
     assert coord_sorted[0][4] == 'f'
+
+def test_x2t():
+    coord_xyz = top.read_xyz_file("./tests/test_data/coord_PCP.xyz")
+    coord = top.read_coord_file("./tests/test_data/coord_PCP")
+
+    coord_generated = top.x2t(coord_xyz)
+
+    thresh = 1E-4
+    diff = [coord[i][0]- coord_generated[i][0] for i in range(0, len(coord))]
+    assert np.max(np.max(diff)) < thresh
+    diff = [coord[i][1] - coord_generated[i][1] for i in range(0, len(coord))]
+    assert np.max(np.max(diff)) < thresh
+    diff = [coord[i][2] - coord_generated[i][2] for i in range(0, len(coord))]
+    assert np.max(np.max(diff)) < thresh
+
+    is_same = [coord[i][3] == coord_generated[i][3] for i in range(0, len(coord))]
+    assert np.all(is_same)
+
+def test_fix_atoms():
+    coord = top.read_coord_file("./tests/test_data/coord_PCP")
+    coord_fixed = top.fix_atoms(coord, "all")
+
+    assert len(coord) == len(coord_fixed)
+
+    is_fixed = [coord_fixed[i][4] == "f" for i in range(0, len(coord_fixed))]
+    assert np.all(is_fixed)
+
+    coord = top.read_coord_file("./tests/test_data/coord_PCP")
+    coord_fixed = top.fix_atoms(coord, [1, 10, 20])
+    is_fixed = [coord_fixed[i][4] == "f" for i in [1, 10, 20]]
+    assert np.all(is_fixed)
+    assert len(coord_fixed[21]) == 4
+
+def test_remove_fixed_atoms():
+    coord = top.read_coord_file("./tests/test_data/coord_PCP")
+    ref_len = len(coord)
+    coord = top.remove_fixed_atoms(coord)
+    new_len = len(coord)
+    assert new_len == ref_len - 16 * 2
+
+    assert coord[0][0] == -0.03330929466830
