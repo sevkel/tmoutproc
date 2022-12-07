@@ -219,50 +219,60 @@ def read_qpenergies(filename, col=1, skip_lines=1):
     return qpenergies
 
 
-def write_mos_file(eigenvalues, eigenvectors, filename="mos_new.dat"):
+def write_mos_file(eigenvalues, eigenvectors, filename, scfconv="", total_energy=""):
     """
-    write mos file, requires python3
+    Writes mos file in turbomole format.
 
     Args:
         param1 (np.array): eigenvalues
         param2 (np.ndarray): eigenvectors
-        param3 (string): filename="mos_new.dat"
+        param3 (string): filename
+        param4 (int): scfconv parameter (optional)
+        param5 (float): total_energy in a.u. (optional)
     """
-    f = open(filename, "w")
-    # header
-    f.write("$scfmo    scfconv=7   format(4d20.14)\n")
-    f.write("# SCF total energy is    -6459.0496515472 a.u.\n")
-    f.write("#\n")
-    for i in range(0, len(eigenvalues)):
-        # print("eigenvalue " + str(eigenvalues[i]) + "\n")
-        first_string = ' ' * (6 - len(str(i))) + str(i + 1) + "  a      eigenvalue=" + eformat(eigenvalues[i], 14,
-                                                                                               2) + "   nsaos=" + str(
-            len(eigenvalues))
-        f.write(first_string + "\n")
-        j = 0
-        while j < len(eigenvalues):
-            for m in range(0, 4):
-                num = eigenvectors[m + j, i]
-                string_to_write = f"{num:+20.13E}".replace("E", "D")
-                f.write(string_to_write)
-            # f.write(eformat(eigenvectors[m+j,i], 14,2).replace("E", "D"))
-            f.write("\n")
-            j = j + 4
-        # print("j " + str(j))
-    f.write("$end")
+
+    def eformat(f, prec, exp_digits):
+
+        s = "%.*e" % (prec, f)
+        # s ="hallo"
+        mantissa, exp = s.split('e')
+        # add 1 to digits as 1 is taken by sign +/-
+        return "%sE%+0*d" % (mantissa, exp_digits + 1, int(exp))
+
+    with open(filename, "w") as f:
+        # header
+        f.write(f"$scfmo    scfconv={scfconv}   format(4d20.14)\n")
+        f.write(f"# SCF total energy is    {total_energy} a.u.\n")
+        f.write("#\n")
+        for i in range(0, len(eigenvalues)):
+            first_string = ' ' * (6 - len(str(i))) + str(i + 1) + "  a      eigenvalue=" + eformat(eigenvalues[i], 14,
+                                                                                                   2) + "   nsaos=" + str(
+                len(eigenvalues))
+            f.write(first_string + "\n")
+            j = 0
+            while j < len(eigenvalues):
+                for m in range(0, 4):
+                    num = eigenvectors[m + j, i]
+                    string_to_write = f"{num:+20.13E}".replace("E", "D")
+                    f.write(string_to_write)
+                # f.write(eformat(eigenvectors[m+j,i], 14,2).replace("E", "D"))
+                f.write("\n")
+                j = j + 4
+            # print("j " + str(j))
+        f.write("$end")
     f.close()
 
 
 def read_mos_file(filename, skip_lines=1):
     """
-    read mos file
+    Reads mos file. Eigenvectors[:,i] are the components for atom i.
 
     Args:
         param1 (string): filename
         param2 (int): skip_lines=1 (lines to skip )
 
     Returns:
-        eigenvalue_list (list),eigenvector_list (np.ndarray)
+        eigenvalue_list (list),eigenvectors (np.ndarray)
 
 
     """
@@ -298,11 +308,11 @@ def read_mos_file(filename, skip_lines=1):
                         beginning = False
                     else:
                         eigenvalue_old = eigenvalue
-
                         eigenvalue = float(line[(index1 + len("eigenvalue=")):index2].replace("D", "E"))
 
                     # calculate A matrix by adding A_i -> processing of previous orbital
                     if (len(C_vec) > 0):
+
                         eigenvalue_list.append(eigenvalue_old)
                         # print("level " + str(level))
                         eigenvector_list[:, (level - 2)] = C_vec
@@ -321,7 +331,7 @@ def read_mos_file(filename, skip_lines=1):
             counter += 1
 
     # handle last mos
-    eigenvalue_list.append(eigenvalue_old)
+    eigenvalue_list.append(eigenvalue)
     eigenvector_list[:, (nsaos - 1)] = C_vec
 
     return eigenvalue_list, eigenvector_list
@@ -357,27 +367,34 @@ def write_plot_data(filename, data, header=""):
     file.close()
 
 
-def read_plot_data(filename):
+def read_plot_data(filename, return_header=False):
     """
-    Reads data in file (eg plot data)
+    Reads data in file (eg plot data). If return_header is set to True, the header is returned as String. data[i,:] is
+    the ith column in the data file.
 
     Args:
         param1 (String): Filename
+        param2 (Boolean): Return Header
 
 
 
     Returns:
-        datContent, head (Array of lists and header of file)
+        datContent (np.ndarray), Header
     """
-    datContent = [i.strip().split() for i in open(filename).readlines()]
+    data = [i.strip().split() for i in open(filename).readlines()]
     try:
-        float(datContent[0][0])
+        float(data[0][0])
     except ValueError:
-        datContent = np.transpose(datContent[1:len(datContent)])
+        header = data[0]
+        header = " ".join(str(x) for x in header)
+        data = np.transpose(data[1:len(data)])
         # for 1D-01 to 1E-01 conversion
-        datContent = np.core.defchararray.replace(datContent, 'D', 'E')
-        return np.array(datContent, dtype=float), datContent[0]
-    return np.array(np.transpose(datContent), dtype=float), ""
+        data = np.core.defchararray.replace(data, 'D', 'E')
+        if(return_header == True):
+            return np.array(data, dtype=float), header
+        else:
+            return np.array(data, dtype=float)
+    return np.array(np.transpose(data), dtype=float)
 
 
 def read_xyz_file(filename, return_header = False):
@@ -678,3 +695,6 @@ def read_from_flag_to_flag(control_path, flag, output_path, header="", footer=""
         if footer != "":
             output_file.write(f"{header}")
     return 0
+
+if __name__ == '__main__':
+    read_mos_file("../tests/test_data/mos_benz")

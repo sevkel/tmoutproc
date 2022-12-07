@@ -22,6 +22,30 @@ def test_read_write_xyz_file():
     assert coord_xyz.shape == coord_xyz_reread.shape
     assert np.max(np.abs(coord_xyz[1:3,:]-coord_xyz_reread[1:3,:])) == 0
 
+def test_read_write_coord_file():
+
+    coord_PCP = top.read_coord_file("./tests/test_data/coord_PCP")
+
+    assert len(coord_PCP) == 90
+    assert len(coord_PCP[0]) == 5
+    assert len(coord_PCP[20]) == 4
+    assert coord_PCP[20][0] == -0.56571033834128
+    assert coord_PCP[20][1] == 0.04245149989675
+    assert coord_PCP[20][2] == 2.16496571320022
+    assert coord_PCP[20][3] == "c"
+
+    top.write_coord_file("/tmp/coord_pcp", coord_PCP)
+    coord_PCP = top.read_coord_file("/tmp/coord_pcp")
+
+    assert len(coord_PCP) == 90
+    assert len(coord_PCP[0]) == 5
+    assert len(coord_PCP[20]) == 4
+    assert coord_PCP[20][0] == -0.56571033834128
+    assert coord_PCP[20][1] == 0.04245149989675
+    assert coord_PCP[20][2] == 2.16496571320022
+    assert coord_PCP[20][3] == "c"
+
+
 def test_read_hessian():
     #"""
     hessians = ["hessian_tm", "hessian_xtb"]
@@ -88,6 +112,38 @@ def test_read_write_matrix_packed():
     top.write_packed_matrix(matrix, "/tmp/packed_matrix")
     re_read_dense = top.read_packed_matrix("/tmp/packed_matrix")
     assert np.max(np.abs(re_read_dense - matrix)) == 0
+
+def test_read_mos_file():
+    eigenvalues, eigenvectors = top.read_mos_file("./tests/test_data/mos_benz")
+    assert len(eigenvalues) == 96
+    print(eigenvalues)
+    assert  eigenvalues[0] == -.98930871549516E+01
+    assert eigenvalues[95] == 0.32978958538886E+01
+    assert  eigenvectors[0, 0] == 0.40333702240522
+    assert eigenvectors[1, 0] == 0.16149860838108E-01
+    assert eigenvectors[2, 0] == -0.68722499925093E-02
+
+    assert eigenvectors[0, 95] == 0.61752896138301E-01
+    assert eigenvectors[1, 95] == -.23316991833123E+00
+    assert eigenvectors[2, 95] == -.42986018618970E+01
+
+    top.write_mos_file(eigenvalues, eigenvectors, "/tmp/test_mos")
+    eigenvalues_reread, eigenvectors_reread = top.read_mos_file("/tmp/test_mos")
+    assert np.max(np.abs(np.array(eigenvalues_reread)-np.array(eigenvalues))) == 0
+    assert np.max(np.abs(eigenvectors_reread - eigenvectors)) == 0
+
+def test_read_write_plot_data():
+    array1 = np.linspace(0, 1, 100)
+    array2 = np.linspace(4, 3, 100)
+    array3 = np.linspace(5, 8, 100)
+
+    top.write_plot_data("/tmp/plot_data.dat", (array1, array2, array3), header="test")
+    data = top.read_plot_data("/tmp/plot_data.dat", False)
+    data, header = top.read_plot_data("/tmp/plot_data.dat", True)
+    assert header == "test"
+    assert np.max(np.abs(data[0,:]-array1)) == 0
+    assert np.max(np.abs(data[1, :] - array2)) == 0
+
 
 
 
