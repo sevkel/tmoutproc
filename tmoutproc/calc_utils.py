@@ -66,71 +66,15 @@ def create_dynamical_matrix(filename_hessian, filename_coord, t2SI=False, dimens
             dynamical_matrix[j, i] = dynamical_matrix[i, j]
     return dynamical_matrix
 
-def diag_F(f_mat_path, s_mat_path, eigenvalue_list=list()):
+
+def find_c_range_atom(atom, number, coord, basis_set="dev-SV(P)"):
     """
-    diagonalizes f mat (generalized), other eigenvalues can be used (eigenvalue_list). Solves Fx=l*S*x
-
-    Args:
-        param1 (string): filename of fmat
-        param2 (string): filename of smat
-        param3 (list()): eigenvalue_list (if specified eigenvalues are taken from eigenvalue_list)
-
-    Returns:
-        fmat (np.ndarray), eigenvalues (np.array), eigenvectors (matrix)
-
-    """
-
-    print("read f")
-    F_mat_file = io.read_packed_matrix(f_mat_path)
-    print("read s")
-    s_mat = io.read_packed_matrix(s_mat_path)
-    s_mat_save = s_mat
-
-    print("diag F")
-
-    # Konfiguration 1 : Übereinstimmung
-    # eigenvalues, eigenvectors = np.linalg.eigh(F_mat_file.todense())
-
-    # Konfiguration 2 : keine Übereinstimmung (sollte eigentlich das gleiche machen wie np.linalg.eigh)
-    # eigenvalues, eigenvectors = scipy.linalg.eigh(F_mat_file.todense())
-
-    # Konfiguration 3: keine Übereinstimmung (generalierstes EW Problem)
-    eigenvalues, eigenvectors = scipy.linalg.eigh(F_mat_file.todense(), s_mat.todense())
-
-    eigenvectors = np.real(np.asmatrix(eigenvectors))
-    # eigenvectors = np.transpose(eigenvectors)
-    eigenvalues = np.real(eigenvalues)
-    eigenvalue_output_list = eigenvalues
-    # print(eigenvalues)
-    # print("type random")
-    # print(type(eigenvalues).__name__)
-    # print(type(eigenvectors).__name__)
-    print("diag F done")
-
-    print("calc fmat ")
-    # take eigenvalues from diagonalization or external eigenvalues (e.g from qpenergies)
-    if (len(eigenvalue_list) == 0):
-        eigenvalues = np.diag(eigenvalues)
-    else:
-        eigenvalues = np.diag(eigenvalue_list)
-        eigenvalue_output_list = eigenvalue_list
-
-    sc = s_mat * eigenvectors
-    f_mat = eigenvalues * np.transpose(sc)
-    f_mat = sc * f_mat
-    print("calc fmat done")
-
-    return f_mat, eigenvalue_output_list, eigenvectors
-
-
-def find_c_range_atom(atom, number, coordfile, basis_set="dev-SV(P)"):
-    """
-    finds atoms range of expansion coef in mos file. number gives wich atoms should be found e.g. two sulfur : first number =1; second = 2
+    finds atoms range of expansion coef in mos file. number gives which atoms should be found e.g. two sulfur : first number =1; second = 2
 
     Args:
         param1 (String): atom type
         param2 (int): number of atom type atom
-        param3 (String): filename for coord file
+        param3 (String): coord file (from io.read_coord_file())
         param4 (String): basis_set="dev-SV(P)"
 
 
@@ -177,12 +121,12 @@ def find_c_range_atom(atom, number, coordfile, basis_set="dev-SV(P)"):
         else:
             raise ValueError('Sorry. This feature is not implemented for following atom: ' + atom)
 
-    coord_content = io.read_coord_file(coordfile)
+
     if (basis_set == "dev-SV(P)"):
         number_found_atoms_of_type = 0
         number_expansion_coeff = 0
-        for i in range(0, len(coord_content)):
-            current_atom = coord_content[i][3]
+        for i in range(0, len(coord)):
+            current_atom = coord[i][3]
 
             if (current_atom == atom):
                 number_found_atoms_of_type += 1
@@ -269,7 +213,7 @@ def determine_n_orbitals(coord_path, basis_set="dev-SV(P)"):
         except KeyError:
             atom_dict[item[3]] = 1
 
-        start, end = find_c_range_atom(item[3], atom_dict[item[3]], coord_path)
+        start, end = find_c_range_atom(item[3], atom_dict[item[3]], coord)
         ranges.append((start, end, item[3]))
     n_orbitals = ranges[-1][1]
 

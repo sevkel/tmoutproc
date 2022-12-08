@@ -31,11 +31,12 @@ def test_find_c_range_atom():
     atom = 'au'
     number = 1
     coordfile = "./tests/test_data/coord_PCP_filtered"
+    coord = top.read_coord_file(coordfile)
     with pytest.raises(ValueError):
-        top.find_c_range_atom(atom='au', number=1, coordfile=coordfile, basis_set="NOT VALID")
-    assert top.find_c_range_atom(atom='au', number=1, coordfile=coordfile, basis_set="dev-SV(P)") == (0,25)
-    assert top.find_c_range_atom(atom='au', number=2, coordfile=coordfile, basis_set="dev-SV(P)") == (25,50)
-    assert top.find_c_range_atom(atom='s', number=2, coordfile=coordfile, basis_set="dev-SV(P)") == (529, 547)
+        top.find_c_range_atom(atom='au', number=1, coord=coord, basis_set="NOT VALID")
+    assert top.find_c_range_atom(atom='au', number=1, coord=coord, basis_set="dev-SV(P)") == (0,25)
+    assert top.find_c_range_atom(atom='au', number=2, coord=coord, basis_set="dev-SV(P)") == (25,50)
+    assert top.find_c_range_atom(atom='s', number=2, coord=coord, basis_set="dev-SV(P)") == (529, 547)
 
 def test_get_norb_from_config():
     orbital_degeneracy = [1, 3, 5, 7]
