@@ -148,6 +148,7 @@ def find_c_range_atom(atom, number, coordfile, basis_set="dev-SV(P)"):
         Returns:
             ordinal number (int)
             """
+        #TODO: NO hard coded version
         if (atom == "c"):
             return 14
         elif (atom == "h"):
@@ -156,6 +157,8 @@ def find_c_range_atom(atom, number, coordfile, basis_set="dev-SV(P)"):
             return 25
         elif (atom == "s"):
             return 18
+        elif (atom == "n"):
+            return 14
         elif (atom == "zn"):
             return 24
         elif (atom == "o"):
@@ -223,9 +226,9 @@ def atom_weight(atom, u2kg=False):
     return atom_weight * u
 
 
-def atom_type_to_number(atom_type):
+def atom_type_to_atomic_number(atom_type):
     """
-    returns ordinal number of atom
+    Returns atomic_number of atom given in atom_type
 
     Args:
         param1 (String): atom type
@@ -233,31 +236,13 @@ def atom_type_to_number(atom_type):
     Returns:
         ordinal number (int)
     """
-    if (atom_type.lower() == "h"):
-        return 1
-    elif (atom_type.lower() == "c"):
-        return 6
-    elif (atom_type.lower() == "n"):
-        return 7
-    elif (atom_type.lower() == "o"):
-        return 8
-    elif (atom_type.lower() == "f"):
-        return 9
-    elif (atom_type.lower() == "cl"):
-        return 17
-    elif (atom_type.lower() == "br"):
-        return 35
-    elif (atom_type.lower() == "i"):
-        return 53
-    elif (atom_type.lower() == "au"):
-        return 79
-    elif (atom_type.lower() == "s"):
-        return 16
-    elif (atom_type.lower() == "si"):
-        return 14
-    else:
-        print("Sorry I do not know this atom yet")
-        return -1
+    try:
+        dict_entry = constants.ATOM_DICT_SYM[atom_type.lower()]
+        Z = dict_entry[0]
+    except KeyError as e:
+        error_text = (f"Element {atom_type} cannot be found. Raising exception {e}")
+        raise ValueError(error_text)
+    return Z
 
 
 def determine_n_orbitals(coord_path, basis_set="dev-SV(P)"):

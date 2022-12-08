@@ -44,3 +44,12 @@ def test_get_norb_from_config():
            orbital_degeneracy[2] + 1 * orbital_degeneracy[3]
     with pytest.raises(ValueError):
         top.get_norb_from_config("5s2p8d1fNOTVALID")
+
+def atom_type_to_number():
+    Z = top.atom_type_to_atomic_number("Au")
+    assert Z == 79
+    Z = top.atom_type_to_atomic_number("au")
+    assert Z == 79
+
+    with pytest.raises(ValueError):
+        top.atom_type_to_atomic_number("NOTVALID")
