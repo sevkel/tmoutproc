@@ -382,22 +382,27 @@ def write_plot_data(filename, data, header="", delimiter="	"):
 
 
 
-def read_plot_data(filename, return_header=False, delimiter="	"):
+def read_plot_data(filename, return_header=False, delimiter="	", skip_lines_beginning = 0, skip_lines_end = 0):
     """
-    Reads data in file (eg plot data). If return_header is set to True, the header is returned as String. data[i,:] is
-    the ith column in the data file.
+    Reads data in file (eg plot data). If return_header is set to True, the header is returned as String. Header can
+    only returned if header is found.
+    data[i,:] is the ith column in the data file. skip_lines are lines to be skipped.
+    These lines are not read. Headers cannot be extracted from these lines.
 
     Args:
         param1 (String): Filename
         param2 (Boolean): Return Header
         param3 (String): Delimiter
+        param4 (int): Lines to be skipped at the beginning
+        param5 (int): Lines to be skipped at the end
 
 
 
     Returns:
         datContent (np.ndarray), Header
     """
-    data = [i.replace(delimiter, "	").strip().split() for i in open(filename).readlines()]
+    data = [i.replace(delimiter, "	").strip().split() for i in open(filename).readlines()[(skip_lines_beginning):]]
+    del data[len(data) - skip_lines_end:]
     try:
         float(data[0][0])
     except ValueError:

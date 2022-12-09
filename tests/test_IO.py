@@ -157,6 +157,17 @@ def test_read_write_plot_data():
     with pytest.raises(ValueError):
         top.read_plot_data("/tmp/plot_data.dat", True, delimiter=".")
 
+    with pytest.raises(ValueError):
+        top.read_plot_data("./tests/test_data/plot_data.dat", True, delimiter=",")
+
+    data = top.read_plot_data("./tests/test_data/plot_data.dat", False, delimiter=",", skip_lines_beginning=2)
+    assert data.shape == (7, 7)
+    compare = [300, 301, 302, 303, 304, 305, 306]
+    assert np.all([data[0,i] == compare[i] for i in range(0,data.shape[0])])
+    data = top.read_plot_data("./tests/test_data/plot_data.dat", False, delimiter=",", skip_lines_beginning=2, skip_lines_end=2)
+    assert data.shape == (7, 7-2)
+
+
 
 if __name__ == '__main__':
     test_load_xyz_file()
