@@ -1,5 +1,3 @@
-.github/workflows/tests.yaml
-
 # Run tests
 
 name: "Test Suite"
