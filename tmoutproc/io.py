@@ -337,37 +337,52 @@ def read_mos_file(filename, skip_lines=1):
     return eigenvalue_list, eigenvector_list
 
 
-def write_plot_data(filename, data, header=""):
+def write_plot_data(filename, data, header="", delimiter="	"):
     """
     Writes data in file (eg plot data)
 
     Args:
         param1 (String): Filename
-        param2 (tuple): tuple of lists (each entry is one column in data)
+        param2 (List): List of arrays (each entry is one column in data)
         param3 (String): Fileheader
+        param4 (String): Delimiter
 
 
     Returns:
 
     """
-    file = open(filename, "w")
-    # file = open(new_file-path,"w")
-    # print(data[0])
-    if (len(header) != 0):
-        file.write(header)
-        file.write("\n")
+    if(delimiter == ""):
+        raise ValueError(f"Delimiter is empty")
+    try:
+        float_delimiter = True
+        float(delimiter)
+    except ValueError:
+        float_delimiter = False
+    finally:
+        if(float_delimiter == True):
+            raise ValueError(f"Delimiter {delimiter} makes no sense")
 
-    for i in range(0, len(data[0])):
+    print(type(data))
+    if(type(data) == list):
+        n_lines = len(data[0])
+        n_cols = len(data)
 
-        for j in range(0, len(data)):
-            file.write(str(data[j][i]))
-            file.write("	")
-        file.write("\n")
-    # file.write(data)
-    file.close()
+    with open(filename, "w") as file:
+
+        if (len(header) != 0):
+            file.write(header)
+            file.write("\n")
+
+        for i in range(0, n_lines):
+
+            for j in range(0, n_cols):
+                file.write(str(data[j][i]))
+                file.write(delimiter)
+            file.write("\n")
 
 
-def read_plot_data(filename, return_header=False):
+
+def read_plot_data(filename, return_header=False, delimiter="	"):
     """
     Reads data in file (eg plot data). If return_header is set to True, the header is returned as String. data[i,:] is
     the ith column in the data file.
@@ -375,13 +390,14 @@ def read_plot_data(filename, return_header=False):
     Args:
         param1 (String): Filename
         param2 (Boolean): Return Header
+        param3 (String): Delimiter
 
 
 
     Returns:
         datContent (np.ndarray), Header
     """
-    data = [i.strip().split() for i in open(filename).readlines()]
+    data = [i.replace(delimiter, "	").strip().split() for i in open(filename).readlines()]
     try:
         float(data[0][0])
     except ValueError:

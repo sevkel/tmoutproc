@@ -137,14 +137,25 @@ def test_read_write_plot_data():
     array2 = np.linspace(4, 3, 100)
     array3 = np.linspace(5, 8, 100)
 
-    top.write_plot_data("/tmp/plot_data.dat", (array1, array2, array3), header="test")
+    top.write_plot_data("/tmp/plot_data.dat", [array1, array2, array3], header="test")
     data = top.read_plot_data("/tmp/plot_data.dat", False)
     data, header = top.read_plot_data("/tmp/plot_data.dat", True)
     assert header == "test"
     assert np.max(np.abs(data[0,:]-array1)) == 0
     assert np.max(np.abs(data[1, :] - array2)) == 0
 
+    with pytest.raises(ValueError):
+        top.write_plot_data("/tmp/plot_data.dat", [array1, array2, array3], header="test", delimiter="")
+    with pytest.raises(ValueError):
+        top.write_plot_data("/tmp/plot_data.dat", [array1, array2, array3], header="test", delimiter="3")
 
+    top.write_plot_data("/tmp/plot_data.dat", [array1, array2, array3], header="test", delimiter=",")
+    data, header = top.read_plot_data("/tmp/plot_data.dat", True, delimiter=",")
+    assert header == "test"
+    assert np.max(np.abs(data[0, :] - array1)) == 0
+    assert np.max(np.abs(data[1, :] - array2)) == 0
+    with pytest.raises(ValueError):
+        top.read_plot_data("/tmp/plot_data.dat", True, delimiter=".")
 
 
 if __name__ == '__main__':

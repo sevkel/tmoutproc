@@ -6,7 +6,6 @@ tmoutproc/calc_utils.py
 tmoutproc/constants.py
 tmoutproc/geometry_utils.py
 tmoutproc/io.py
-tmoutproc/test.py
 tmoutproc.egg-info/PKG-INFO
 tmoutproc.egg-info/SOURCES.txt
 tmoutproc.egg-info/dependency_links.txt
