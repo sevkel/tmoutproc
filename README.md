@@ -1,7 +1,7 @@
 tmoutproc
 ==============
 [![Documentation Status](https://readthedocs.org/projects/tmoutproc/badge/?version=latest)](https://tmoutproc.readthedocs.io/en/latest/?badge=latest)
-[![test](https://github.com/blaschma/tmoutproc/actions/workflows/pytest.yml/badge.svg)](https://github.com/blaschma/tmoutproc/actions/workflows/pytest.yml)
+[![codecov](https://codecov.io/github/blaschma/tmoutproc/branch/main/graph/badge.svg?token=XDE26WX365)](https://codecov.io/github/blaschma/tmoutproc)
 
 This package can be used to process Output of Turbomole Calculations. There is no connection to TURBOMOLE GmbH! The code
 still needs some polishing and improvement here and there, as it is developed step by step for scientific projects. 
