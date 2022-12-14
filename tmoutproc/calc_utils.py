@@ -37,7 +37,7 @@ def create_dynamical_matrix(filename_hessian, filename_coord, t2SI=False, dimens
         atoms.extend(datContent)
     else:
         datContent = io.read_coord_file(filename_coord)
-        atoms = [str(datContent[i][3]).lower() for i in range(0, len(datContent))]
+        atoms = datContent[3,:]
     # determine atom masses
     masses = list()
     for i in range(0, len(atoms)):
@@ -125,8 +125,8 @@ def find_c_range_atom(atom, number, coord, basis_set="dev-SV(P)"):
     if (basis_set == "dev-SV(P)"):
         number_found_atoms_of_type = 0
         number_expansion_coeff = 0
-        for i in range(0, len(coord)):
-            current_atom = coord[i][3]
+        for i in range(0, coord.shape[1]):
+            current_atom = coord[3,i]
 
             if (current_atom == atom):
                 number_found_atoms_of_type += 1
@@ -135,7 +135,7 @@ def find_c_range_atom(atom, number, coord, basis_set="dev-SV(P)"):
                 number_expansion_coeff += atom_type_to_number_coeff(current_atom)
             else:
                 number_expansion_coeff += atom_type_to_number_coeff(current_atom)
-        raise ValueError('Sorry. Could not find the atom')
+        raise ValueError(f'Sorry. Could not find the atom {current_atom} or {atom}')
 
 
     else:
@@ -207,14 +207,16 @@ def determine_n_orbitals(coord_path, basis_set="dev-SV(P)"):
     coord = io.read_coord_file(coord_path)
     atom_dict = {}
     ranges = list()
-    for i, item in enumerate(coord):
+    for i, atom in enumerate(coord[3,:]):
         try:
-            atom_dict[item[3]] += 1
+            #atom_dict[item[3]] += 1
+            atom_dict[atom] += 1
         except KeyError:
-            atom_dict[item[3]] = 1
+            #atom_dict[item[3]] = 1
+            atom_dict[atom] = 1
 
-        start, end = find_c_range_atom(item[3], atom_dict[item[3]], coord)
-        ranges.append((start, end, item[3]))
+        start, end = find_c_range_atom(atom, atom_dict[atom], coord)
+        ranges.append((start, end, atom))
     n_orbitals = ranges[-1][1]
 
     return n_orbitals

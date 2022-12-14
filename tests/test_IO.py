@@ -26,24 +26,34 @@ def test_read_write_coord_file():
 
     coord_PCP = top.read_coord_file("./tests/test_data/coord_PCP")
 
-    assert len(coord_PCP) == 90
-    assert len(coord_PCP[0]) == 5
-    assert len(coord_PCP[20]) == 4
-    assert coord_PCP[20][0] == -0.56571033834128
-    assert coord_PCP[20][1] == 0.04245149989675
-    assert coord_PCP[20][2] == 2.16496571320022
-    assert coord_PCP[20][3] == "c"
+    assert coord_PCP.shape == (5,90)
+
+    assert coord_PCP[0,20] == -0.56571033834128
+    assert coord_PCP[1,20] == 0.04245149989675
+    assert coord_PCP[2,20] == 2.16496571320022
+    assert coord_PCP[3,20] == "c"
+    assert coord_PCP[4, 20] == ""
+
+    assert coord_PCP[0, 89] == -4.84905613305097
+    assert coord_PCP[1, 89] == -0.90619926580304
+    assert coord_PCP[2, 89] == 39.80494546134004
+    assert coord_PCP[3, 89] == "au"
+    assert coord_PCP[4, 89] == "f"
 
     top.write_coord_file("/tmp/coord_pcp", coord_PCP)
     coord_PCP = top.read_coord_file("/tmp/coord_pcp")
 
-    assert len(coord_PCP) == 90
-    assert len(coord_PCP[0]) == 5
-    assert len(coord_PCP[20]) == 4
-    assert coord_PCP[20][0] == -0.56571033834128
-    assert coord_PCP[20][1] == 0.04245149989675
-    assert coord_PCP[20][2] == 2.16496571320022
-    assert coord_PCP[20][3] == "c"
+    assert coord_PCP[0,20] == -0.56571033834128
+    assert coord_PCP[1,20] == 0.04245149989675
+    assert coord_PCP[2,20] == 2.16496571320022
+    assert coord_PCP[3,20] == "c"
+    assert coord_PCP[4, 20] == ""
+
+    assert coord_PCP[0, 89] == -4.84905613305097
+    assert coord_PCP[1, 89] == -0.90619926580304
+    assert coord_PCP[2, 89] == 39.80494546134004
+    assert coord_PCP[3, 89] == "au"
+    assert coord_PCP[4, 89] == "f"
 
 
 def test_read_hessian():
@@ -131,6 +141,15 @@ def test_read_mos_file():
     eigenvalues_reread, eigenvectors_reread = top.read_mos_file("/tmp/test_mos")
     assert np.max(np.abs(np.array(eigenvalues_reread)-np.array(eigenvalues))) == 0
     assert np.max(np.abs(eigenvectors_reread - eigenvectors)) == 0
+
+    eigenvalues, eigenvectors = top.read_mos_file("./tests/test_data/mos_not_div_by_4")
+    assert type(eigenvectors) == np.ndarray
+
+
+    assert eigenvalues[0] == -.18826938211009E+02
+    assert eigenvalues[45] == 0.36814130449147E+01
+    assert eigenvectors.shape == (46,46)
+    assert eigenvectors[44,45] == 0.49650335243185E-01
 
 def test_read_write_plot_data():
     array1 = np.linspace(0, 1, 100)

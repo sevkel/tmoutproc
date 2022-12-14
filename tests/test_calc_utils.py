@@ -13,6 +13,7 @@ def test_create_dynamical_matrix():
     assert np.isclose(dyn_matrix[0, 1], -0.0000014025 / h_weight)
     assert np.max(np.abs(dyn_matrix-np.transpose(dyn_matrix))) == 0
 
+
 def test_determine_n_orbitals():
     #test if basis set is checked
     with pytest.raises(ValueError):
@@ -26,6 +27,7 @@ def test_atom_weight():
         top.atom_weight("NOT VALID")
     assert np.isclose(top.atom_weight("h"), 1.008)
     assert np.isclose(top.atom_weight("h", u2kg=True), 1.008*constants.U2KG)
+
 
 def test_find_c_range_atom():
     atom = 'au'

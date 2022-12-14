@@ -17,37 +17,47 @@ from .calc_utils import get_norb_from_config
 
 __ang2bohr__ = 1.88973
 
-def read_coord_file(filename):
+def read_coord_file(filename, skip_lines=1):
     """
-    Reads data in file (eg plot data). Coordinates are converted to float. Method is implemented in this way to allow
-    fixed and unfixed atoms and their detection by the length of the lists.
+    Reads coord file in turbomole format. Coordinates are converted to float, atoms types are strings.
+    coord[:,i]...All entries for atom i.
+    coord[0,:]...x coordinates of all atoms (float)
+    coord[1,:]...y coordinates of all atoms (float)
+    coord[2,:]...z coordinates of all atoms (float)
+    coord[3,:]...atom types of all atoms (str)
+    coord[4,:]...fixed information
+    Lines in the end of file starting with "$" are skippend (e.g. $user-defined bonds and $end)
+
 
     Args:
         param1 (String): Filename
-
-
+        param2 (int): Lines to be skipped in the beginning (e.g. $coord line)
 
     Returns:
-        array of lists [line in coordfile][0=x, 1=y, 2=z, 3=atomtype, optional: 4=fixed]
+        coord (np.ndarray): coord with shape (5, N_atoms)
     """
 
-    datContent = [i.strip().split() for i in open(filename).readlines()]
-    # filter everything but $coord information
-    cut = 0
-    for i in range(1, len(datContent)):
-        if (len(datContent[i]) < 4):
-            cut = i
-            datContent = datContent[0:cut + 1]
-            break
-
-    datContent = np.array(datContent, dtype=object)
-    datContent = np.transpose(datContent[1:len(datContent) - 1])
+    datContent = np.array([i.strip().split() for i in open(filename).readlines()],dtype=object)
+    coord = list()
     for i, item in enumerate(datContent):
-        datContent[i][0] = float(item[0])
-        datContent[i][1] = float(item[1])
-        datContent[i][2] = float(item[2])
-    datContent = np.transpose(datContent)
-    return datContent
+        if(datContent[i][0].startswith("$")):
+            continue
+        #store x,y,z coordinates
+        list_entries = [float(datContent[i][j]) for j in range(3)]
+        #append atom type
+        list_entries.append(datContent[i][3])
+        #handle information of fixed atoms
+        if(len(datContent[i])>4):
+            list_entries.append(datContent[i][4])
+        else:
+            list_entries.append("")
+        coord.append(list_entries)
+
+    coord = np.asarray(coord,dtype=object)
+    coord = np.transpose(coord)
+
+    return coord
+
 
 
 
@@ -62,22 +72,17 @@ def write_coord_file(filename, coord):
     Returns:
 
     """
-    file = open(filename, "w")
-    file.write("$coord")
-    file.write("\n")
-    for i in range(0, len(coord)):
-        if (len(coord[i]) == 4):
-            file.write(
-                str(coord[i][0]) + " " + str(coord[i][1]) + " " + str(coord[i][2]) + " " + str(coord[i][3]) + "\n")
-        elif (len(coord[i]) == 5):
-            file.write(
-                str(coord[i][0]) + " " + str(coord[i][1]) + " " + str(coord[i][2]) + " " + str(coord[i][3]) + " " + str(
-                    coord[i][4]) + "\n")
-        else:
-            print("Coord file seems to be funny")
-    file.write("$user-defined bonds" + "\n")
-    file.write("$end")
-    file.close()
+    with open(filename, "w") as file:
+        file = open(filename, "w")
+        file.write("$coord")
+        file.write("\n")
+        for i in range(0, coord.shape[1]):
+            if (len(coord[4,i]) == ""):
+                file.write(f"{coord[0,i]} {coord[1,i]} {coord[2,i]} {coord[3,i]}\n")
+            else:
+                file.write(f"{coord[0,i]} {coord[1,i]} {coord[2,i]} {coord[3,i]} {coord[4,i]}\n")
+        file.write("$user-defined bonds" + "\n")
+        file.write("$end")
 
 def read_packed_matrix(filename, output="sparse"):
     """
@@ -231,6 +236,9 @@ def write_mos_file(eigenvalues, eigenvectors, filename, scfconv="", total_energy
         param5 (float): total_energy in a.u. (optional)
     """
 
+    assert len(eigenvalues) == eigenvectors.shape[0], "Mos file would be weird"
+    assert len(eigenvalues) == eigenvectors.shape[1], "Mos file would be weird"
+
     def eformat(f, prec, exp_digits):
 
         s = "%.*e" % (prec, f)
@@ -263,13 +271,12 @@ def write_mos_file(eigenvalues, eigenvectors, filename, scfconv="", total_energy
     f.close()
 
 
-def read_mos_file(filename, skip_lines=1):
+def read_mos_file(filename):
     """
-    Reads mos file. Eigenvectors[:,i] are the components for atom i.
+    Reads mos file. Eigenvectors[:,i] are the components for MO i.
 
     Args:
         param1 (string): filename
-        param2 (int): skip_lines=1 (lines to skip )
 
     Returns:
         eigenvalue_list (list),eigenvectors (np.ndarray)
@@ -285,47 +292,52 @@ def read_mos_file(filename, skip_lines=1):
     beginning = True
     eigenvalue_list = list()
     eigenvector_list = -1
+    in_cvec_range = False
 
     # open mos file and read linewise
     with open(filename) as f:
         for line in f:
-            # skip prefix lines
             # find level and calculate A(i)
-            if (counter > skip_lines):
-                index1 = (line.find("eigenvalue="))
-                index2 = (line.find("nsaos="))
-                # eigenvalue and nsaos found -> new orbital
-                if (index1 != -1 and index2 != -1):
-                    level += 1
-                    # find nsaos of new orbital
-                    nsaos = (int(line[(index2 + len("nsaos=")):len(line)]))
 
-                    # find eigenvalue of new orbital and store eigenvalue of current orbital in eigenvalue_old
-                    if (beginning == True):
-                        eigenvalue_old = float(line[(index1 + len("eigenvalue=")):index2].replace("D", "E"))
-                        eigenvalue = float(line[(index1 + len("eigenvalue=")):index2].replace("D", "E"))
-                        eigenvector_list = np.zeros((nsaos, nsaos), dtype=float)
-                        beginning = False
-                    else:
-                        eigenvalue_old = eigenvalue
-                        eigenvalue = float(line[(index1 + len("eigenvalue=")):index2].replace("D", "E"))
+            # skip prefix lines
+            index1 = (line.find("eigenvalue="))
+            index2 = (line.find("nsaos="))
+            if(index1 == -1 and in_cvec_range == False):
+                continue
 
-                    # calculate A matrix by adding A_i -> processing of previous orbital
-                    if (len(C_vec) > 0):
+            # eigenvalue and nsaos found -> new orbital
+            if (index1 != -1 and index2 != -1):
+                in_cvec_range = True
+                level += 1
+                # find nsaos of new orbital
+                nsaos = (int(line[(index2 + len("nsaos=")):len(line)]))
 
-                        eigenvalue_list.append(eigenvalue_old)
-                        # print("level " + str(level))
-                        eigenvector_list[:, (level - 2)] = C_vec
-                        C_vec = list()
-                    # everything finished (beginning of new orbital)
-                    continue
+                # find eigenvalue of new orbital and store eigenvalue of current orbital in eigenvalue_old
+                if (beginning == True):
+                    eigenvalue_old = float(line[(index1 + len("eigenvalue=")):index2].replace("D", "E"))
+                    eigenvalue = float(line[(index1 + len("eigenvalue=")):index2].replace("D", "E"))
+                    eigenvector_list = np.zeros((nsaos, nsaos), dtype=float)
+                    beginning = False
+                else:
+                    eigenvalue_old = eigenvalue
+                    eigenvalue = float(line[(index1 + len("eigenvalue=")):index2].replace("D", "E"))
 
-                line_split = [line[i:i + n] for i in range(0, len(line), n)]
-                try:
-                    C_vec.extend([float(line_split[j].replace("D", "E")) for j in range(0, len(line_split) - 1)][0:4])
-                except ValueError:
-                    print("sorry faulty mos file " + filename)
-                    raise ValueError('Sorry. faulty mos file')
+                # calculate A matrix by adding A_i -> processing of previous orbital
+                if (len(C_vec) > 0):
+
+                    eigenvalue_list.append(eigenvalue_old)
+                    # print("level " + str(level))
+                    eigenvector_list[:, (level - 2)] = C_vec
+                    C_vec = list()
+                # everything finished (beginning of new orbital)
+                continue
+
+            line_split = [line[i:i + n] for i in range(0, len(line), n)]
+            try:
+                C_vec.extend([float(line_split[j].replace("D", "E")) for j in range(0, len(line_split) - 1)][0:4])
+            except ValueError:
+                print("sorry faulty mos file " + filename)
+                raise ValueError('Sorry. faulty mos file')
             # print(len(C_vec))
 
             counter += 1
@@ -618,13 +630,13 @@ def create_sysinfo(coord_path, basis_path, output_path):
 	"""
     coord = read_coord_file(coord_path)
     # number of atoms:
-    natoms = np.size(coord)
+    natoms = coord.shape[1]
     # split cd into position array and element vector
     pos = np.zeros(shape=(natoms, 3))
     el = []
     for i in range(natoms):
-        pos[i, :] = coord[i][0:3]
-        el.append(coord[i][3])
+        pos[i, :] = coord[0:3,i].T
+        el.append(coord[3,i])
 
     # make list from dictionary from list el
     # --> get rid of the douplicates

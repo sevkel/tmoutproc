@@ -3,14 +3,6 @@ import pytest
 import numpy as np
 
 
-def test_remove_fixed_atoms():
-    coord_PCP = top.read_coord_file("./tests/test_data/coord_PCP")
-    coord_PCP_filtered = top.remove_fixed_atoms(coord_PCP)
-    assert len(coord_PCP) == 90, "Error in read_coord_file"
-    assert len(coord_PCP_filtered) == 58
-    assert coord_PCP_filtered[0][3] == 'au', "This element must be au"
-    assert float(coord_PCP_filtered [0][0]) == -0.03330929466830, "Wrong value in coord_PCP_filtered"
-
 def test_shift_xyz_coord():
     coord_xyz = top.read_xyz_file("./tests/test_data/benz.xyz")
     coord = top.read_coord_file("./tests/test_data/coord_PCP")
@@ -27,18 +19,20 @@ def test_shift_xyz_coord():
     assert np.isclose(float(coord_xyz_shifted[2, 11]), -2.79039 + 2.0)
     assert np.isclose(float(coord_xyz_shifted[3, 11]), -0.00000 + 3.0)
 
+
 def test_shift_coord_file():
 
     coord = top.read_coord_file("./tests/test_data/coord_PCP")
 
     coord_shifted = top.shift_coord_file(coord, 1.0 ,2.0 ,3.0)
-    assert np.isclose(float(coord_shifted[0][0]),-8.17778980431802+1.0)
-    assert np.isclose(float(coord_shifted[0][1]),-4.72144292785499 + 2.0)
-    assert np.isclose(float(coord_shifted[0][2]),-12.84405276595290 + 3.0)
+    assert type(coord_shifted[0, 0] == float)
+    assert np.isclose(coord_shifted[0, 0],-8.17778980431802+1.0)
+    assert np.isclose(coord_shifted[1, 0],-4.72144292785499 + 2.0)
+    assert np.isclose(coord_shifted[2, 0],-12.84405276595290 + 3.0)
 
-    assert np.isclose(float(coord_shifted[89][0]), -4.84905613305097  + 1.0)
-    assert np.isclose(float(coord_shifted[89][1]), -0.90619926580304 + 2.0)
-    assert np.isclose(float(coord_shifted[89][2]), 39.80494546134004 + 3.0)
+    assert np.isclose(coord_shifted[0, 89], -4.84905613305097  + 1.0)
+    assert np.isclose(coord_shifted[1, 89], -0.90619926580304 + 2.0)
+    assert np.isclose(coord_shifted[2, 89], 39.80494546134004 + 3.0)
 
 def test_sort_xyz_coord():
     coord_xyz = top.read_xyz_file("./tests/test_data/benz.xyz")
@@ -63,52 +57,56 @@ def test_sort_coord():
     axes = [2,0,1]
     for axis in axes:
         coord_sorted = top.sort_coord(coord, axis)
-        assert len(coord_sorted) == len(coord)
-        assert all(coord_sorted[i][axis] <= coord_sorted[i+1][axis] for i in range(len(coord_sorted) - 1))
+        assert coord_sorted.shape[1] == coord.shape[1]
+        assert all(coord_sorted[axis,i] <= coord_sorted[axis,i+1] for i in range(coord_sorted.shape[1] - 1))
 
-    assert coord_sorted[0][0] == 0.60280373649437
-    assert coord_sorted[0][1] == -10.34910401877428
-    assert coord_sorted[0][2] == 39.80494546134004
-    assert coord_sorted[0][3] == 'au'
-    assert coord_sorted[0][4] == 'f'
+    assert coord_sorted[0, 0] == 0.60280373649437
+    assert coord_sorted[1, 0] == -10.34910401877428
+    assert coord_sorted[2, 0] == 39.80494546134004
+    assert coord_sorted[3, 0] == 'au'
+    assert coord_sorted[4, 0] == 'f'
 
 def test_x2t():
     coord_xyz = top.read_xyz_file("./tests/test_data/coord_PCP.xyz")
+    n_atoms = coord_xyz.shape[1]
     coord = top.read_coord_file("./tests/test_data/coord_PCP")
-
     coord_generated = top.x2t(coord_xyz)
+    assert coord_generated.shape == (5, n_atoms)
 
     thresh = 1E-4
-    diff = [coord[i][0]- coord_generated[i][0] for i in range(0, len(coord))]
+    diff = [coord[0, i] - coord_generated[0, i] for i in range(0, coord.shape[1])]
     assert np.max(np.max(diff)) < thresh
-    diff = [coord[i][1] - coord_generated[i][1] for i in range(0, len(coord))]
+    diff = [coord[1, i] - coord_generated[1, i] for i in range(0, coord.shape[1])]
     assert np.max(np.max(diff)) < thresh
-    diff = [coord[i][2] - coord_generated[i][2] for i in range(0, len(coord))]
+    diff = [coord[2, i] - coord_generated[2, i] for i in range(0, coord.shape[1])]
     assert np.max(np.max(diff)) < thresh
 
-    is_same = [coord[i][3] == coord_generated[i][3] for i in range(0, len(coord))]
+    is_same = [coord[3, i] == coord_generated[3, i] for i in range(0, coord.shape[1])]
     assert np.all(is_same)
 
 def test_fix_atoms():
-    coord = top.read_coord_file("./tests/test_data/coord_PCP")
+    coord = top.read_coord_file("./tests/test_data/coord_PCP_filtered")
     coord_fixed = top.fix_atoms(coord, "all")
 
-    assert len(coord) == len(coord_fixed)
+    assert coord.shape[1] == coord_fixed.shape[1]
 
-    is_fixed = [coord_fixed[i][4] == "f" for i in range(0, len(coord_fixed))]
+    is_fixed = [coord_fixed[4,i] == "f" for i in range(0, coord_fixed.shape[1])]
     assert np.all(is_fixed)
 
-    coord = top.read_coord_file("./tests/test_data/coord_PCP")
+    coord = top.read_coord_file("./tests/test_data/coord_PCP_filtered")
     coord_fixed = top.fix_atoms(coord, [1, 10, 20])
-    is_fixed = [coord_fixed[i][4] == "f" for i in [1, 10, 20]]
+    is_fixed = [coord_fixed[4,i]== "f" for i in [1, 10, 20]]
+    is_not_fixed = [coord_fixed[4,i] == "" for i in [2, 3, 4]]
     assert np.all(is_fixed)
-    assert len(coord_fixed[21]) == 4
+    assert np.all(is_not_fixed)
 
-def test_remove_fixed_atoms():
+
+
+def test_remove_fixed_atoms_from_coord():
     coord = top.read_coord_file("./tests/test_data/coord_PCP")
-    ref_len = len(coord)
-    coord = top.remove_fixed_atoms(coord)
-    new_len = len(coord)
-    assert new_len == ref_len - 16 * 2
-
-    assert coord[0][0] == -0.03330929466830
+    ref_len = coord.shape[1]
+    coord_PCP_filtered = top.remove_fixed_atoms_from_coord(coord)
+    assert coord.shape[1] == 90, "Error in read_coord_file"
+    assert coord_PCP_filtered.shape == (5,ref_len - 16 * 2)
+    assert coord_PCP_filtered[3,0] == 'au', "This element must be au"
+    assert coord_PCP_filtered[0,0] == -0.03330929466830, "Wrong value in coord_PCP_filtered"
