@@ -472,7 +472,7 @@ def write_xyz_file(filename, coord_xyz, comment_line=""):
 
     """
     with open(filename, "w") as file:
-        file.write(str(len(coord_xyz)))
+        file.write(str(coord_xyz.shape[1]))
         file.write("\n")
         file.write(comment_line)
         file.write("\n")

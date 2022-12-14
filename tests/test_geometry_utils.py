@@ -110,3 +110,45 @@ def test_remove_fixed_atoms_from_coord():
     assert coord_PCP_filtered.shape == (5,ref_len - 16 * 2)
     assert coord_PCP_filtered[3,0] == 'au', "This element must be au"
     assert coord_PCP_filtered[0,0] == -0.03330929466830, "Wrong value in coord_PCP_filtered"
+
+
+def test_align_molecule():
+    coord_xyz = top.read_xyz_file("./tests/test_data/coord_simple.xyz")
+    coord_xyz_rotated = top.align_molecule(coord_xyz, [1,1,1], [0,1])
+
+    ref_dist = np.linalg.norm(coord_xyz[1:4, 0] - coord_xyz[1:4, 1])
+    rotated_dist = np.linalg.norm(coord_xyz_rotated[1:4, 0] - coord_xyz_rotated[1:4, 1])
+    assert np.isclose(rotated_dist, ref_dist)
+    print(coord_xyz_rotated)
+
+    assert np.isclose(coord_xyz[1,1],coord_xyz[2,1]) and  np.isclose(coord_xyz[2,1],coord_xyz[3,1])
+    top.write_xyz_file("./tests/test_data/rotated.xyz", coord_xyz_rotated)
+
+    coord_xyz = top.read_xyz_file("./tests/test_data/rotation_test.xyz")
+    coord_xyz_rotated = top.align_molecule(coord_xyz, [0, 0, 1], [1, 0])
+    assert  coord_xyz.shape == coord_xyz_rotated.shape
+    is_same = [np.isclose(coord_xyz[1,i], coord_xyz_rotated[1,i]) for i in range(0,coord_xyz_rotated.shape[1])]
+    assert np.all(is_same), "x coord changed"
+    is_same = [np.isclose(coord_xyz[2, i], coord_xyz_rotated[2, i]) for i in range(0, coord_xyz_rotated.shape[1])]
+    assert np.all(is_same), "y coord changed"
+    is_same = [np.isclose(coord_xyz[3, i], coord_xyz_rotated[3, i]) for i in range(0, coord_xyz_rotated.shape[1])]
+    assert np.all(is_same), "z coord changed"
+    is_same = [coord_xyz[0, i] == coord_xyz_rotated[0, i] for i in range(0, coord_xyz_rotated.shape[1])]
+    assert np.all(is_same), "atom changed"
+
+    coord_xyz = top.read_xyz_file("./tests/test_data/rotation_test.xyz")
+    coord_xyz_rotated = top.align_molecule(coord_xyz, [1, 0, 0], [1, 0])
+    assert np.isclose(coord_xyz_rotated[1, 0], 7.16848)
+    assert np.isclose(coord_xyz_rotated[2, 0], 0)
+    assert np.isclose(coord_xyz_rotated[3, 0], 0)
+    assert np.isclose(coord_xyz_rotated[1, 1], 0)
+    assert np.isclose(coord_xyz_rotated[2, 1], 0)
+    assert np.isclose(coord_xyz_rotated[3, 1], 0)
+    assert np.isclose(coord_xyz_rotated[1, 20], 5.85707)
+
+
+    ref_dist = [np.linalg.norm(coord_xyz[1:4, i] - coord_xyz[1:4, i+1]) for i in range(coord_xyz.shape[0]-1)]
+    rotated_dist =[np.linalg.norm(coord_xyz_rotated[1:4, i] - coord_xyz_rotated[1:4, i+1]) for i in range(coord_xyz.shape[0]-1)]
+    is_close = [np.isclose(ref_dist[i], rotated_dist[i]) for i in range(len(rotated_dist))]
+    assert np.all(is_close), "Distance changed"
+

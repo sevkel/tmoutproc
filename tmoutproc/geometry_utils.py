@@ -113,46 +113,47 @@ def sort_coord(coord, axis):
 
     return coord
 
-def align_molecule(coord, axis, molecule_axis):
+def align_molecule(coord_xyz, axis, molecule_axis):
     """
-    Aligns molecule stored in coord along axis. Molecule_axis[0/1] give the indices of molecules which define the molecule
-    axis. Please note: coord = top.read_xyz_file(filename)
+    Aligns molecule stored in coord_xyz along axis. Molecule_axis[0/1] give the indices of molecules which define the molecule
+    axis. Please note: coord_xyz = top.read_xyz_file(filename)
 
     Args:
-        coord: coord file read with top from xyz file (coord = op.read_xyz_file(filename)))
-        axis: axis is aligned along axis -> axis[x,y,z]
-        molecule_axis: indices of atoms in coord which define the molecule axis (index1, index2)
+        coord_xyz (np.ndarray): coord_xyz file read with top from xyz file (coord_xyz = op.read_xyz_file(filename)))
+        axis (np.array): axis is aligned along axis -> axis[x,y,z]
+        molecule_axis (np.array): indices of atoms in coord_xyz which define the molecule axis (index1, index2)
 
 
     Returns:
-    Rotated coord file
+        coord_xyz: Rotated coord_xyz file
     """
 
 
     # calculate vec(molecule_axis[0]->molecule_axis[1])
-    x_left = round(float(coord[molecule_axis[0]][1]), 5)
-    y_left = round(float(coord[molecule_axis[0]][2]), 5)
-    z_left = round(float(coord[molecule_axis[0]][3]), 5)
+    x_left = coord_xyz[1,molecule_axis[0]]
+    y_left = coord_xyz[2,molecule_axis[0]]
+    z_left = coord_xyz[3,molecule_axis[0]]
 
     # shift to orgin
-    for j in range(0, len(coord)):
-        coord[j][1] = round(float(coord[j][1]), 5) - x_left
-        coord[j][2] = round(float(coord[j][2]), 5) - y_left
-        coord[j][3] = round(float(coord[j][3]), 5) - z_left
+    for j in range(0, coord_xyz.shape[1]):
+        coord_xyz[1,j] = coord_xyz[1,j] - x_left
+        coord_xyz[2,j] = coord_xyz[2,j] - y_left
+        coord_xyz[3,j] = coord_xyz[3,j] - z_left
 
     x_left = 0.0
     y_left = 0.0
     z_left = 0.0
 
-    x_right = round(float(coord[molecule_axis[1]][1]), 5)
-    y_right = round(float(coord[molecule_axis[1]][2]), 5)
-    z_right = round(float(coord[molecule_axis[1]][3]), 5)
+    x_right = coord_xyz[1, molecule_axis[1]]
+    y_right = coord_xyz[2, molecule_axis[1]]
+    z_right = coord_xyz[3, molecule_axis[1]]
 
     molecule_axis = [x_right - x_left, y_right - y_left, z_right - z_left]
 
     # calculate rotation angel
 
-    angle = np.arccos(molecule_axis[0] / np.linalg.norm(molecule_axis))
+    #angle = np.arccos(molecule_axis[0] / np.linalg.norm(molecule_axis))
+    angle = np.arccos(np.dot(molecule_axis, axis) / (np.linalg.norm(molecule_axis)*np.linalg.norm(axis)))
     theta = angle
 
     if (angle != 0):
@@ -172,17 +173,17 @@ def align_molecule(coord, axis, molecule_axis):
             [u[0] * u[2] * (1 - np.cos(theta)) - u[1] * np.sin(theta),
              u[1] * u[2] * (1 - np.cos(theta)) + u[0] * np.sin(theta), np.cos(theta) + u[2] ** 2 * (1 - np.cos(theta))]]
 
-        for j in range(0, len(coord)):
-            vector_to_rotate = [round(float(coord[j][1]), 5), round(float(coord[j][2]), 5),
-                                round(float(coord[j][3]), 5)]
+        for j in range(0, coord_xyz.shape[1]):
+            vector_to_rotate = [coord_xyz[1,j], coord_xyz[2,j],coord_xyz[3,j]]
             rotated_vector = np.asmatrix(rotation_matrix) * np.asmatrix(vector_to_rotate).T
 
-            coord[j][1] = round(rotated_vector[0, 0], 5)
-            coord[j][2] = round(rotated_vector[1, 0], 5)
-            coord[j][3] = round(rotated_vector[2, 0], 5)
-        return coord
+            coord_xyz[1, j] = rotated_vector[0, 0]
+            coord_xyz[2, j] = rotated_vector[1, 0]
+            coord_xyz[3, j] = rotated_vector[2, 0]
+        return coord_xyz
     else:
-        return coord
+        return coord_xyz
+
 
 def x2t(coord_xyz):
     """
