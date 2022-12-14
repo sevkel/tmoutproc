@@ -652,7 +652,7 @@ def create_sysinfo(coord_path, basis_path, output_path):
     for elkind in eldif:
         nf = 0
         # the space in searchstr is to avoid additional findings (e.g. for s)
-        searchstr = elkind + ' '
+        searchstr = ' ' + elkind + ' '
         # search for element in file 'basis'
         with open(basis_path) as fp:
             lines = fp.readlines()

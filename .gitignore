@@ -6,3 +6,4 @@ docs/build/*
 build/*
 *.pyc
 __pycache__/
+debug.py

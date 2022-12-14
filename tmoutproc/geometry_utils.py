@@ -182,7 +182,7 @@ def x2t(coord_xyz):
         coord_xyz: coord array in xyz
 
     Returns:
-    coord (np.ndarray): coord in turbomole format
+        coord (np.ndarray): coord in turbomole format
     """
     coord = np.empty((5,coord_xyz.shape[1]), dtype=object)
     for j in range(0, coord_xyz.shape[1]):
