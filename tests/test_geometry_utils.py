@@ -119,10 +119,8 @@ def test_align_molecule():
     ref_dist = np.linalg.norm(coord_xyz[1:4, 0] - coord_xyz[1:4, 1])
     rotated_dist = np.linalg.norm(coord_xyz_rotated[1:4, 0] - coord_xyz_rotated[1:4, 1])
     assert np.isclose(rotated_dist, ref_dist)
-    print(coord_xyz_rotated)
 
     assert np.isclose(coord_xyz[1,1],coord_xyz[2,1]) and  np.isclose(coord_xyz[2,1],coord_xyz[3,1])
-    top.write_xyz_file("./tests/test_data/rotated.xyz", coord_xyz_rotated)
 
     coord_xyz = top.read_xyz_file("./tests/test_data/rotation_test.xyz")
     coord_xyz_rotated = top.align_molecule(coord_xyz, [0, 0, 1], [1, 0])

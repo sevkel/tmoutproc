@@ -56,3 +56,9 @@ def atom_type_to_number():
 
     with pytest.raises(ValueError):
         top.atom_type_to_atomic_number("NOTVALID")
+
+def test_atom_type_to_atomic_number():
+    assert top.atom_type_to_atomic_number("h") == 1
+    assert top.atom_type_to_atomic_number("hf") == 72
+    with pytest.raises(ValueError):
+        top.atom_type_to_atomic_number("NotValid")
