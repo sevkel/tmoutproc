@@ -652,30 +652,32 @@ def create_sysinfo(coord_path, basis_path, output_path):
     for elkind in eldif:
         nf = 0
         # the space in searchstr is to avoid additional findings (e.g. for s)
-        searchstr = ' ' + elkind + ' '
+        searchstr = elkind + ' '
         # search for element in file 'basis'
         with open(basis_path) as fp:
             lines = fp.readlines()
             for line in lines:
                 if line.find(searchstr) != -1:
-                    nf += 1
-                    if (nf == 1):
-                        # first occurence: name of basis set
-                        continue
-                    if (nf == 2):
-                        # second occurence electron configuration per atom
-                        # this might look weird but leads to the part
-                        # inside the []-brackets
-                        config = line.strip().split('[')[1].split(']')[0]
-                        Norb_dict[elkind] = get_norb_from_config(config)
-                    if (nf == 3):
-                        # third occurence: information on core-potential
-                        # number of core electrons is 2 lines after that
-                        nl_ecp = lines.index(line)
-                        # get number of core electrons
-                        N_ecp = lines[nl_ecp + 2].strip().split()[2]
-                        # save this number in corresponding dictionary
-                        Necp_dict[elkind] = N_ecp
+                    #valid search strings are at the beginning of the line are have a space in front of it -> avoid "zn" and "n" problems
+                    if(line.index(searchstr) == 0 or line[line.index(searchstr)-1] == " " ):
+                        nf += 1
+                        if (nf == 1):
+                            # first occurence: name of basis set
+                            continue
+                        if (nf == 2):
+                            # second occurence electron configuration per atom
+                            # this might look weird but leads to the part
+                            # inside the []-brackets
+                            config = line.strip().split('[')[1].split(']')[0]
+                            Norb_dict[elkind] = get_norb_from_config(config)
+                        if (nf == 3):
+                            # third occurence: information on core-potential
+                            # number of core electrons is 2 lines after that
+                            nl_ecp = lines.index(line)
+                            # get number of core electrons
+                            N_ecp = lines[nl_ecp + 2].strip().split()[2]
+                            # save this number in corresponding dictionary
+                            Necp_dict[elkind] = N_ecp
 
     iorb = 0
     with open(output_path, 'w') as file:
