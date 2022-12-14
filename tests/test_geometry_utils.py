@@ -7,9 +7,6 @@ def test_shift_xyz_coord():
     coord_xyz = top.read_xyz_file("./tests/test_data/benz.xyz")
     coord = top.read_coord_file("./tests/test_data/coord_PCP")
 
-    with pytest.raises(ValueError):
-        top.shift_xyz_coord(coord, 0,0,0)
-
     coord_xyz_shifted = top.shift_xyz_coord(coord_xyz, 1.0 ,2.0 ,3.0)
     assert np.isclose(float(coord_xyz_shifted[1, 0]),-2.97431+1.0)
     assert np.isclose(float(coord_xyz_shifted[2, 0]),0.42856 + 2.0)
@@ -66,6 +63,9 @@ def test_sort_coord():
     assert coord_sorted[3, 0] == 'au'
     assert coord_sorted[4, 0] == 'f'
 
+    with pytest.raises(ValueError):
+        coord_sorted = top.sort_coord(coord, 42)
+
 def test_x2t():
     coord_xyz = top.read_xyz_file("./tests/test_data/coord_PCP.xyz")
     n_atoms = coord_xyz.shape[1]
@@ -83,6 +83,25 @@ def test_x2t():
 
     is_same = [coord[3, i] == coord_generated[3, i] for i in range(0, coord.shape[1])]
     assert np.all(is_same)
+
+def test_t2x():
+    coord_xyz = top.read_xyz_file("./tests/test_data/coord_PCP.xyz")
+    n_atoms = coord_xyz.shape[1]
+    coord = top.read_coord_file("./tests/test_data/coord_PCP")
+    coord_xyz_generated = top.t2x(coord)
+    assert coord_xyz_generated.shape == (4, n_atoms)
+
+    thresh = 1E-4
+    diff = [coord_xyz_generated[3, i] - coord_xyz[3, i] for i in range(0, coord_xyz.shape[1])]
+    assert np.max(np.max(diff)) < thresh
+    diff = [coord_xyz_generated[1, i] - coord_xyz[1, i] for i in range(0, coord_xyz.shape[1])]
+    assert np.max(np.max(diff)) < thresh
+    diff = [coord_xyz_generated[2, i] - coord_xyz[2, i] for i in range(0, coord_xyz.shape[1])]
+    assert np.max(np.max(diff)) < thresh
+
+    is_same = [coord_xyz_generated[0, i] == coord_xyz[0, i] for i in range(0, coord_xyz.shape[1])]
+    assert np.all(is_same)
+
 
 def test_fix_atoms():
     coord = top.read_coord_file("./tests/test_data/coord_PCP_filtered")

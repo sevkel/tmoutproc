@@ -186,8 +186,3 @@ def test_read_write_plot_data():
     data = top.read_plot_data("./tests/test_data/plot_data.dat", False, delimiter=",", skip_lines_beginning=2, skip_lines_end=2)
     assert data.shape == (7, 7-2)
 
-
-
-if __name__ == '__main__':
-    test_load_xyz_file()
-    test_determine_n_orbitals()

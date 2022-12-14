@@ -31,14 +31,6 @@ def shift_xyz_coord(coord_xyz, x_shift, y_shift, z_shift):
         coord_xyz: Shifted xyz coord file
     """
 
-    try:
-        if len(coord_xyz[1, :]) == 0:
-            raise ValueError("coord file is empty")
-    except IndexError as e:
-        raise ValueError(f"Is it a xyz file? {e}")
-    except TypeError as e:
-        raise ValueError(f"Is it a xyz file? {e}")
-
     for i in range(0, len(coord_xyz[1, :])):
         coord_xyz[1, i] = round(float(coord_xyz[1, i]) + x_shift, 5)
         coord_xyz[2, i] = round(float(coord_xyz[2, i]) + y_shift, 5)
@@ -59,9 +51,6 @@ def shift_coord_file(coord, x_shift, y_shift, z_shift):
     Returns:
         coord: Shifted coord file
     """
-
-    if coord.shape[1] == 0:
-        raise ValueError("coord file is empty")
 
     for i in range(0, coord.shape[1]):
         coord[0, i] = coord[0, i] + x_shift
@@ -193,7 +182,7 @@ def x2t(coord_xyz):
         coord_xyz: coord array in xyz
 
     Returns:
-    coord in turbomole format
+    coord (np.ndarray): coord in turbomole format
     """
     coord = np.empty((5,coord_xyz.shape[1]), dtype=object)
     for j in range(0, coord_xyz.shape[1]):
@@ -204,6 +193,26 @@ def x2t(coord_xyz):
         coord[4, j] = ""
 
     return coord
+
+def t2x(coord):
+    """
+    Transforms turbomole coord to coord_xyz
+
+    Args:
+        coord (np.ndarray): coord
+
+    Returns:
+        coord_xyz (np.ndarray): coord_xyz
+    """
+    coord_xyz = np.empty((4,coord.shape[1]), dtype=object)
+    for j in range(0, coord.shape[1]):
+        coord_xyz[1, j] = coord[0, j] / constants.ANG2BOHR
+        coord_xyz[2, j] = coord[1, j] / constants.ANG2BOHR
+        coord_xyz[3, j] = coord[2, j] / constants.ANG2BOHR
+        coord_xyz[0, j] = coord[3, j].capitalize()
+
+
+    return coord_xyz
 
 def fix_atoms(coord, indices):
     """

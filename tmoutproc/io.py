@@ -478,8 +478,10 @@ def write_xyz_file(filename, coord_xyz, comment_line=""):
         file.write("\n")
 
         for i in range(0, coord_xyz.shape[1]):
-            file.write(str(coord_xyz[0,i]) + "	" + str(coord_xyz[1,i]) + "	" + str(coord_xyz[2,i]) + "	" + str(
-                coord_xyz[3,i]) + "\n")
+            newline = "\n"
+            if(i == coord_xyz.shape[1]-1):
+                newline = ""
+            file.write(f"{coord_xyz[0,i]}	{coord_xyz[1,i]}	{coord_xyz[2,i]}	{coord_xyz[3,i]}{newline}")
     file.close()
 
 
