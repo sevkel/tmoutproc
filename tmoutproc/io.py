@@ -61,19 +61,20 @@ def read_coord_file(filename, skip_lines=1):
 
 
 
-def write_coord_file(filename, coord):
+def write_coord_file(filename, coord,mode="w"):
     """
     writes coord file.
 
     Args:
         param1 (String): filename
-        param3 (np.ndarray): dat content
+        param2 (np.ndarray): dat content
+        param3 (String): writig mode (W,a,..)
 
     Returns:
 
     """
-    with open(filename, "w") as file:
-        file = open(filename, "w")
+    with open(filename, mode) as file:
+        file = open(filename, mode)
         file.write("$coord")
         file.write("\n")
         for i in range(0, coord.shape[1]):
@@ -82,7 +83,7 @@ def write_coord_file(filename, coord):
             else:
                 file.write(f"{coord[0,i]} {coord[1,i]} {coord[2,i]} {coord[3,i]} {coord[4,i]}\n")
         file.write("$user-defined bonds" + "\n")
-        file.write("$end")
+        file.write("$end" + "\n")
 
 def read_packed_matrix(filename, output="sparse"):
     """
@@ -459,7 +460,7 @@ def read_xyz_file(filename, return_header = False):
         return coord_xyz
 
 
-def write_xyz_file(filename, coord_xyz, comment_line=""):
+def write_xyz_file(filename, coord_xyz, comment_line="", mode='w'):
     """
     writes xyz file.
 
@@ -467,11 +468,12 @@ def write_xyz_file(filename, coord_xyz, comment_line=""):
         param1 (String): filename
         param2 (np.ndarray): coord_xyz
         param3 (String): comment_line
+        param4 (String): mode of write operation (e.g. 'w','a')
 
     Returns:
 
     """
-    with open(filename, "w") as file:
+    with open(filename, mode) as file:
         file.write(str(coord_xyz.shape[1]))
         file.write("\n")
         file.write(comment_line)
