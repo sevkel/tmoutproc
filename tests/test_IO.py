@@ -163,6 +163,22 @@ def test_read_write_plot_data():
     assert np.max(np.abs(data[0,:]-array1)) == 0
     assert np.max(np.abs(data[1, :] - array2)) == 0
 
+    top.write_plot_data("/tmp/plot_data.dat", (array1, array2, array3), header="test")
+    data, header = top.read_plot_data("/tmp/plot_data.dat", True)
+    assert header == "test"
+    assert np.max(np.abs(data[0, :] - array1)) == 0
+    assert np.max(np.abs(data[1, :] - array2)) == 0
+
+    combined = np.vstack((array1, array2, array3))
+    print(type(combined))
+    top.write_plot_data("/tmp/plot_data.dat", combined, header="test")
+    data, header = top.read_plot_data("/tmp/plot_data.dat", True)
+    assert header == "test"
+    assert np.max(np.abs(data[0, :] - array1)) == 0
+    assert np.max(np.abs(data[1, :] - array2)) == 0
+
+    with pytest.raises(ValueError):
+        top.write_plot_data("/tmp/plot_data.dat", "not valid", header="test", delimiter="")
     with pytest.raises(ValueError):
         top.write_plot_data("/tmp/plot_data.dat", [array1, array2, array3], header="test", delimiter="")
     with pytest.raises(ValueError):

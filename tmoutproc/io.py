@@ -351,11 +351,12 @@ def read_mos_file(filename):
 
 def write_plot_data(filename, data, header="", delimiter="	"):
     """
-    Writes data in file (eg plot data)
+    Writes data in file (eg plot data).
+    data[j][i] : Column j, Line i
 
     Args:
         param1 (String): Filename
-        param2 (List): List of arrays (each entry is one column in data)
+        param2 (List, Tuple, np.ndarray): Data to be stored (each entry is one column in data, data[j][i] : Column j, Line i)
         param3 (String): Fileheader
         param4 (String): Delimiter
 
@@ -374,10 +375,14 @@ def write_plot_data(filename, data, header="", delimiter="	"):
         if(float_delimiter == True):
             raise ValueError(f"Delimiter {delimiter} makes no sense")
 
-    print(type(data))
-    if(type(data) == list):
+    if(type(data) == list or type(data) == tuple):
         n_lines = len(data[0])
         n_cols = len(data)
+    elif(type(data) == np.ndarray):
+        n_lines = data.shape[1]
+        n_cols = data.shape[0]
+    else:
+        raise ValueError(f"Data type {type(data)} not supported")
 
     with open(filename, "w") as file:
 
