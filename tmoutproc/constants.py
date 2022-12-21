@@ -1,7 +1,8 @@
 #Atomic unit to kg
 U2KG = 1.66053906660E-27
 ANG2BOHR = 1.88973
-Ha2ev = 27.21138602
+Ha2eV = 27.21138602
+KBOLTZ=3.1671E-06
 #This dict stores atomic information. The atomic symbol is taken as key. Information taken from https://iupac.qmul.ac.uk/AtWt/ (23.11.2022)
 ATOM_DICT_SYM = {'h': [1, 'Hydrogen', 1.008],
         'he': [2, 'Helium', 4.0026022],
