@@ -5,12 +5,6 @@ __docformat__ = "google"
 #__all__
 import numpy as np
 import fnmatch
-import scipy.sparse
-import re as r
-from scipy.linalg import eig
-from functools import partial
-from multiprocessing import Pool
-from scipy.sparse import coo_matrix
 from . import constants
 from . import io as io
 
@@ -18,12 +12,12 @@ __ang2bohr__ = 1.88973
 
 def create_dynamical_matrix(filename_hessian, filename_coord, t2SI=False, dimensions=3):
     """
-    Creates dynamical matrix by mass weighting hessian. Default output in turbomole format (hartree/bohr**2)
+    Creates dynamical matrix by mass weighting hessian. Input units are hartree/bohr**2.1 Default output in turbomole format (hartree/(bohr**2*u))
 
     Args:
         param1 (String) : Filename to hessian
         param2 (String) : Filename to coord file (xyz or turbomole format)
-        param3 (boolean) : convert ouptput from turbomole (hartree/bohr**2) in SI units
+        param3 (boolean) : convert ouptput from turbomole (hartree/(bohr**2*u)) in SI units
         param3 (int) : number of dimensions
 
     Returns:
@@ -53,14 +47,13 @@ def create_dynamical_matrix(filename_hessian, filename_coord, t2SI=False, dimens
     for i in range(0, len(atoms) * dimensions):
         if (t2SI == True):
             # har/bohr**2 -> J/m**2
-            hessian[i, i] = hessian[i, i] * (((1.89) ** 2) / (2.294)) * 1000
-        dynamical_matrix[i, i] = (1. / np.sqrt(masses[int(i / dimensions)] * masses[int(i / dimensions)])) * hessian[
-            i, i]
+            hessian[i, i] = hessian[i, i] * constants.HAR2JOULE/constants.BOHR2METER**2
+
+        dynamical_matrix[i, i] = (1. / np.sqrt(masses[int(i / dimensions)] * masses[int(i / dimensions)])) * hessian[i, i]
         for j in range(0, i):
             # har/bohr**2 -> J/m**2
             if (t2SI == True):
-                #TODO: No hard coded conversion
-                hessian[i, j] = hessian[i, j] * (((1.89) ** 2) / (2.294)) * 1000
+                hessian[i, j] = hessian[i, j] * constants.HAR2JOULE/constants.BOHR2METER**2
             dynamical_matrix[i, j] = (1. / np.sqrt(masses[int(i / dimensions)] * masses[int(j / dimensions)])) * \
                                      hessian[i, j]
             dynamical_matrix[j, i] = dynamical_matrix[i, j]
