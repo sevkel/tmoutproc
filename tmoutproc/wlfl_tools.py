@@ -189,16 +189,22 @@ def find_index_by_element(cdata,elstr,ltrue=True):
     return atlout
 
 
-#  read file
-filename='geom_relaxed.xyz'
-cdata=top.io.read_xyz_file(filename)
+def init_helic_woelfling(filename='geom_relaxed.xyz'):
+    ## inofficial content
 
-#rotation fixpoints: (atom indices)
-rotfix=find_index_by_element(cdata,'S')
-#rotated region: full molecule
-rotated=find_index_by_element(cdata,'Au',False)
+    #  read file
+    cdata=top.io.read_xyz_file(filename)
 
-# initial path for s-s-rotation
-build_rotation_path(cdata,rotfix,rotated,0.,360.,12,'mypath-S')
-# initial path for z-axis rotation
-build_rotation_path(cdata,'z',rotated,0.,360.,12,'mypath-z')
+    #rotation fixpoints: (atom indices)
+    rotfix=find_index_by_element(cdata,'S')
+    #rotated region: full molecule
+    rotated=find_index_by_element(cdata,'Au',False)
+
+    # initial path for s-s-rotation
+    build_rotation_path(cdata,rotfix,rotated,0.,360.,12,'mypath-S')
+    # initial path for z-axis rotation
+    build_rotation_path(cdata,'z',rotated,0.,360.,12,'mypath-z')
+
+    return 0
+
+init_helic_woelfling()
