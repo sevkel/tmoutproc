@@ -220,3 +220,9 @@ def test_write_lammps_geo_data():
         lines = f.readlines()
     assert len(lines) == 28
 
+    charges = np.ones((coord_xyz.shape[1],1))
+    top.write_lammps_geo_data(output_file, coord_xyz, charges=charges)
+    with open(output_file, "r") as f:
+        lines = f.readlines()
+    assert len(lines) == 28
+
