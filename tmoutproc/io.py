@@ -738,5 +738,91 @@ def read_from_flag_to_flag(control_path, flag, output_path, header="", footer=""
             output_file.write(f"{header}")
     return 0
 
+def write_lammps_geo_data(filename, coord_xyz, xlo=0, xhi=0, ylo=0, yhi=0, zlo=0, zhi=0, charges=None, units="real", atom_style="full", header=""):
+    """
+    Writes xyz coordinates to lammps geometry data file. Right now only units real and atom_style full are supported.
+    Args:
+        filename (String): Filename of output file
+        coord_xyz (np.ndarray): Coordinates of atoms in xyz format read by read_xyz_file
+        xlo (float): Lower x boundary
+        xhi (float): Upper x boundary
+        ylo (float): Lower y boundary
+        yhi (float): Upper y boundary
+        zlo (float): Lower z boundary
+        zhi (float): Upper z boundary
+        charges (np.ndarray): Charges of atoms
+        units (String): Lammps units (only "real" supported)
+        atom_style (String): Lammps atom_style (only "full" supported)
+        header (String): Header added to output file
+
+    Returns:
+
+
+    """
+
+    if(atom_style!="full"):
+        raise NotImplementedError("Only atom_style full supported right now")
+    if(units!="real"):
+        raise NotImplementedError("Only units real supported right now")
+
+    #check if xlo, xhi, ylo, yhi, zlo, zhi are interpretable as floats
+    try:
+        xlo = float(xlo)
+        xhi = float(xhi)
+        ylo = float(ylo)
+        yhi = float(yhi)
+        zlo = float(zlo)
+        zhi = float(zhi)
+    except ValueError:
+        raise ValueError("xlo, xhi, ylo, yhi, zlo, zhi must be interpretable as floats")
+
+    n_atoms = coord_xyz.shape[1]
+
+    #if charges is not none and number of charges does not match number of atoms, raise error
+    if(charges is not None):
+        if(len(charges) != n_atoms):
+            raise ValueError("Number of charges does not match number of atoms")
+
+    #determine different atom types
+    unique_elements = list(set(coord_xyz[0,:]))
+    n_atom_types = len(unique_elements)
+    atom_type_keys = {}
+    for idx, element in enumerate(unique_elements):
+        atom_type_keys[element] = f'{idx + 1}'
+
+
+    with open(filename, "w") as output_file:
+        output_file.write(f"{header}\n")
+        output_file.write(f"\n")
+
+        output_file.write(f"\t{n_atoms} atoms\n")
+        output_file.write(f"\t{n_atom_types} atom types\n")
+        output_file.write("\n")
+
+        output_file.write(f"{xlo} {xhi} xlo xhi\n")
+        output_file.write(f"{ylo} {yhi} ylo yhi\n")
+        output_file.write(f"{zlo} {zhi} zlo zhi\n")
+        output_file.write("\n")
+
+        output_file.write("Masses\n")
+        output_file.write("\n")
+        for i, element in enumerate(unique_elements):
+            mass = ATOM_DICT_SYM[element.lower()][2]
+            output_file.write(f"\t{i+1} {mass}\n")
+            #atom_type_dict[i+1] = unique_elements[i]
+        output_file.write("\n")
+
+        output_file.write("Atoms\n")
+        output_file.write("\n")
+
+        charge = 0
+        for i in range(n_atoms):
+            if charges is None:
+                output_file.write(f"{i+1} {i+1} {atom_type_keys[coord_xyz[0,i]]}  {charge} {coord_xyz[1,i]} {coord_xyz[2,i]} {coord_xyz[3,i]}\n")
+            else:
+                output_file.write(f"{i+1} {i+1} {atom_type_keys[coord_xyz[0,i]]}  {charges[i]} {coord_xyz[1,i]} {coord_xyz[2,i]} {coord_xyz[3,i]}\n")
+
+
+
 if __name__ == '__main__':
     read_mos_file("../tests/test_data/mos_benz")

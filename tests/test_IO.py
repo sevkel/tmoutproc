@@ -202,3 +202,21 @@ def test_read_write_plot_data():
     data = top.read_plot_data("./tests/test_data/plot_data.dat", False, delimiter=",", skip_lines_beginning=2, skip_lines_end=2)
     assert data.shape == (7, 7-2)
 
+def test_write_lammps_geo_data():
+    coord_xyz = top.read_xyz_file("./tests/test_data/benz.xyz")
+    output_file = "/tmp/lammps_geo_data.dat"
+    with pytest.raises(NotImplementedError):
+        top.write_lammps_geo_data(output_file, coord_xyz, units="not valid")
+    with pytest.raises(NotImplementedError):
+        top.write_lammps_geo_data(output_file, coord_xyz, atom_style="not valid")
+    with pytest.raises(ValueError):
+        top.write_lammps_geo_data(output_file, coord_xyz, xlo="n")
+    with pytest.raises(ValueError):
+        top.write_lammps_geo_data(output_file, coord_xyz, charges=[0.5,0.5])
+    top.write_lammps_geo_data(output_file, coord_xyz)
+
+    #read output file again and check number of lines
+    with open(output_file, "r") as f:
+        lines = f.readlines()
+    assert len(lines) == 28
+
