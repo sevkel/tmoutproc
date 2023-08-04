@@ -463,6 +463,50 @@ def read_xyz_file(filename, return_header = False):
     else:
         return coord_xyz
 
+def read_xyz_path_file(filename, return_header = False):
+    """
+    load xyz path file and returns data as coord_xyz with additional dimension.
+    coord[i,:,:] ... Entries for structure i
+    coord[:,:,i] ... Entries for atom i
+    coord[:,i,:] ... Atoms types (str) [i=0], x (float) [i=1], y (float) [i=2], x (float) [z=3] for all atoms
+
+    Args:
+        param1 (String): filename
+        param2 (Boolean): return_header: If set to true (coord_xyz_path, header) is returned. coord_xyz_path else
+
+    Returns:
+        coord_xyz_path, header (optional)
+    """
+
+    datContent = [i.strip().split() for i in open(filename).readlines()]
+    Natoms=int(datContent[0][0])
+    Ngeos=int(len(datContent)/(Natoms+2))
+
+    energies=np.zeros(Ngeos)
+
+    for igeo in range(Ngeos):
+        datContGeo=np.array(datContent[(2+Natoms)*igeo+2:(2+Natoms)*(igeo+1)],dtype=object)
+        for i, item in enumerate(datContGeo):
+            datContGeo[i, 1] = float(item[1])
+            datContGeo[i, 2] = float(item[2])
+            datContGeo[i, 3] = float(item[3])
+        coord_geo=np.transpose(datContGeo).reshape((1,4,Natoms))
+        if (igeo==0):
+            coord_path=coord_geo
+        else:
+            coord_path=np.append(coord_path,coord_geo,axis=0)
+
+        #sometimes energies are
+        try:
+            energies[igeo]=float(datContent[(2+Natoms)*igeo+1][2])
+        except IndexError:
+            energies[igeo]=0.0
+
+    if(return_header==True):
+        return coord_path,energies
+    else:
+        return coord_path
+
 
 def write_xyz_file(filename, coord_xyz, comment_line=""):
     """
@@ -825,4 +869,5 @@ def write_lammps_geo_data(filename, coord_xyz, xlo=0, xhi=0, ylo=0, yhi=0, zlo=0
 
 
 if __name__ == '__main__':
-    read_mos_file("../tests/test_data/mos_benz")
+    filename = "./tests/test_data/stretching.xyz"
+    

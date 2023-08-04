@@ -7,3 +7,4 @@ build/*
 *.pyc
 __pycache__/
 debug.py
+test.py
