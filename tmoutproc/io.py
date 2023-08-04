@@ -14,6 +14,7 @@ from scipy.sparse import coo_matrix
 from .constants import *
 from .io import *
 from .calc_utils import get_norb_from_config
+import itertools
 
 __ang2bohr__ = 1.88973
 
@@ -463,7 +464,7 @@ def read_xyz_file(filename, return_header = False):
     else:
         return coord_xyz
 
-def read_xyz_path_file(filename, return_header = False):
+def read_xyz_path_file(filename, return_header = False, start_geo=0, end_geo=-1):
     """
     load xyz path file and returns data as coord_xyz with additional dimension.
     coord[i,:,:] ... Entries for structure i
@@ -473,34 +474,75 @@ def read_xyz_path_file(filename, return_header = False):
     Args:
         param1 (String): filename
         param2 (Boolean): return_header: If set to true (coord_xyz_path, header) is returned. coord_xyz_path else
+        param3 (int): start_geo: First geometry to be read
+        param4 (int): end_geo: Last geometry to be read
 
     Returns:
         coord_xyz_path, header (optional)
     """
 
-    datContent = [i.strip().split() for i in open(filename).readlines()]
-    Natoms=int(datContent[0][0])
-    Ngeos=int(len(datContent)/(Natoms+2))
 
-    energies=np.zeros(Ngeos)
 
-    for igeo in range(Ngeos):
-        datContGeo=np.array(datContent[(2+Natoms)*igeo+2:(2+Natoms)*(igeo+1)],dtype=object)
+    def read_file_range(filename, start, end):
+        """
+        Read slice from file (for large files)
+        Args:
+            filename (String): Filename
+            start (int): First line to be read
+            end (int): Last line to be read
+
+        Returns:
+            lines (list): List of lines
+        """
+        lines = []
+        with open(filename, "r") as text_file:
+            for line in itertools.islice(text_file, start, end):
+                lines.append(line.strip().split())
+        return lines
+
+    # determine number of lines and number of atoms (done in this way for large files)
+    with open(filename, "r") as f:
+        first_line = f.readline().strip().split()
+        # plus one because first line is already read
+        num_lines = sum(1 for _ in f) + 1
+
+
+    Natoms=int(first_line[0])
+    Ngeos=int(num_lines/(Natoms+2))
+
+    if (end_geo==-1):
+        end_geo=Ngeos
+
+    if (start_geo<0):
+        raise ValueError("start_geo must be >=0")
+    if (end_geo<start_geo):
+        raise ValueError("end_geo must be >= start_geo")
+    if (end_geo > Ngeos):
+        raise ValueError("end_geo must be <=Ngeos")
+
+
+    energies=np.zeros(np.abs(end_geo-start_geo))
+    energy_line_=""
+    for igeo in range(start_geo, end_geo):
+        datContGeo=read_file_range(filename,(2+Natoms)*igeo+1,(2+Natoms)*(igeo+1))
+        energy_line_ = datContGeo[0]
+        datContGeo = datContGeo[1:len(datContGeo)]
+        datContGeo = np.array(datContGeo, dtype=object)
         for i, item in enumerate(datContGeo):
             datContGeo[i, 1] = float(item[1])
             datContGeo[i, 2] = float(item[2])
             datContGeo[i, 3] = float(item[3])
         coord_geo=np.transpose(datContGeo).reshape((1,4,Natoms))
-        if (igeo==0):
+        if (igeo==start_geo):
             coord_path=coord_geo
         else:
             coord_path=np.append(coord_path,coord_geo,axis=0)
 
         #sometimes energies are
         try:
-            energies[igeo]=float(datContent[(2+Natoms)*igeo+1][2])
+            energies[igeo-start_geo]=float(energy_line_[2])
         except IndexError:
-            energies[igeo]=0.0
+            energies[igeo-start_geo]=0.0
 
     if(return_header==True):
         return coord_path,energies

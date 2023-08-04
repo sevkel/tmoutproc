@@ -253,5 +253,30 @@ def test_read_xyz_path_file():
 
     coord_xyz_path = top.read_xyz_path_file(filename_ref)
     assert coord_xyz_path.shape == (1, 4, 12)
+    with pytest.raises(ValueError):
+        top.read_xyz_path_file(filename_ref, start_geo=-1)
+    with pytest.raises(ValueError):
+        top.read_xyz_path_file(filename_ref, end_geo=500)
+    with pytest.raises(ValueError):
+        top.read_xyz_path_file(filename_ref, start_geo=1, end_geo=0)
+
+    coord_xyz_path = top.read_xyz_path_file(filename, start_geo=1, end_geo=2)
+    assert coord_xyz_path.shape == (1, 4, 12)
+    assert coord_xyz_path[0, 3, 0] == -1
+
+    coord_xyz_path = top.read_xyz_path_file(filename, start_geo=1, end_geo=3)
+    assert coord_xyz_path.shape == (2, 4, 12)
+    assert coord_xyz_path[0, 3, 0] == -1
+    assert coord_xyz_path[1, 3, 0] == -2
+
+    coord_xyz_path_without_range = top.read_xyz_path_file(filename, start_geo=0, end_geo=3)
+    coord_xyz_path = top.read_xyz_path_file(filename)
+    #check if coord_xyz_path_without_range is the same as coord_xyz_path. consider that one entry is string
+    test = [coord_xyz_path[0, 0, i] == coord_xyz_path_without_range[0, 0, i] for i in range(0, coord_xyz_path_without_range.shape[2])]
+    assert np.all(test)
+    assert np.max(np.abs(coord_xyz_path_without_range[0, 1, :] - coord_xyz_path[0, 1, :])) == 0
+    assert np.max(np.abs(coord_xyz_path_without_range[0, 2, :] - coord_xyz_path[0, 2, :])) == 0
+    assert np.max(np.abs(coord_xyz_path_without_range[0, 3, :] - coord_xyz_path[0, 3, :])) == 0
+
 
 
