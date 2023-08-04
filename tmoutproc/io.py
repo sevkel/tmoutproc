@@ -14,6 +14,7 @@ from scipy.sparse import coo_matrix
 from .constants import *
 from .io import *
 from .calc_utils import get_norb_from_config
+import itertools
 
 __ang2bohr__ = 1.88973
 
@@ -463,6 +464,91 @@ def read_xyz_file(filename, return_header = False):
     else:
         return coord_xyz
 
+def read_xyz_path_file(filename, return_header = False, start_geo=0, end_geo=-1):
+    """
+    load xyz path file and returns data as coord_xyz with additional dimension.
+    coord[i,:,:] ... Entries for structure i
+    coord[:,:,i] ... Entries for atom i
+    coord[:,i,:] ... Atoms types (str) [i=0], x (float) [i=1], y (float) [i=2], x (float) [z=3] for all atoms
+
+    Args:
+        param1 (String): filename
+        param2 (Boolean): return_header: If set to true (coord_xyz_path, header) is returned. coord_xyz_path else
+        param3 (int): start_geo: First geometry to be read
+        param4 (int): end_geo: Last geometry to be read
+
+    Returns:
+        coord_xyz_path, header (optional)
+    """
+
+
+
+    def read_file_range(filename, start, end):
+        """
+        Read slice from file (for large files)
+        Args:
+            filename (String): Filename
+            start (int): First line to be read
+            end (int): Last line to be read
+
+        Returns:
+            lines (list): List of lines
+        """
+        lines = []
+        with open(filename, "r") as text_file:
+            for line in itertools.islice(text_file, start, end):
+                lines.append(line.strip().split())
+        return lines
+
+    # determine number of lines and number of atoms (done in this way for large files)
+    with open(filename, "r") as f:
+        first_line = f.readline().strip().split()
+        # plus one because first line is already read
+        num_lines = sum(1 for _ in f) + 1
+
+
+    Natoms=int(first_line[0])
+    Ngeos=int(num_lines/(Natoms+2))
+
+    if (end_geo==-1):
+        end_geo=Ngeos
+
+    if (start_geo<0):
+        raise ValueError("start_geo must be >=0")
+    if (end_geo<start_geo):
+        raise ValueError("end_geo must be >= start_geo")
+    if (end_geo > Ngeos):
+        raise ValueError("end_geo must be <=Ngeos")
+
+
+    energies=np.zeros(np.abs(end_geo-start_geo))
+    energy_line_=""
+    for igeo in range(start_geo, end_geo):
+        datContGeo=read_file_range(filename,(2+Natoms)*igeo+1,(2+Natoms)*(igeo+1))
+        energy_line_ = datContGeo[0]
+        datContGeo = datContGeo[1:len(datContGeo)]
+        datContGeo = np.array(datContGeo, dtype=object)
+        for i, item in enumerate(datContGeo):
+            datContGeo[i, 1] = float(item[1])
+            datContGeo[i, 2] = float(item[2])
+            datContGeo[i, 3] = float(item[3])
+        coord_geo=np.transpose(datContGeo).reshape((1,4,Natoms))
+        if (igeo==start_geo):
+            coord_path=coord_geo
+        else:
+            coord_path=np.append(coord_path,coord_geo,axis=0)
+
+        #sometimes energies are
+        try:
+            energies[igeo-start_geo]=float(energy_line_[2])
+        except IndexError:
+            energies[igeo-start_geo]=0.0
+
+    if(return_header==True):
+        return coord_path,energies
+    else:
+        return coord_path
+
 
 def write_xyz_file(filename, coord_xyz, comment_line=""):
     """
@@ -738,5 +824,92 @@ def read_from_flag_to_flag(control_path, flag, output_path, header="", footer=""
             output_file.write(f"{header}")
     return 0
 
+def write_lammps_geo_data(filename, coord_xyz, xlo=0, xhi=0, ylo=0, yhi=0, zlo=0, zhi=0, charges=None, units="real", atom_style="full", header=""):
+    """
+    Writes xyz coordinates to lammps geometry data file. Right now only units real and atom_style full are supported.
+    Args:
+        filename (String): Filename of output file
+        coord_xyz (np.ndarray): Coordinates of atoms in xyz format read by read_xyz_file
+        xlo (float): Lower x boundary
+        xhi (float): Upper x boundary
+        ylo (float): Lower y boundary
+        yhi (float): Upper y boundary
+        zlo (float): Lower z boundary
+        zhi (float): Upper z boundary
+        charges (np.ndarray): Charges of atoms
+        units (String): Lammps units (only "real" supported)
+        atom_style (String): Lammps atom_style (only "full" supported)
+        header (String): Header added to output file
+
+    Returns:
+
+
+    """
+
+    if(atom_style!="full"):
+        raise NotImplementedError("Only atom_style full supported right now")
+    if(units!="real"):
+        raise NotImplementedError("Only units real supported right now")
+
+    #check if xlo, xhi, ylo, yhi, zlo, zhi are interpretable as floats
+    try:
+        xlo = float(xlo)
+        xhi = float(xhi)
+        ylo = float(ylo)
+        yhi = float(yhi)
+        zlo = float(zlo)
+        zhi = float(zhi)
+    except ValueError:
+        raise ValueError("xlo, xhi, ylo, yhi, zlo, zhi must be interpretable as floats")
+
+    n_atoms = coord_xyz.shape[1]
+
+    #if charges is not none and number of charges does not match number of atoms, raise error
+    if(charges is not None):
+        if(len(charges) != n_atoms):
+            raise ValueError("Number of charges does not match number of atoms")
+
+    #determine different atom types
+    unique_elements = list(set(coord_xyz[0,:]))
+    n_atom_types = len(unique_elements)
+    atom_type_keys = {}
+    for idx, element in enumerate(unique_elements):
+        atom_type_keys[element] = f'{idx + 1}'
+
+
+    with open(filename, "w") as output_file:
+        output_file.write(f"{header}\n")
+        output_file.write(f"\n")
+
+        output_file.write(f"\t{n_atoms} atoms\n")
+        output_file.write(f"\t{n_atom_types} atom types\n")
+        output_file.write("\n")
+
+        output_file.write(f"{xlo} {xhi} xlo xhi\n")
+        output_file.write(f"{ylo} {yhi} ylo yhi\n")
+        output_file.write(f"{zlo} {zhi} zlo zhi\n")
+        output_file.write("\n")
+
+        output_file.write("Masses\n")
+        output_file.write("\n")
+        for i, element in enumerate(unique_elements):
+            mass = ATOM_DICT_SYM[element.lower()][2]
+            output_file.write(f"\t{i+1} {mass}\n")
+            #atom_type_dict[i+1] = unique_elements[i]
+        output_file.write("\n")
+
+        output_file.write("Atoms\n")
+        output_file.write("\n")
+
+        charge = 0
+        for i in range(n_atoms):
+            if charges is None:
+                output_file.write(f"{i+1} {i+1} {atom_type_keys[coord_xyz[0,i]]}  {charge} {coord_xyz[1,i]} {coord_xyz[2,i]} {coord_xyz[3,i]}\n")
+            else:
+                output_file.write(f"{i+1} {i+1} {atom_type_keys[coord_xyz[0,i]]}  {charges[i]} {coord_xyz[1,i]} {coord_xyz[2,i]} {coord_xyz[3,i]}\n")
+
+
+
 if __name__ == '__main__':
-    read_mos_file("../tests/test_data/mos_benz")
+    filename = "./tests/test_data/stretching.xyz"
+    
