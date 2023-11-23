@@ -119,6 +119,17 @@ def test_fix_atoms():
     assert np.all(is_fixed)
     assert np.all(is_not_fixed)
 
+    coord = top.read_coord_file("./tests/test_data/coord_sysinfo")
+    coord_unfixed = top.fix_atoms(coord, [], unfix_first=True)
+    is_not_fixed = [coord_unfixed[4, i] == "" for i in [2, 3, 4]]
+    assert np.all(is_not_fixed)
+
+
+    coord = top.read_coord_file("./tests/test_data/coord_sysinfo")
+    coord = top.fix_atoms(coord, [], unfix_first=False)
+    assert coord[4,0] == "f"
+
+
 
 
 def test_remove_fixed_atoms_from_coord():
