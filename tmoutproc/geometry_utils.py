@@ -239,7 +239,9 @@ def fix_atoms(coord, indices, unfix_first = False):
             else:
                 coord[4,i] = "f"
     else:
-        if isinstance(indices, int) or (isinstance(indices, (np.ndarray, list)) and all(isinstance(item, int) for item in indices)):
+        if isinstance(indices, int) or (isinstance(indices, (np.ndarray, list)) and (
+                all(isinstance(item, int) for item in indices) or all(
+                isinstance(item, np.int32) for item in indices))):
             coord[4,indices] = "f"
         else:
             raise ValueError("indices must be array-like of int or 'all' or 'invert'")
