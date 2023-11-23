@@ -214,17 +214,21 @@ def t2x(coord):
 
     return coord_xyz
 
-def fix_atoms(coord, indices):
+def fix_atoms(coord, indices, unfix_first = False):
     """
     fixes atoms in indices in turbomole coord file coord
 
     Args:
         coord: coord file read with top.io.read_coord_file
         indices: array-like of indices in coord file which should be fixed. "all" is also possible -> every atom is fixed
+        unfix_first: if True, all atoms are unfixed before the atoms in indices are fixed
 
     Returns:
     coord with fixed atoms
     """
+    if(unfix_first):
+        coord[4,:] = ""
+
     if(indices == "all"):
         coord[4, :] = "f"
     else:
