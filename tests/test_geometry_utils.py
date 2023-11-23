@@ -119,6 +119,12 @@ def test_fix_atoms():
     assert np.all(is_fixed)
     assert np.all(is_not_fixed)
 
+    coord = top.read_coord_file("./tests/test_data/coord_h2")
+    indices = np.arange(0,2)
+    coord_fixed = top.fix_atoms(coord, indices)
+    is_fixed = [coord_fixed[4, i] == "f" for i in range(0, coord_fixed.shape[1])]
+    assert np.all(is_fixed)
+
     coord = top.read_coord_file("./tests/test_data/coord_sysinfo")
     coord_unfixed = top.fix_atoms(coord, [], unfix_first=True)
     is_not_fixed = [coord_unfixed[4, i] == "" for i in [2, 3, 4]]
@@ -128,6 +134,30 @@ def test_fix_atoms():
     coord = top.read_coord_file("./tests/test_data/coord_sysinfo")
     coord = top.fix_atoms(coord, [], unfix_first=False)
     assert coord[4,0] == "f"
+
+    #test "invert" option
+    coord = top.read_coord_file("./tests/test_data/coord_h2")
+    coord_fixed = top.fix_atoms(coord, "invert")
+    is_fixed = [coord_fixed[4, i] == "f" for i in range(0,coord_fixed.shape[1])]
+    assert np.all(is_fixed)
+
+    coord = top.read_coord_file("./tests/test_data/coord_h2")
+    coord_fixed = top.fix_atoms(coord, 1, unfix_first=True)
+    assert coord_fixed[4, 0] == ""
+    assert coord_fixed[4, 1] == "f"
+
+    coord_fixed = top.fix_atoms(coord_fixed, "invert", unfix_first=False)
+    assert coord_fixed[4, 0] == "f"
+    assert coord_fixed[4, 1] == ""
+
+    #test input handling
+
+    with pytest.raises(ValueError):
+        top.fix_atoms(coord, "NOT VALID")
+    with pytest.raises(ValueError):
+        top.fix_atoms(coord, [1,2.2,3])
+
+
 
 
 

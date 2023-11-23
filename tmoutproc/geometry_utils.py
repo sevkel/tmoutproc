@@ -220,7 +220,7 @@ def fix_atoms(coord, indices, unfix_first = False):
 
     Args:
         coord: coord file read with top.io.read_coord_file
-        indices: array-like of indices in coord file which should be fixed. "all" is also possible -> every atom is fixed
+        indices: array-like of indices in coord file which should be fixed. "all" is also possible -> every atom is fixed. Other option is "invert" -> fixes are inverted
         unfix_first: if True, all atoms are unfixed before the atoms in indices are fixed
 
     Returns:
@@ -231,8 +231,21 @@ def fix_atoms(coord, indices, unfix_first = False):
 
     if(indices == "all"):
         coord[4, :] = "f"
+    elif(indices == "invert"):
+        #if coord[4, :] == "f" set as "" and if coord[4, :] == "" set as "f"
+        for i in range(coord.shape[1]):
+            if(coord[4,i] == "f"):
+                coord[4,i] = ""
+            else:
+                coord[4,i] = "f"
     else:
-        coord[4,indices] = "f"
+        if isinstance(indices, int) or (isinstance(indices, (np.ndarray, list)) and (
+                all(isinstance(item, int) for item in indices) or all(
+                isinstance(item, np.int32) for item in indices) or all(
+                isinstance(item, np.int64) for item in indices))):
+            coord[4,indices] = "f"
+        else:
+            raise ValueError(f"indices must be array-like of int or 'all' or 'invert'. Not {type(indices)} with {type(indices[0])}")
 
     return coord
 
