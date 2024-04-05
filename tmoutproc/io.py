@@ -83,7 +83,7 @@ def write_coord_file(filename, coord, mode='w'):
             else:
                 file.write(f"{coord[0,i]} {coord[1,i]} {coord[2,i]} {coord[3,i]} {coord[4,i]}\n")
         file.write("$user-defined bonds" + "\n")
-        file.write("$end")
+        file.write("$end"+"\n")
 
 def read_packed_matrix(filename, output="sparse"):
     """
@@ -574,6 +574,7 @@ def write_xyz_file(filename, coord_xyz, comment_line="",mode="w"):
             if(i == coord_xyz.shape[1]-1):
                 newline = ""
             file.write(f"{coord_xyz[0,i]}	{coord_xyz[1,i]}	{coord_xyz[2,i]}	{coord_xyz[3,i]}{newline}")
+        file.write("\n")
     file.close()
 
 
