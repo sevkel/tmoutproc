@@ -22,6 +22,28 @@ def test_read_write_xyz_file():
     assert coord_xyz.shape == coord_xyz_reread.shape
     assert np.max(np.abs(coord_xyz[1:3,:]-coord_xyz_reread[1:3,:])) == 0
 
+    coord_xyz[1,0] = 1.5E-5
+    top.write_xyz_file("/tmp/xyz.xyz", coord_xyz)
+    #test if second to fourth column in a line contains an "e"
+    found = False
+    with open("/tmp/xyz.xyz", "r") as f:
+        lines = f.readlines()
+        for line in lines:
+            if "e-" in line:
+                found = True
+    assert found == True
+
+    top.write_xyz_file("/tmp/xyz.xyz", coord_xyz, suppress_sci_not=True)
+    #test if second to fourth column in a line contains an "e"
+    found = False
+    with open("/tmp/xyz.xyz", "r") as f:
+        lines = f.readlines()
+        for line in lines:
+            print(line)
+            if "e-" in line:
+                found = True
+    assert found == False
+
 def test_read_write_coord_file():
 
     coord_PCP = top.read_coord_file("./tests/test_data/coord_PCP")

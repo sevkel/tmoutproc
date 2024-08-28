@@ -550,7 +550,7 @@ def read_xyz_path_file(filename, return_header = False, start_geo=0, end_geo=-1)
         return coord_path
 
 
-def write_xyz_file(filename, coord_xyz, comment_line="",mode="w"):
+def write_xyz_file(filename, coord_xyz, comment_line="",mode="w", suppress_sci_not = False):
     """
     writes xyz file.
 
@@ -559,6 +559,7 @@ def write_xyz_file(filename, coord_xyz, comment_line="",mode="w"):
         param2 (np.ndarray): coord_xyz
         param3 (String): comment_line
         param4 (String:w,a): mode
+        param5 (Boolean): suppress_sci_not: Suppress scientific notation
 
     Returns:
 
@@ -573,7 +574,10 @@ def write_xyz_file(filename, coord_xyz, comment_line="",mode="w"):
             newline = "\n"
             if(i == coord_xyz.shape[1]-1):
                 newline = ""
-            file.write(f"{coord_xyz[0,i]}	{coord_xyz[1,i]}	{coord_xyz[2,i]}	{coord_xyz[3,i]}{newline}")
+            if not suppress_sci_not:
+                file.write(f"{coord_xyz[0,i]}	{coord_xyz[1,i]}	{coord_xyz[2,i]}	{coord_xyz[3,i]}{newline}")
+            else:
+                file.write(f"{coord_xyz[0,i]}	{float(coord_xyz[1,i]):.8f}	{float(coord_xyz[2,i]):.8f}	{float(coord_xyz[3,i]):.8f}{newline}")
         file.write("\n")
     file.close()
 
