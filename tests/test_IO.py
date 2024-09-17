@@ -173,6 +173,17 @@ def test_read_mos_file():
     assert eigenvectors.shape == (46,46)
     assert eigenvectors[44,45] == 0.49650335243185E-01
 
+    eigenvalues_mos, eigenvectors_mos = top.read_mos_file("./tests/test_data/mos_O2")
+    fmat = top.read_packed_matrix("./tests/test_data/fmat_ao_cs_O2.dat", output="dense")
+    smat = top.read_packed_matrix("./tests/test_data/smat_ao_O2.dat", output="dense")
+    from scipy.linalg import eigh
+    eigvals, eigvecs = eigh(fmat, smat)
+    #check if eigenvalues are the same
+    assert np.max(np.abs(eigvals - eigenvalues_mos)) < 1E-5
+    #check if eigenvectors are the same
+    assert np.max(np.abs(np.abs(eigvecs)-np.abs(eigenvectors_mos))) < 1E-4
+
+
 def test_read_write_plot_data():
     array1 = np.linspace(0, 1, 100)
     array2 = np.linspace(4, 3, 100)

@@ -243,7 +243,6 @@ def write_mos_file(eigenvalues, eigenvectors, filename, scfconv="", total_energy
     def eformat(f, prec, exp_digits):
 
         s = "%.*e" % (prec, f)
-        # s ="hallo"
         mantissa, exp = s.split('e')
         # add 1 to digits as 1 is taken by sign +/-
         return "%sE%+0*d" % (mantissa, exp_digits + 1, int(exp))
@@ -261,15 +260,13 @@ def write_mos_file(eigenvalues, eigenvectors, filename, scfconv="", total_energy
             j = 0
             while j < len(eigenvalues):
                 for m in range(0, 4):
-                    num = eigenvectors[m + j, i]
-                    string_to_write = f"{num:+20.13E}".replace("E", "D")
-                    f.write(string_to_write)
-                # f.write(eformat(eigenvectors[m+j,i], 14,2).replace("E", "D"))
+                    if(j+m < len(eigenvalues)):
+                        num = eigenvectors[m + j, i]
+                        string_to_write = f"{num:+20.13E}".replace("E", "D")
+                        f.write(string_to_write)
                 f.write("\n")
-                j = j + 4
-            # print("j " + str(j))
+                j = j + m + 1
         f.write("$end")
-    f.close()
 
 
 def read_mos_file(filename):
@@ -280,7 +277,7 @@ def read_mos_file(filename):
         param1 (string): filename
 
     Returns:
-        eigenvalue_list (list),eigenvectors (np.ndarray)
+        eigenvalue_list (np.array),eigenvectors (np.ndarray)
 
 
     """
@@ -347,7 +344,8 @@ def read_mos_file(filename):
     eigenvalue_list.append(eigenvalue)
     eigenvector_list[:, (nsaos - 1)] = C_vec
 
-    return eigenvalue_list, eigenvector_list
+    eigenvalues = np.array(eigenvalue_list)
+    return eigenvalues, eigenvector_list
 
 
 def write_plot_data(filename, data, header="", delimiter="	"):
