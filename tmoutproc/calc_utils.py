@@ -27,7 +27,8 @@ def create_dynamical_matrix(filename_hessian, filename_coord, t2SI=False, dimens
     atoms = list()
     # check if xyz or turbomoleformat is parsed
     if (fnmatch.fnmatch(filename_coord, '*.xyz')):
-        datContent = io.read_xyz_file(filename_coord)[1][0]
+        datContent = io.read_xyz_file(filename_coord)
+        datContent = datContent[0,:]
         atoms.extend(datContent)
     else:
         datContent = io.read_coord_file(filename_coord)
