@@ -202,3 +202,45 @@ def test_read_write_plot_data():
     data = top.read_plot_data("./tests/test_data/plot_data.dat", False, delimiter=",", skip_lines_beginning=2, skip_lines_end=2)
     assert data.shape == (7, 7-2)
 
+
+def test_read_g98_file():
+    modes = top.read_g98_file("./tests/test_data/g98_test.g98")
+
+    assert len(modes) == 5
+    freqs = []
+    red_masses = []
+    for mode in modes:
+        keys = mode.keys()
+        print(keys)
+        assert "coord_xyz" in keys
+        assert mode["coord_xyz"].shape == (4, 38)
+        assert "mode_xyz" in keys
+        assert mode["mode_xyz"].shape == (4, 38)
+        assert "frequency" in keys
+        freqs.append(mode["frequency"])
+        assert "red_mass" in keys
+        red_masses.append(mode["red_mass"])
+        assert "frc_const" in keys
+        assert "ir_intensity" in keys
+        assert "raman_activity" in keys
+        assert "depolarization_ratio" in keys
+
+    mode_xyz = modes[0]["mode_xyz"]
+    assert mode_xyz[0, 0] == "S"
+    ref = [-0.07,   0.04,  -0.00]
+    assert np.max(np.abs(np.array(mode_xyz[1:, 1]) - np.array(ref))) < 1e-12
+
+    ref_freqs = [11.7111, 13.8197, 14.1691, 32.4986, 32.6780]
+    assert np.max(np.abs(np.array(freqs)-np.array(ref_freqs))) < 1e-4
+    ref_red_masses = [20.7570, 10.4306, 10.0481,15.4042, 17.8718]
+    assert np.max(np.abs(np.array(red_masses)-np.array(ref_red_masses))) < 1e-4
+
+
+    with pytest.raises(AssertionError):
+        modes = top.read_g98_file("./tests/test_data/g98_test_faulty1.g98")
+
+    with pytest.raises(AssertionError):
+        modes = top.read_g98_file("./tests/test_data/g98_test_faulty2.g98")
+
+
+
