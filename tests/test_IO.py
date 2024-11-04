@@ -243,4 +243,68 @@ def test_read_g98_file():
         modes = top.read_g98_file("./tests/test_data/g98_test_faulty2.g98")
 
 
+@pytest.fixture
+def setup_test_file():
+    """Fixture to set up and tear down the test file."""
+    filename = "./tests/test_data/test_nmd.nmd"
+    modes = [
+        {
+            "coord_xyz": np.array([["H", "O", "H"], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 1.0, 2.0]]),
+            "mode_xyz": np.array([["H", "O", "H"], [0, 0, 0], [0.1, 0, 0], [-0.1, 0, 4.0]])
+        }
+    ]
+    yield filename, modes
+    if os.path.exists(filename):
+        os.remove(filename)
+
+
+def test_write_nmd_file(setup_test_file):
+    """Test writing to NMD file."""
+    filename, modes = setup_test_file
+    top.write_nmd_file(filename, modes, scale_with_mass=False)
+
+    # Check if the file was created
+    assert os.path.exists(filename)
+
+    with open(filename, 'r') as file:
+        lines = file.readlines()
+
+    # Check the content of the file
+    assert lines[0].strip() == "names H O H"
+    assert lines[1].strip() == "coordinates 0.0 0.0 0.0 0.0 1.0 1.0 0.0 0.0 2.0"
+    assert lines[2].strip() == "mode 0.0 0.1 -0.1 0.0 0.0 0.0 0.0 0.0 4.0"
+
+
+def test_read_nmd_file_invalid_format(setup_test_file):
+    """Test reading from an invalid NMD file."""
+    filename, _ = setup_test_file
+    with open(filename, 'w') as file:
+        file.write("invalid content\n")
+
+    read_modes = top.read_nmd_file(filename)
+
+    # Expecting no modes to be read due to invalid format
+    assert read_modes == []
+
+
+def test_read_nmd_file(setup_test_file):
+    """Test reading from NMD file."""
+    filename, modes = setup_test_file
+    top.write_nmd_file(filename, modes, scale_with_mass=False)
+
+    read_modes = top.read_nmd_file(filename)
+
+    # Check the content read from the file
+    assert len(read_modes) == 1
+    assert read_modes[0]["mode_xyz"].shape == modes[0]["mode_xyz"].shape
+    print(read_modes[0]["coord_xyz"][1:,], modes[0]["coord_xyz"][1:,])
+    assert np.array_equal(read_modes[0]["coord_xyz"], modes[0]["coord_xyz"])
+
+
+
+
+
+
+
+
 

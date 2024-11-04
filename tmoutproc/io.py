@@ -951,7 +951,7 @@ def write_nmd_file(filename, modes, scale_with_mass=False):
         for i, mode in enumerate(modes):
             coord_xyz = mode["coord_xyz"]
             mode_xyz = mode["mode_xyz"]
-            scaling_factor = [1] * coord_xyz.shape[1]
+            scaling_factor = [1.0] * coord_xyz.shape[1]
             if scale_with_mass:
                 masses = [ATOM_DICT_SYM[atom.lower()][2] for atom in coord_xyz[0, :]]
                 scaling_factor = 1 / np.sqrt(masses)
@@ -964,10 +964,65 @@ def write_nmd_file(filename, modes, scale_with_mass=False):
                 coordinates = [str(item) for sublist in coord_xyz[1:4, :].T for item in sublist]
                 file.write("coordinates " + " ".join(coordinates) + "\n")
 
-            mode_xyz[1:4, :] = mode_xyz[1:4, :] * [scaling_factor, scaling_factor, scaling_factor]
+            mode_xyz[1:4, :] = np.asarray(mode_xyz[1:4, :], dtype='float64') * [scaling_factor, scaling_factor, scaling_factor]
             displacements = [str(item) for sublist in mode_xyz[1:4, :].T for item in sublist]
             file.write("mode " + " ".join(displacements) + "\n")
 
+def read_nmd_file(filename):
+    """
+    Read normal mode displacement file in VMDs normal wizard file format.
+
+    Args:
+        filename (str): Path to input file
+
+    Returns:
+        modes (list of dict): Properties of each mode, with keys:
+            - "coord_xyz": Coordinates as np.array
+            - "mode_xyz": displacements as np.array
+    """
+    modes = []
+
+    def _is_float(string):
+        try:
+            float(string)
+            return True
+        except ValueError:
+            return False
+
+    def _is_key(key, dict):
+        try:
+            dict[key]
+            return True
+        except KeyError:
+            return False
+
+    def _read_file(filepath):
+        with open(filepath, encoding='utf-8') as file:
+            for line in file:
+                yield line
+
+
+
+    for line in _read_file(filename):
+        if line.startswith("names"):
+            #exclude "names"
+            atoms = line.strip().split(" ")[1:]
+            atoms = [item.lower().capitalize() for item in atoms if _is_key(item.lower(), ATOM_DICT_SYM)]
+        elif line.startswith("coordinates"):
+            coordinates = line.strip().split(" ")[1:]
+            coordinates = [item for item in coordinates if _is_float(item)]
+            coordinates = np.array(coordinates, dtype=object).reshape(-1, 3).T
+            coordinates = np.vstack((np.array(atoms), coordinates))
+        elif line.startswith("mode"):
+            displacements = line.strip().split(" ")[1:]
+            displacements = [item for item in displacements if _is_float(item)]
+            displacements = np.array(displacements, dtype=object).reshape(-1, 3).T
+            #add first line with atoms to modes
+            displacements = np.vstack((np.array(atoms), displacements))
+            assert coordinates.shape == displacements.shape, "Coordinates and displacements do not have the same shape"
+            mode = {"coord_xyz": coordinates, "mode_xyz": displacements}
+            modes.append(mode)
+    return modes
 
 
 if __name__ == '__main__':
