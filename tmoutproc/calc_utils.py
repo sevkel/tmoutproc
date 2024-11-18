@@ -10,7 +10,31 @@ from . import io as io
 
 __ang2bohr__ = 1.88973
 
-def create_dynamical_matrix(filename_hessian, filename_coord, t2SI=False, dimensions=3):
+def enforce_sum_rule(matrix, masses, threshold=1E-10, dimensions=3):
+    """Ensure the sum rule is fulfilled for the given matrix by adjusting the diagonal elements,
+    scaling with sqrt(mass_i/mass_j) at the coupling positions.
+
+    Args:
+        matrix (np.array): The input matrix.
+        masses (np.array): The masses of the atoms.
+
+    Returns:
+        np.array: The matrix with the sum rule enforced.
+    """
+
+    mat = matrix.copy()
+    n = mat.shape[0]
+    # Calculate the sum of each row with scaling
+    for i in range(n):
+        row_sum = 0
+        for j in range(n):
+            if i != j:
+                row_sum += mat[i, j] * np.sqrt(masses[int(j / dimensions)] / masses[int(i / dimensions)])
+        if not np.isclose(row_sum + mat[i, i], 0, atol=threshold):
+            mat[i, i] = row_sum
+    return mat
+
+def create_dynamical_matrix(filename_hessian, filename_coord, t2SI=False, dimensions=3, return_masses=False):
     """
     Creates dynamical matrix by mass weighting hessian. Input units are hartree/bohr**2.1 Default output in turbomole format (hartree/(bohr**2*u))
 
@@ -58,6 +82,10 @@ def create_dynamical_matrix(filename_hessian, filename_coord, t2SI=False, dimens
             dynamical_matrix[i, j] = (1. / np.sqrt(masses[int(i / dimensions)] * masses[int(j / dimensions)])) * \
                                      hessian[i, j]
             dynamical_matrix[j, i] = dynamical_matrix[i, j]
+
+    if return_masses:
+        return dynamical_matrix, masses
+
     return dynamical_matrix
 
 

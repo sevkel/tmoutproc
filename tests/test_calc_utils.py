@@ -6,7 +6,7 @@ import numpy as np
 
 def test_create_dynamical_matrix():
     #TODO: improve test qualitiy
-    test_data_path= "./tests/test_data/"
+    test_data_path= "./test_data/"
     dyn_matrix = top.create_dynamical_matrix(f"{test_data_path}/hessian_xtb", f"{test_data_path}/coord_h2", t2SI=False, dimensions=3)
     h_weight = tmoutproc.atom_weight("h")
     assert np.isclose(dyn_matrix[0,0], 0.2680162066/h_weight)
@@ -19,13 +19,11 @@ def test_create_dynamical_matrix():
     assert np.isclose(dyn_matrix[0, 1], -0.0000014025 / h_weight)
     assert np.max(np.abs(dyn_matrix - np.transpose(dyn_matrix))) == 0
 
-
-
 def test_determine_n_orbitals():
     #test if basis set is checked
     with pytest.raises(ValueError):
-        top.determine_n_orbitals("./tests/test_data/coord_PCP_filtered", basis_set="Not Valid")
-    n_orbitals = top.determine_n_orbitals("./tests/test_data/coord_PCP_filtered")
+        top.determine_n_orbitals("./test_data/coord_PCP_filtered", basis_set="Not Valid")
+    n_orbitals = top.determine_n_orbitals("./test_data/coord_PCP_filtered")
     assert n_orbitals == 622
 
 def test_atom_weight():
@@ -69,3 +67,15 @@ def test_atom_type_to_atomic_number():
     assert top.atom_type_to_atomic_number("hf") == 72
     with pytest.raises(ValueError):
         top.atom_type_to_atomic_number("NotValid")
+
+def test_enforce_sum_rule():
+    test_data_path= "./test_data/"
+    dyn_matrix_orig, masses = top.create_dynamical_matrix(f"{test_data_path}/hessian_xtb", f"{test_data_path}/coord_h2.xyz", t2SI=False, dimensions=3, return_masses=True)
+    dyn_matrix = top.enforce_sum_rule(dyn_matrix_orig, masses)
+
+    eigen_orig = np.linalg.eigvals(dyn_matrix_orig)
+    eigen_forced = np.linalg.eigvals(dyn_matrix)
+    assert np.allclose(eigen_orig, eigen_forced, atol=1e-10)
+
+    assert np.allclose(np.sum(dyn_matrix, axis=0), 0, atol=1e-10)
+    assert np.allclose(np.sum(dyn_matrix, axis=1), 0, atol=1e-10)
