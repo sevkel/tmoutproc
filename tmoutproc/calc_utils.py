@@ -85,6 +85,7 @@ def create_dynamical_matrix(filename_hessian, filename_coord, t2SI=False, dimens
         print('Enforcing sum rule')
         for j in range(hessian.shape[0]):
             hessian[j,j] = - (np.sum(copy[j,:]) - copy[j, j])
+            print(np.sum(hessian[j, :]), np.sum(copy[j, :]))
 
     dynamical_matrix = np.zeros((len(atoms) * dimensions, len(atoms) * dimensions))
     for i in range(0, len(atoms) * dimensions):
