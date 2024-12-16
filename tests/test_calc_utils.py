@@ -92,11 +92,8 @@ def test_enforce_sum_rule():
     enforced_hess = hessian.copy()
 
     for i in range(0, len(atoms) * dimensions):
-        sum = 0
-        for j in range(0, len(atoms) * dimensions):
-            if (i != j):
-                sum += hessian[i, j]
-        enforced_hess[i, i] = -sum
+        for j in range(hessian.shape[0]):
+            enforced_hess[j, j] = - (np.sum(hessian[j, :]) - hessian[j, j])
 
     eigen_orig = np.linalg.eigvals(hessian)
     eigen_forced = np.linalg.eigvals(enforced_hess)

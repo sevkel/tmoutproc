@@ -77,15 +77,14 @@ def create_dynamical_matrix(filename_hessian, filename_coord, t2SI=False, dimens
 
     # create dynamical matrix by mass weighting hessian
     hessian = io.read_hessian(filename_hessian, len(atoms), dimensions)
+    copy = hessian.copy()
+    print('Hessian shape: ', hessian.shape)
 
     # enforce sum rule
     if enforced == True:
-        for i in range(0, len(atoms) * dimensions):
-            sum = 0
-            for j in range(0, len(atoms) * dimensions):
-                if (i != j):
-                    sum += hessian[i, j]
-            hessian[i, i] = -sum
+        print('Enforcing sum rule')
+        for j in range(hessian.shape[0]):
+            hessian[j,j] = - (np.sum(copy[j,:]) - copy[j, j])
 
     dynamical_matrix = np.zeros((len(atoms) * dimensions, len(atoms) * dimensions))
     for i in range(0, len(atoms) * dimensions):
