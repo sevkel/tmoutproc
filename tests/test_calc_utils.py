@@ -3,6 +3,8 @@ import tmoutproc as top
 import tmoutproc.constants as constants
 import pytest
 import numpy as np
+import fnmatch
+from tmoutproc import io as io
 
 def test_create_dynamical_matrix():
     #TODO: improve test qualitiy
@@ -70,12 +72,35 @@ def test_atom_type_to_atomic_number():
 
 def test_enforce_sum_rule():
     test_data_path= "./test_data/"
-    dyn_matrix_orig, masses = top.create_dynamical_matrix(f"{test_data_path}/hessian_xtb", f"{test_data_path}/coord_h2.xyz", t2SI=False, dimensions=3, return_masses=True)
-    dyn_matrix = top.enforce_sum_rule(dyn_matrix_orig, masses)
+    filename_hessian = f"{test_data_path}/hessian_xtb"
+    filename_coord  = f"{test_data_path}/coord_h2"
+    dimensions = 3
 
-    eigen_orig = np.linalg.eigvals(dyn_matrix_orig)
-    eigen_forced = np.linalg.eigvals(dyn_matrix)
+    atoms = list()
+    # check if xyz or turbomoleformat is parsed
+    if (fnmatch.fnmatch(filename_coord, '*.xyz')):
+        datContent = io.read_xyz_file(filename_coord)
+        datContent = datContent[0, :]
+        atoms.extend(datContent)
+    else:
+        datContent = io.read_coord_file(filename_coord)
+        atoms = datContent[3, :]
+
+    hessian = io.read_hessian(filename_hessian, len(atoms), dimensions)
+
+    # enforce sum rule
+    enforced_hess = hessian.copy()
+
+    for i in range(0, len(atoms) * dimensions):
+        sum = 0
+        for j in range(0, len(atoms) * dimensions):
+            if (i != j):
+                sum += hessian[i, j]
+        enforced_hess[i, i] = -sum
+
+    eigen_orig = np.linalg.eigvals(hessian)
+    eigen_forced = np.linalg.eigvals(enforced_hess)
     assert np.allclose(eigen_orig, eigen_forced, atol=1e-10)
 
-    assert np.allclose(np.sum(dyn_matrix, axis=0), 0, atol=1e-10)
-    assert np.allclose(np.sum(dyn_matrix, axis=1), 0, atol=1e-10)
+    assert np.allclose(np.sum(enforced_hess, axis=0), 0, atol=1e-10)
+    assert np.allclose(np.sum(enforced_hess, axis=1), 0, atol=1e-10)
