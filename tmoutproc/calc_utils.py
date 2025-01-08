@@ -9,8 +9,60 @@ from . import constants
 from . import io as io
 
 __ang2bohr__ = 1.88973
+#------------------------------------------------------------
+def calculate_B(K, R):
+    n_atoms = R.shape[0]
+    n_constraints = R.shape[1]
+    B = np.zeros((n_atoms, n_atoms, n_constraints, n_constraints))
+
+    for i in range(n_atoms):
+        for j in range(n_atoms):
+            for n in range(n_constraints):
+                for m in range(n_constraints):
+                    term1 = 0.25 * np.sum(K[i, :n_atoms]**2 * R[:, m] * R[:, n]) * (i == j)
+                    term2 = 0.25 * R[i, m] * R[j, n] * K[i, j]**2
+                    B[i, j, n, m] = term1 + term2
+
+    return B
 
 
+def calculate_a(K, R):
+    n_atoms = R.shape[0]
+    n_constraints = R.shape[1]
+    a = np.zeros((n_atoms, n_constraints))
+
+    for i in range(n_atoms):
+        for n in range(n_constraints):
+            a[i, n] = -0.25 * np.sum(K[i, :n_atoms] * R[:, n])
+
+    return a
+
+def solve_lagrange_multipliers(B, a):
+    n_atoms = a.shape[0]
+    n_constraints = a.shape[1]
+    B_reshaped = B.reshape((n_atoms * n_constraints, n_atoms * n_constraints))
+    a_reshaped = a.reshape((n_atoms * n_constraints))
+    lambda_reshaped = np.linalg.solve(B_reshaped, a_reshaped)
+    lambda_ = lambda_reshaped.reshape((n_atoms, n_constraints))
+
+    return lambda_
+
+def calculate_D(K, R, lambda_):
+    n_atoms = R.shape[0]
+    n_constraints = R.shape[1]
+    D = np.zeros_like(K)
+
+    for i in range(n_atoms):
+        for j in range(n_atoms):
+            for m in range(n_constraints):
+                D[i, j] += 0.25 * K[i, j]**2 * (lambda_[i, m] * R[j, m] + lambda_[j, m] * R[i, m])
+
+    return D
+
+def calculate_K_tilde(K, D):
+    return K + D
+
+#------------------------------------------------------------
 def enforce_sum_rule(filename_hessian, filename_coord, threshold=1E10, dimensions=3):
     """Ensure the sum rule is fulfilled for the given matrix by adjusting the diagonal elements
 
@@ -80,6 +132,22 @@ def create_dynamical_matrix(filename_hessian, filename_coord, t2SI=False, dimens
     hessian = io.read_hessian(filename_hessian, len(atoms), dimensions)
     copy = hessian.copy()
     print('Hessian shape: ', hessian.shape)
+
+#------------------------------------------------------------
+    K = hessian.copy()
+    n_constraints = 6
+    n_atoms = len(atoms)
+
+    num_cols = K.shape[1]
+    R = np.random.rand(n_atoms, n_constraints) * 10e-10  # Small displacements
+
+    B = calculate_B(K, R)
+    a = calculate_a(K, R)
+    lambda_ = solve_lagrange_multipliers(B, a)
+    D = calculate_D(K, R, lambda_)
+    hessian = calculate_K_tilde(K, D)
+    print(hessian)
+#------------------------------------------------------------
 
     # enforce sum rule
     if enforced == True:
