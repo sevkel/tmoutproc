@@ -97,7 +97,7 @@ def test_enforce_sum_rule():
 
     eigen_orig = np.linalg.eigvals(hessian)
     eigen_forced = np.linalg.eigvals(enforced_hess)
-    assert np.allclose(eigen_orig, eigen_forced, atol=1e-10)
+    assert np.allclose(eigen_orig, eigen_forced, atol=1e-15)
 
-    assert np.allclose(np.sum(enforced_hess, axis=0), 0, atol=1e-10)
-    assert np.allclose(np.sum(enforced_hess, axis=1), 0, atol=1e-10)
+    assert np.allclose(np.sum(enforced_hess, axis=0), 0, atol=1e-15)
+    assert np.allclose(np.sum(enforced_hess, axis=1), 0, atol=1e-15)
